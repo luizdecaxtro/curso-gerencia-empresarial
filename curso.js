@@ -3,9 +3,10 @@
  * Usado por: todas as aula-NN.html, painel.html e avaliacao-final.html
  *
  * Responsabilidades:
- *  - Configuração central (preencher CONFIG.APPS_SCRIPT_URL e CONFIG.GOOGLE_CLIENT_ID
- *    depois de seguir o guia de configuração).
- *  - Login do aluno com a conta Google (Google Identity Services).
+ *  - Configuração central (preencher CONFIG.APPS_SCRIPT_URL depois de seguir o guia).
+ *  - Login simples do aluno: nome + e-mail, confirmados por um código de 6 dígitos
+ *    enviado por e-mail (sem precisar de conta Google nem de configuração no
+ *    Google Cloud — só o Apps Script, que é gratuito).
  *  - Chamadas ao backend (Google Apps Script) que guarda o progresso na planilha.
  *  - Cache local (localStorage) para a tela responder rápido mesmo com internet lenta.
  *  - Lista das 23 aulas do curso (temas e unidades), usada no Painel.
@@ -14,13 +15,11 @@
   "use strict";
 
   // ---------------------------------------------------------------------
-  // 1) CONFIGURAÇÃO — edite estes três valores após seguir o guia de configuração
+  // 1) CONFIGURAÇÃO — edite este valor após seguir o guia de configuração
   // ---------------------------------------------------------------------
   const CONFIG = {
     // Cole aqui a URL do Web App publicado no Apps Script (termina em /exec)
-    APPS_SCRIPT_URL: "COLE_AQUI_A_URL_DO_APPS_SCRIPT",
-    // Cole aqui o Client ID gerado no Google Cloud (termina em .apps.googleusercontent.com)
-    GOOGLE_CLIENT_ID: "COLE_AQUI_O_GOOGLE_CLIENT_ID",
+    APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxkRIWvjmNRej5riAbHfZ8-QkA_rWB2IobRYqbaxfwWBehAK63oMIkH7r4gAVxQiuiU/exec",
     // Dados de suporte (já preenchidos)
     WHATSAPP_NUMERO: "5598988804678", // (98) 98880-4678
     SUPORTE_EMAIL: "lojasdecastro@gmail.com",
@@ -31,12 +30,7 @@
   };
 
   function isConfigured() {
-    return (
-      CONFIG.APPS_SCRIPT_URL &&
-      !CONFIG.APPS_SCRIPT_URL.startsWith("COLE_AQUI") &&
-      CONFIG.GOOGLE_CLIENT_ID &&
-      !CONFIG.GOOGLE_CLIENT_ID.startsWith("COLE_AQUI")
-    );
+    return CONFIG.APPS_SCRIPT_URL && !CONFIG.APPS_SCRIPT_URL.startsWith("COLE_AQUI");
   }
 
   // ---------------------------------------------------------------------
@@ -106,11 +100,6 @@
       localStorage.removeItem(LS_ALUNO);
       localStorage.removeItem(LS_PROGRESSO);
     } catch (e) {}
-    if (global.google && google.accounts && google.accounts.id) {
-      try {
-        google.accounts.id.disableAutoSelect();
-      } catch (e) {}
-    }
   }
 
   function getProgressoLocal() {
@@ -136,19 +125,21 @@
   //    Isso evita o preflight OPTIONS do CORS, que o Apps Script não
   //    responde corretamente — é o padrão recomendado para integrar
   //    Apps Script com fetch() a partir de um site estático.
+  //
+  //    A maioria das ações reenvia o "sessionToken" obtido depois que o aluno
+  //    confirma o código recebido por e-mail, para que o servidor confirme a
+  //    identidade em vez de confiar apenas no e-mail informado pelo navegador.
+  //    A sessão dura vários dias; quando expira, pedimos para o aluno entrar
+  //    de novo (com um novo código).
   // ---------------------------------------------------------------------
-  // A maioria das ações (exceto "login") reenvia o idToken do Google obtido no
-  // login, para que o servidor confirme a identidade do aluno em vez de confiar
-  // apenas no e-mail informado pelo navegador. O idToken dura cerca de 1 hora;
-  // quando expira, pedimos ao aluno para entrar novamente.
   function api(action, payload) {
     if (!isConfigured()) {
       return Promise.reject(new Error("SISTEMA_NAO_CONFIGURADO"));
     }
     const aluno = getAluno();
     const withToken = Object.assign({ action: action }, payload || {});
-    if (aluno && aluno.idToken && action !== "login") {
-      withToken.idToken = aluno.idToken;
+    if (aluno && aluno.sessionToken && action !== "solicitarCodigo" && action !== "confirmarCodigo") {
+      withToken.sessionToken = aluno.sessionToken;
     }
     const body = JSON.stringify(withToken);
     return fetch(CONFIG.APPS_SCRIPT_URL, {
@@ -167,14 +158,6 @@
         if (data && data.erro) throw new Error(data.erro);
         return data;
       });
-  }
-
-  function registrarLogin(googleUser, idToken) {
-    return api("login", {
-      email: googleUser.email,
-      nome: googleUser.nome,
-      idToken: idToken,
-    });
   }
 
   function marcarAulaConcluida(numero) {
@@ -206,103 +189,141 @@
   }
 
   // ---------------------------------------------------------------------
-  // 5) LOGIN COM GOOGLE (Google Identity Services)
+  // 5) LOGIN POR E-MAIL COM CÓDIGO DE 6 DÍGITOS (sem Google Cloud)
   // ---------------------------------------------------------------------
-  function loadGsiScript() {
-    return new Promise(function (resolve, reject) {
-      if (global.google && global.google.accounts && global.google.accounts.id) {
-        resolve();
-        return;
-      }
-      const s = document.createElement("script");
-      s.src = "https://accounts.google.com/gsi/client";
-      s.async = true;
-      s.defer = true;
-      s.onload = function () { resolve(); };
-      s.onerror = function () { reject(new Error("Falha ao carregar o script de login do Google.")); };
-      document.head.appendChild(s);
+  // Passo 1: o aluno informa nome + e-mail; o servidor gera um código e envia
+  // por e-mail (válido por 10 minutos).
+  function solicitarCodigo(nome, email) {
+    if (!isConfigured()) return Promise.reject(new Error("SISTEMA_NAO_CONFIGURADO"));
+    return api("solicitarCodigo", { nome: nome, email: email });
+  }
+
+  // Passo 2: o aluno digita o código recebido. Se estiver certo, o servidor
+  // devolve um "sessionToken" que passa a identificar o aluno nas próximas
+  // chamadas (fica guardado no navegador, não precisa digitar de novo).
+  function confirmarCodigo(nome, email, codigo) {
+    if (!isConfigured()) return Promise.reject(new Error("SISTEMA_NAO_CONFIGURADO"));
+    return api("confirmarCodigo", { nome: nome, email: email, codigo: codigo }).then(function (resposta) {
+      const aluno = {
+        email: email,
+        nome: nome,
+        sessionToken: resposta.sessionToken,
+        loginEm: new Date().toISOString(),
+      };
+      setAluno(aluno);
+      return aluno;
     });
   }
 
-  // Decodifica a parte "payload" de um JWT (id_token) sem depender de biblioteca externa.
-  function decodeJwt(token) {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const json = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map(function (c) {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join("")
-    );
-    return JSON.parse(json);
+  // ---------------------------------------------------------------------
+  // 5b) FORMULÁRIO DE LOGIN (compartilhado entre painel.html e avaliacao-final.html)
+  //     Duas etapas: (1) nome + e-mail → pede o código; (2) código → confirma.
+  //     Usa estilo inline para não depender do CSS específico de cada página.
+  // ---------------------------------------------------------------------
+  const ESTILO_BOTAO =
+    "display:inline-block;background:#b08d2b;color:#2a2107;font-weight:700;font-size:.86rem;" +
+    "padding:10px 22px;border-radius:999px;border:none;cursor:pointer;";
+  const ESTILO_INPUT =
+    "width:100%;box-sizing:border-box;padding:10px 12px;border-radius:9px;border:1px solid #dfe7e3;" +
+    "font-size:.9rem;margin-bottom:10px;font-family:inherit;";
+  const ESTILO_ERRO = "color:#a5342a;font-size:.8rem;margin:8px 0 0;min-height:1em;";
+  const ESTILO_AJUDA = "font-size:.76rem;color:#4b5b56;margin:0 0 12px;line-height:1.5;";
+
+  const MENSAGENS_ERRO = {
+    SISTEMA_NAO_CONFIGURADO: "O sistema de login ainda não foi configurado neste site.",
+    EMAIL_INVALIDO: "Digite um e-mail válido.",
+    NOME_AUSENTE: "Digite seu nome.",
+    DADOS_AUSENTES: "Preencha todos os campos.",
+    CODIGO_INVALIDO: "Código incorreto. Confira o código recebido por e-mail e tente de novo.",
+    CODIGO_EXPIRADO: "Esse código expirou. Peça um novo código.",
+  };
+  function mensagemErro(err) {
+    return MENSAGENS_ERRO[err.message] || ("Não foi possível continuar (" + err.message + "). Verifique sua internet e tente novamente.");
   }
 
-  // renderButtonEl: elemento onde o botão "Entrar com o Google" deve aparecer
-  // onLogin(aluno): chamado quando o login (e o registro no servidor) terminam com sucesso
-  // onError(mensagem): chamado se algo falhar
-  function initGoogleSignIn(renderButtonEl, onLogin, onError) {
-    if (!CONFIG.GOOGLE_CLIENT_ID || CONFIG.GOOGLE_CLIENT_ID.startsWith("COLE_AQUI")) {
-      if (onError) onError("O login com Google ainda não foi configurado neste site (falta o Client ID em curso.js).");
-      return;
-    }
-    loadGsiScript()
-      .then(function () {
-        google.accounts.id.initialize({
-          client_id: CONFIG.GOOGLE_CLIENT_ID,
-          callback: function (response) {
-            let payload;
-            try {
-              payload = decodeJwt(response.credential);
-            } catch (e) {
-              if (onError) onError("Não foi possível ler os dados da conta Google.");
-              return;
-            }
-            const googleUser = { email: payload.email, nome: payload.name, foto: payload.picture };
-            const idToken = response.credential;
-            registrarLogin(googleUser, idToken)
-              .then(function (resposta) {
-                const aluno = {
-                  email: googleUser.email,
-                  nome: googleUser.nome,
-                  foto: googleUser.foto,
-                  idToken: idToken,
-                  loginEm: new Date().toISOString(),
-                };
-                setAluno(aluno);
-                if (onLogin) onLogin(aluno, resposta);
-              })
-              .catch(function (err) {
-                // Mesmo se o servidor não responder, deixamos o aluno entrar
-                // (modo offline/cache local), avisando que o progresso pode não
-                // sincronizar até a conexão com o servidor voltar.
-                const aluno = {
-                  email: googleUser.email,
-                  nome: googleUser.nome,
-                  foto: googleUser.foto,
-                  idToken: idToken,
-                  loginEm: new Date().toISOString(),
-                };
-                setAluno(aluno);
-                if (onLogin) onLogin(aluno, null);
-                console.warn("Login local ok, mas o servidor não respondeu:", err.message);
-              });
-          },
-        });
-        if (renderButtonEl) {
-          google.accounts.id.renderButton(renderButtonEl, {
-            theme: "outline",
-            size: "large",
-            text: "signin_with",
-            shape: "pill",
-            locale: "pt-BR",
+  function renderLoginForm(container, opts) {
+    if (!container) return;
+    opts = opts || {};
+    let nomeDigitado = "";
+    let emailDigitado = "";
+
+    function passo1() {
+      container.innerHTML =
+        '<p style="' + ESTILO_AJUDA + '">Digite seu nome e e-mail. Vamos enviar um código de 6 dígitos para confirmar que é você — sem precisar de senha.</p>' +
+        '<input type="text" id="campoNome" placeholder="Seu nome completo" style="' + ESTILO_INPUT + '" value="' + nomeDigitado.replace(/"/g, "&quot;") + '">' +
+        '<input type="email" id="campoEmail" placeholder="Seu e-mail" style="' + ESTILO_INPUT + '" value="' + emailDigitado.replace(/"/g, "&quot;") + '">' +
+        '<button type="button" id="btnEnviarCodigo" style="' + ESTILO_BOTAO + '">Enviar código de confirmação</button>' +
+        '<div id="erroLogin" style="' + ESTILO_ERRO + '"></div>';
+
+      document.getElementById("btnEnviarCodigo").addEventListener("click", function () {
+        const btn = this;
+        const nome = document.getElementById("campoNome").value.trim();
+        const email = document.getElementById("campoEmail").value.trim();
+        const erroEl = document.getElementById("erroLogin");
+        erroEl.textContent = "";
+        if (!nome) { erroEl.textContent = "Digite seu nome."; return; }
+        if (!email || email.indexOf("@") === -1) { erroEl.textContent = "Digite um e-mail válido."; return; }
+        btn.disabled = true;
+        btn.textContent = "Enviando…";
+        solicitarCodigo(nome, email)
+          .then(function () {
+            nomeDigitado = nome;
+            emailDigitado = email;
+            passo2();
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            btn.textContent = "Enviar código de confirmação";
+            erroEl.textContent = mensagemErro(err);
           });
-        }
-      })
-      .catch(function (err) {
-        if (onError) onError(err.message);
       });
+    }
+
+    function passo2() {
+      container.innerHTML =
+        '<p style="' + ESTILO_AJUDA + '">Enviamos um código de 6 dígitos para <strong>' + emailDigitado + '</strong>. ' +
+        'Confira sua caixa de entrada (e o spam, por garantia) e digite o código abaixo.</p>' +
+        '<input type="text" inputmode="numeric" maxlength="6" id="campoCodigo" placeholder="Código de 6 dígitos" style="' + ESTILO_INPUT + 'letter-spacing:4px;font-size:1.1rem;text-align:center;">' +
+        '<button type="button" id="btnConfirmarCodigo" style="' + ESTILO_BOTAO + '">Confirmar e entrar</button>' +
+        '<div id="erroLogin" style="' + ESTILO_ERRO + '"></div>' +
+        '<p style="margin-top:14px;font-size:.78rem;">' +
+        '<a href="#" id="linkReenviar" style="color:#1f6f63;">Reenviar código</a> · ' +
+        '<a href="#" id="linkCorrigir" style="color:#4b5b56;">Corrigir nome/e-mail</a>' +
+        "</p>";
+
+      document.getElementById("linkCorrigir").addEventListener("click", function (e) { e.preventDefault(); passo1(); });
+      document.getElementById("linkReenviar").addEventListener("click", function (e) {
+        e.preventDefault();
+        const erroEl = document.getElementById("erroLogin");
+        erroEl.style.color = "#1f6f63";
+        erroEl.textContent = "Reenviando…";
+        solicitarCodigo(nomeDigitado, emailDigitado)
+          .then(function () { erroEl.textContent = "Novo código enviado!"; })
+          .catch(function (err) { erroEl.style.color = "#a5342a"; erroEl.textContent = mensagemErro(err); });
+      });
+
+      document.getElementById("btnConfirmarCodigo").addEventListener("click", function () {
+        const btn = this;
+        const codigo = document.getElementById("campoCodigo").value.trim();
+        const erroEl = document.getElementById("erroLogin");
+        erroEl.style.color = "#a5342a";
+        erroEl.textContent = "";
+        if (!codigo) { erroEl.textContent = "Digite o código recebido por e-mail."; return; }
+        btn.disabled = true;
+        btn.textContent = "Confirmando…";
+        confirmarCodigo(nomeDigitado, emailDigitado, codigo)
+          .then(function (aluno) {
+            if (opts.onLogin) opts.onLogin(aluno);
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            btn.textContent = "Confirmar e entrar";
+            erroEl.textContent = mensagemErro(err);
+          });
+      });
+    }
+
+    passo1();
   }
 
   // ---------------------------------------------------------------------
@@ -348,8 +369,10 @@
     getStatus: getStatus,
     enviarAvaliacao: enviarAvaliacao,
     emitirCertificado: emitirCertificado,
-    initGoogleSignIn: initGoogleSignIn,
+    solicitarCodigo: solicitarCodigo,
+    confirmarCodigo: confirmarCodigo,
     renderAlunoTag: renderAlunoTag,
+    renderLoginForm: renderLoginForm,
     whatsappLink: function (mensagem) {
       const msg = mensagem || "Olá! Preciso de orientação sobre a Avaliação Final do curso Gerenciamento Empresarial.";
       return "https://wa.me/" + CONFIG.WHATSAPP_NUMERO + "?text=" + encodeURIComponent(msg);

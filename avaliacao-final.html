@@ -44,8 +44,7 @@
   .btn-secondary{ background:var(--teal-light); color:var(--teal-dark); }
   .btn-whatsapp{ background:#25D366; color:#06340f; }
 
-  #googleBtn{ margin:14px 0; }
-  #loginError{ color:var(--danger); font-size:.8rem; margin-top:10px; display:none; }
+  #loginFormArea{ text-align:left; max-width:360px; margin:14px auto 0; }
 
   .sync-note{ font-size:.72rem; color:var(--gold); background:#fbf6e9; border:1px solid #eadfba; padding:8px 12px; border-radius:10px; margin-bottom:12px; }
 
@@ -104,9 +103,8 @@
   <!-- 1) Login -->
   <div class="card" id="loginCard" hidden>
     <h1>Avaliação Final</h1>
-    <p>Entre com sua conta Google para acessar a avaliação final do curso.</p>
-    <div id="googleBtn"></div>
-    <div id="loginError"></div>
+    <p>Identifique-se para acessar a avaliação final do curso.</p>
+    <div id="loginFormArea"></div>
   </div>
 
   <!-- 2) Curso incompleto -->
@@ -202,12 +200,8 @@
 
     if (!aluno) {
       show('loginCard');
-      Curso.initGoogleSignIn(document.getElementById('googleBtn'), function(){
-        location.reload();
-      }, function(msg){
-        const el = document.getElementById('loginError');
-        el.textContent = msg;
-        el.style.display = 'block';
+      Curso.renderLoginForm(document.getElementById('loginFormArea'), {
+        onLogin: function(){ location.reload(); }
       });
       return;
     }

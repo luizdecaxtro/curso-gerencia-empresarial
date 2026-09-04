@@ -40,12 +40,11 @@
   #loginCard img.logo{ height:64px; margin-bottom:14px; }
   #loginCard h1{ color:var(--teal-dark); font-size:1.3rem; margin:.2em 0 .3em; }
   #loginCard p{ color:var(--ink-soft); font-size:.9rem; max-width:440px; margin:0 auto 20px; line-height:1.5; }
-  #googleBtn{ display:flex; justify-content:center; margin-bottom:10px; }
-  #loginError{ color:var(--danger); font-size:.8rem; margin-top:10px; display:none; }
+  #loginFormArea{ text-align:left; max-width:360px; margin:0 auto; }
 
   /* ---- hero / resumo ---- */
   .hero{ display:flex; flex-wrap:wrap; gap:18px; align-items:center; }
-  .hero .avatar{ width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--teal-light); flex-shrink:0; background:var(--teal-light); }
+  .hero .avatar{ width:56px; height:56px; border-radius:50%; flex-shrink:0; background:var(--teal); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.4rem; font-weight:700; }
   .hero .info{ flex:1 1 220px; min-width:0; }
   .hero h1{ margin:0 0 3px; font-size:1.15rem; color:var(--teal-dark); }
   .hero .aula-atual{ font-size:.86rem; color:var(--ink-soft); }
@@ -114,16 +113,15 @@
   <!-- ---------------- TELA DE LOGIN ---------------- -->
   <div class="card" id="loginCard">
     <h1>Painel do Curso — Gerenciamento Empresarial</h1>
-    <p>Entre com sua conta Google para acompanhar seu progresso nas aulas, ver quais já foram assistidas e acessar a Avaliação Final quando concluir o curso.</p>
-    <div id="googleBtn"></div>
-    <div id="loginError"></div>
+    <p>Identifique-se para acompanhar seu progresso nas aulas, ver quais já foram assistidas e acessar a Avaliação Final quando concluir o curso.</p>
+    <div id="loginFormArea"></div>
   </div>
 
   <!-- ---------------- CONTEÚDO DO PAINEL (após login) ---------------- -->
   <div id="painelConteudo">
 
     <div class="card hero">
-      <img class="avatar" id="alunoAvatar" src="" alt="">
+      <div class="avatar" id="alunoAvatar"></div>
       <div class="info">
         <h1 id="alunoNome">Olá!</h1>
         <div class="aula-atual" id="aulaAtualTexto">Carregando seu progresso…</div>
@@ -170,7 +168,6 @@
   const alunoTagEl = document.getElementById('alunoTag');
   const loginCard = document.getElementById('loginCard');
   const painelConteudo = document.getElementById('painelConteudo');
-  const loginError = document.getElementById('loginError');
 
   function fmtData(iso){
     if (!iso) return '-';
@@ -184,11 +181,8 @@
     if (!aluno) {
       loginCard.style.display = '';
       painelConteudo.style.display = 'none';
-      Curso.initGoogleSignIn(document.getElementById('googleBtn'), function(){
-        location.reload();
-      }, function(msg){
-        loginError.textContent = msg;
-        loginError.style.display = 'block';
+      Curso.renderLoginForm(document.getElementById('loginFormArea'), {
+        onLogin: function(){ location.reload(); }
       });
       return;
     }
@@ -197,7 +191,7 @@
     Curso.renderAlunoTag(alunoTagEl, { onLogout: function(){ location.reload(); } });
 
     document.getElementById('alunoNome').textContent = 'Olá, ' + (aluno.nome || aluno.email) + '!';
-    if (aluno.foto) document.getElementById('alunoAvatar').src = aluno.foto;
+    document.getElementById('alunoAvatar').textContent = (aluno.nome || aluno.email || '?').trim().charAt(0).toUpperCase();
     document.getElementById('linkWhatsapp').href = Curso.whatsappLink();
     document.getElementById('linkEmail').href = 'mailto:' + Curso.CONFIG.SUPORTE_EMAIL;
 
