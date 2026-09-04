@@ -493,7 +493,9 @@ function acaoConfirmarCodigo(dados) {
 
   const codigoAtual = getCampo(registro, "codigoAtual");
   const codigoExpiraEm = getCampo(registro, "codigoExpiraEm");
-  if (!codigoAtual || codigoAtual !== codigo) return { erro: "CODIGO_INVALIDO" };
+  // O Google Sheets guarda um texto só de dígitos (ex.: "826578") como NÚMERO,
+  // então comparamos sempre como texto para não dar falso negativo.
+  if (!codigoAtual || String(codigoAtual).trim() !== codigo) return { erro: "CODIGO_INVALIDO" };
   if (!codigoExpiraEm || new Date(codigoExpiraEm) < new Date()) return { erro: "CODIGO_EXPIRADO" };
 
   const sessionToken = Utilities.getUuid() + Utilities.getUuid();
