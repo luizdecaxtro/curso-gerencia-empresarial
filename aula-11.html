@@ -34,7 +34,7 @@
     /* mesma largura (e mesmo centro) do cartão central: calc() replica o
        padding lateral de 12px do <main>, e o max-width replica o do .wrap */
     width: calc(100% - 24px); max-width: 760px; margin: 8px auto 0; box-sizing:border-box;
-    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; row-gap:6px;
+    display:flex; align-items:center; justify-content:space-between;
     padding: 8px 20px;
     background: var(--teal-dark);
     color:#fff;
@@ -45,7 +45,6 @@
   header.top .brand small{ font-weight:400; opacity:.85; font-style:italic; font-size:.72rem;}
   header.top .course{ font-size:.74rem; opacity:.9; text-align:right;}
   header.top .header-actions{ display:flex; align-items:center; gap:10px; }
-  header.top .course{ flex:1 1 auto; }
   header.top .painel-link{ color:#fff; text-decoration:none; font-size:.68rem; font-weight:600; background:rgba(255,255,255,.16); padding:4px 11px; border-radius:999px; white-space:nowrap; }
   header.top .painel-link:hover{ background:rgba(255,255,255,.27); }
   header.top .aluno-tag{ font-size:.66rem; opacity:.92; white-space:nowrap; display:flex; align-items:center; gap:6px; }
@@ -188,6 +187,17 @@
   .content-box .narration-divider{ border:none; border-top:1px dashed #b9d3cb; margin:0; flex:0 0 auto; }
   .content-box .narration-text{
     font-size:.8rem; line-height:1.6; color:var(--ink); white-space:pre-line; flex:0 0 auto;
+    text-align:justify; text-justify:inter-word;
+  }
+  .tts-word{
+    transition: background-color .12s ease, color .12s ease;
+    border-radius:3px;
+  }
+  .tts-word.active{
+    background: var(--gold);
+    color:#fff;
+    padding:0 2px;
+    margin:0 -2px;
   }
 
   .stage-foot{
@@ -202,7 +212,7 @@
   .navbtn.secondary{ background:#fff; color:var(--teal-dark); border:1px solid var(--teal); }
   .navbtn:disabled{ opacity:.4; cursor:not-allowed; }
   .dots{ display:flex; gap:5px; flex-wrap:wrap; justify-content:center; max-width: 40%; }
-  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:pointer; border:none; padding:0; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:default; border:none; padding:0; }
   .dot.active{ background:var(--teal); transform:scale(1.3); }
   .dot.done{ background:var(--gold); }
 
@@ -287,14 +297,6 @@
           <div class="prof-name">Profa. Francisca</div>
           <div class="prof-role">Narradora do curso</div>
           <div class="prof-preview" id="profPreview"></div>
-          <div class="narr-controls" id="narrControls">
-            <div class="narr-row">
-              <button class="narr-btn" id="btnNarrar">🔊 Ouvir esta cena</button>
-            </div>
-            <label class="narr-toggle"><input type="checkbox" id="chkAutoplay" checked> Narrar automaticamente ao trocar de cena</label>
-            <select class="narr-voice" id="voiceSelect"></select>
-            <div class="narr-note" id="narrNote"></div>
-          </div>
         </div>
         <div class="content-col">
           <div class="badge-kind" id="kindBadge"></div>
@@ -307,15 +309,8 @@
           </div>
         </div>
       </div>
-      <div class="narr-controls-mobile" id="narrControlsMobile">
-        <div class="narr-row">
-          <button class="narr-btn" id="btnNarrarMobile">🔊 Ouvir esta cena</button>
-        </div>
-      </div>
-      <div class="stage-foot">
-        <button class="navbtn secondary" id="btnPrev">◀ Anterior</button>
+      <div class="stage-foot" style="justify-content:center;">
         <div class="dots" id="dots"></div>
-        <button class="navbtn" id="btnNext">Próxima ▶</button>
       </div>
     </section>
 
@@ -324,15 +319,13 @@
 
 <script src="curso.js"></script>
 <script>
+  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos de volta!","caption":"Retomando a Aula 10 e apresentando a Aula 11","narration":"Olá, seja bem-vindo, seja bem-vinda de volta ao curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e este é o nosso décimo primeiro encontro. Na Aula 10, estudamos liderança e motivação, e vimos que os fatores motivacionais de Herzberg incluem oportunidades de crescimento profissional. Pois é exatamente sobre esse crescimento que vamos falar hoje: como as organizações planejam o desenvolvimento de seus colaboradores, e como avaliam o desempenho de suas equipes ao longo do tempo. Vamos estudar o conceito de treinamento e desenvolvimento, as trilhas de aprendizagem, os modelos de avaliação de desempenho de 90, 180 e 360 graus, e o plano de desenvolvimento individual, ou PDI. Vamos começar?","bullets":["Recapitulando a Aula 10: liderança e motivação","Aula 11: desenvolvimento de equipes e avaliação de desempenho","T&D, trilhas de aprendizagem, avaliação 360° e PDI"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de diferenciar treinamento de desenvolvimento, dois conceitos frequentemente tratados em conjunto pela sigla T&D, e de conhecer os principais métodos utilizados pelas organizações para capacitar suas equipes. Você vai compreender o que são trilhas de aprendizagem, e como elas ajudam a organizar o desenvolvimento de colaboradores ao longo do tempo. Vai conhecer os modelos de avaliação de desempenho de 90, 180 e 360 graus, entendendo as diferenças entre eles. Vai compreender o que é e como se constrói um Plano de Desenvolvimento Individual, o PDI. E, por fim, vai entender como avaliação de desempenho e desenvolvimento de pessoas formam, juntos, um ciclo contínuo dentro da gestão de pessoas.","bullets":["Treinamento e Desenvolvimento (T&D): conceito e métodos","Trilhas de aprendizagem","Avaliação de desempenho 90, 180 e 360 graus","Plano de Desenvolvimento Individual (PDI)"]},{"id":3,"kind":"conteudo","title":"Treinamento e desenvolvimento (T&D)","caption":"Duas dimensões complementares","narration":"Treinamento e desenvolvimento, frequentemente tratados em conjunto pela sigla T&D, são dois conceitos complementares, mas distintos. O treinamento tem foco de curto prazo, voltado para o desenvolvimento de habilidades específicas necessárias para o desempenho de uma função atual, como um treinamento técnico sobre um novo equipamento ou sistema. Já o desenvolvimento tem foco de mais longo prazo, voltado para o crescimento amplo das competências de uma pessoa, preparando-a inclusive para funções futuras que ainda não ocupa. Antes de planejar qualquer ação de T&D, é importante realizar o que se chama de levantamento de necessidades de treinamento, ou LNT: um diagnóstico que identifica as lacunas entre as competências atuais dos colaboradores e as competências necessárias para o bom desempenho de suas funções, atuais ou futuras. Esse levantamento pode ser feito por meio de avaliações de desempenho — tema que aprofundaremos ainda nesta aula —, entrevistas com gestores, ou análise de indicadores de qualidade e produtividade, como os que estudamos no Capítulo 8, quando falamos de KPIs.","bullets":["Treinamento: foco de curto prazo, habilidades específicas da função atual","Desenvolvimento: foco de longo prazo, crescimento amplo de competências","LNT: levantamento de necessidades de treinamento","LNT identifica lacunas entre competências atuais e necessárias"]},{"id":4,"kind":"conteudo","title":"Principais métodos de T&D","caption":"Como o desenvolvimento acontece na prática","narration":"Existem diversos métodos utilizados pelas organizações para desenvolver seus colaboradores. O treinamento no próprio trabalho, também chamado de on the job, consiste em aprender fazendo, sob supervisão de alguém mais experiente, diretamente no exercício da função. Os cursos e workshops, presenciais ou a distância, oferecem conteúdo estruturado sobre temas específicos, técnicos ou comportamentais. O e-learning utiliza plataformas digitais para oferecer conteúdo de forma flexível, no ritmo de cada colaborador. A mentoria envolve o acompanhamento de um profissional mais experiente, chamado mentor, que compartilha conhecimento e experiência com um colaborador menos experiente, de forma mais ampla e de longo prazo. E o coaching envolve um processo mais estruturado, conduzido por um profissional especializado, focado em ajudar a pessoa a desenvolver competências específicas ou superar desafios pontuais, por meio de perguntas e reflexões guiadas, mais do que de instrução direta. Uma organização madura costuma combinar diferentes métodos, de acordo com o tipo de competência que se deseja desenvolver e o perfil de cada colaborador.","bullets":["On the job: aprender fazendo, sob supervisão","Cursos, workshops e e-learning: conteúdo estruturado","Mentoria: acompanhamento de um profissional mais experiente","Coaching: processo estruturado por perguntas e reflexões guiadas"]},{"id":5,"kind":"conteudo","title":"Trilhas de aprendizagem","caption":"Organizando o desenvolvimento ao longo do tempo","narration":"Uma trilha de aprendizagem é um conjunto estruturado e sequencial de ações de treinamento e desenvolvimento, organizado para apoiar o crescimento de um colaborador em determinada função, área ou carreira dentro da organização. Diferentemente de treinamentos isolados e pontuais, a trilha de aprendizagem tem uma lógica de progressão: costuma começar por conteúdos e competências mais básicas, avançando gradualmente para temas mais avançados e específicos, muitas vezes alinhados às etapas de carreira daquele colaborador dentro da empresa. As trilhas de aprendizagem podem ser organizadas por cargo, preparando colaboradores para as competências específicas de determinada função; por área, reunindo conhecimentos comuns a todos os colaboradores de determinado departamento; ou por competência transversal, como comunicação ou liderança, disponível a colaboradores de diferentes áreas que precisam desenvolver aquela habilidade específica. Construir boas trilhas de aprendizagem exige que a organização tenha clareza sobre as competências necessárias em cada função — retomando, mais uma vez, a importância do planejamento de recursos humanos, estudado no Capítulo 9 deste curso.","bullets":["Trilha de aprendizagem: sequência estruturada de ações de T&D","Progressão do básico ao avançado, ao longo do tempo","Pode ser organizada por cargo, por área ou por competência transversal","Exige clareza sobre as competências necessárias em cada função"]},{"id":6,"kind":"conteudo","title":"Avaliação de desempenho","caption":"Medindo a contribuição das pessoas","narration":"A avaliação de desempenho é o processo estruturado de mensurar a contribuição de um colaborador para a organização, considerando tanto os resultados alcançados quanto os comportamentos e competências demonstrados no exercício de sua função. Ela cumpre pelo menos dois propósitos complementares. O primeiro é o propósito de desenvolvimento: identificar pontos fortes e oportunidades de melhoria de cada colaborador, alimentando diretamente o levantamento de necessidades de treinamento que vimos no início desta aula. O segundo é o propósito de gestão: fornecer subsídios para decisões relacionadas a promoções, remuneração variável, sucessão e, em alguns casos, desligamentos. Para que uma avaliação de desempenho seja justa e útil, é importante que seus critérios sejam claros e conhecidos previamente pelos colaboradores, que combinem indicadores objetivos, como os KPIs estudados no Capítulo 8, com avaliações mais qualitativas de comportamento e competências, e que sejam aplicados com regularidade, e não apenas de forma pontual e isolada.","bullets":["Avaliação de desempenho: mensura resultados, comportamentos e competências","Propósito de desenvolvimento: identifica pontos fortes e a melhorar","Propósito de gestão: subsidia promoções, remuneração e sucessão","Critérios claros, combinando indicadores objetivos e qualitativos"]},{"id":7,"kind":"conteudo","title":"Avaliação 90, 180 e 360 graus","caption":"Quem participa da avaliação?","narration":"Um dos aspectos que diferenciam os modelos de avaliação de desempenho é quantas e quais fontes participam do processo avaliativo, o que dá origem à nomenclatura de 90, 180 e 360 graus. Na avaliação de 90 graus, o modelo mais simples, apenas o gestor direto avalia o colaborador, de forma unilateral — um modelo mais rápido de aplicar, mas mais sujeito a vieses individuais de quem avalia. Na avaliação de 180 graus, o processo se amplia para incluir também a autoavaliação do próprio colaborador, que reflete sobre seu desempenho antes de uma conversa conjunta com o gestor, comparando as duas percepções e buscando alinhamento entre elas. Na avaliação de 360 graus, o modelo mais completo, o colaborador é avaliado por múltiplas fontes: seu gestor direto, seus pares de trabalho, eventuais subordinados, e ele mesmo, por meio de autoavaliação — e, em alguns casos, até por clientes internos ou externos com quem o colaborador se relaciona diretamente. A avaliação de 360 graus tende a oferecer uma visão mais completa e equilibrada do desempenho de uma pessoa, mas exige um processo mais estruturado, mais tempo de aplicação, e uma cultura organizacional madura o suficiente para lidar de forma construtiva com feedback vindo de múltiplas direções.","bullets":["90 graus: apenas o gestor direto avalia o colaborador","180 graus: gestor + autoavaliação do colaborador","360 graus: gestor, pares, subordinados, autoavaliação (e às vezes clientes)","360 graus é mais completa, mas exige mais estrutura e maturidade cultural"]},{"id":8,"kind":"conteudo","title":"Plano de Desenvolvimento Individual (PDI)","caption":"Transformando avaliação em ação","narration":"Uma avaliação de desempenho, por mais bem construída que seja, tem pouco valor prático se não se transformar em ação concreta. É exatamente esse o papel do Plano de Desenvolvimento Individual, ou PDI: um documento que traduz os resultados de uma avaliação de desempenho em ações específicas de desenvolvimento para aquele colaborador, ao longo de um período determinado, geralmente entre seis meses e um ano. Um bom PDI costuma seguir uma lógica muito parecida com a do plano de ação 5W2H, estudado no Capítulo 5 deste curso: para cada competência a ser desenvolvida, definem-se ações específicas, prazos, recursos necessários e formas de acompanhamento do progresso. Essas ações podem incluir a participação em cursos ou treinamentos específicos, muitas vezes já disponíveis na trilha de aprendizagem daquele colaborador, discutida anteriormente nesta aula; a atribuição de novos projetos ou responsabilidades que exijam o desenvolvimento da competência desejada; ou o acompanhamento por um mentor. O PDI deve ser revisado periodicamente, idealmente na próxima avaliação de desempenho, fechando um ciclo contínuo entre avaliar, planejar o desenvolvimento e desenvolver de fato.","bullets":["PDI: traduz a avaliação em ações concretas de desenvolvimento","Lógica parecida com o 5W2H: ações, prazos, recursos e acompanhamento","Pode incluir cursos, novos projetos, mentoria","Revisado periodicamente, fechando o ciclo entre avaliar e desenvolver"]},{"id":9,"kind":"caso","title":"Estudo de caso: o PDI do engenheiro de qualidade","caption":"Do feedback ao plano de ação","narration":"Vamos retomar o exemplo fictício da Metalúrgica Vitória. Depois de um ano de trabalho, o engenheiro de qualidade contratado, que já conhecemos das últimas aulas, passou por sua primeira avaliação de desempenho formal, no modelo de 360 graus. Seu gestor direto destacou forte competência técnica e comprometimento com prazos; seus colegas de equipe destacaram boa colaboração, mas apontaram oportunidade de melhoria em comunicação com outras divisões da empresa — um eco direto dos problemas de comunicação entre divisões identificados no Capítulo 4 deste curso; e sua própria autoavaliação reconheceu essa mesma dificuldade, além de manifestar interesse em, no futuro, assumir responsabilidades de liderança de equipe. A partir desse conjunto de feedbacks, a área de recursos humanos ajudou o engenheiro a construir um Plano de Desenvolvimento Individual para o ano seguinte, incluindo um curso de comunicação assertiva, disponível na trilha de aprendizagem de liderança da empresa, a participação em reuniões mensais entre as diferentes divisões, e um projeto piloto de coordenação de uma pequena equipe, como primeira experiência prática de liderança.","bullets":["Avaliação 360°: gestor, colegas e autoavaliação do próprio engenheiro","Ponto forte: competência técnica; ponto a desenvolver: comunicação entre divisões","Interesse manifestado: assumir futuramente responsabilidades de liderança","PDI: curso de comunicação, reuniões entre divisões, projeto piloto de liderança"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. Treinamento tem foco de curto prazo, em habilidades específicas da função atual; desenvolvimento tem foco de mais longo prazo, no crescimento amplo das competências da pessoa. Os principais métodos de T&D incluem treinamento no próprio trabalho, cursos, e-learning, mentoria e coaching. As trilhas de aprendizagem organizam o desenvolvimento de forma sequencial e progressiva, por cargo, área ou competência transversal. A avaliação de desempenho pode seguir os modelos de 90, 180 ou 360 graus, variando conforme o número de fontes envolvidas na avaliação. E o Plano de Desenvolvimento Individual, o PDI, traduz os resultados de uma avaliação em ações concretas de desenvolvimento, fechando um ciclo contínuo entre avaliar, planejar e desenvolver.","bullets":["Treinamento (curto prazo) x desenvolvimento (longo prazo)","Métodos: on the job, cursos, e-learning, mentoria, coaching","Trilhas de aprendizagem: progressão estruturada de competências","Avaliação 90/180/360° e o Plano de Desenvolvimento Individual (PDI)"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez","caption":"Atividade de reflexão","narration":"Vamos praticar. Pense em uma competência que você gostaria de desenvolver, seja no seu trabalho atual, seja em um projeto pessoal. Reflita sobre qual método de T&D seria mais adequado para desenvolver essa competência: um curso estruturado, uma experiência prática no próprio trabalho, mentoria, ou coaching. Em seguida, imagine que você recebeu uma avaliação de desempenho no modelo 360 graus, com feedbacks de diferentes pessoas sobre essa mesma competência. Tente esboçar um pequeno Plano de Desenvolvimento Individual para os próximos seis meses, definindo pelo menos duas ações concretas, com prazos aproximados, para desenvolver essa competência. Não é preciso ter certeza absoluta nas suas respostas — o objetivo desta atividade é treinar o seu olhar de gestor ou gestora para planejar o desenvolvimento de pessoas de forma estruturada. Você pode registrar suas respostas no Capítulo onze do material didático deste curso.","bullets":["Escolha uma competência que você gostaria de desenvolver","Defina o método de T&D mais adequado para essa competência","Esboce um PDI simples, com pelo menos duas ações e prazos"]},{"id":12,"kind":"encerramento","title":"Até a próxima aula!","caption":"Encerramento e próximos passos","narration":"Muito bem, chegamos ao final da nossa décima primeira aula. Hoje você conheceu a diferença entre treinamento e desenvolvimento, os principais métodos de T&D, o conceito de trilhas de aprendizagem, os modelos de avaliação de desempenho de 90, 180 e 360 graus, e o Plano de Desenvolvimento Individual. Para aprofundar ainda mais esse conteúdo, com exemplos adicionais e questões de revisão, não deixe de ler o Capítulo onze do material didático do curso. Na próxima aula, vamos encerrar a Unidade 3 do nosso curso, estudando a comunicação organizacional e a gestão de conflitos — dois temas essenciais para qualquer gestor, especialmente diante de situações como a dificuldade de comunicação entre divisões que já mencionamos algumas vezes ao longo desta unidade. Muito obrigada pela sua atenção e pela sua dedicação hoje. Eu sou a professora Francisca, e te espero na próxima aula, aqui no DeCastro, o Canal do Conhecimento.","bullets":["Leia o Capítulo 11 do material didático para aprofundar o conteúdo","Próxima aula: Comunicação Organizacional e Gestão de Conflitos","Até a Aula 12!"]}];
   const MODULE_NUMBER = 11;
   const TOTAL_MODULES = 22;
-  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos de volta!","caption":"Retomando a Aula 10 e apresentando a Aula 11","narration":"Olá, seja bem-vindo, seja bem-vinda de volta ao curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e este é o nosso décimo primeiro encontro. Na Aula 10, estudamos liderança e motivação, e vimos que os fatores motivacionais de Herzberg incluem oportunidades de crescimento profissional. Pois é exatamente sobre esse crescimento que vamos falar hoje: como as organizações planejam o desenvolvimento de seus colaboradores, e como avaliam o desempenho de suas equipes ao longo do tempo. Vamos estudar o conceito de treinamento e desenvolvimento, as trilhas de aprendizagem, os modelos de avaliação de desempenho de 90, 180 e 360 graus, e o plano de desenvolvimento individual, ou PDI. Vamos começar?","bullets":["Recapitulando a Aula 10: liderança e motivação","Aula 11: desenvolvimento de equipes e avaliação de desempenho","T&D, trilhas de aprendizagem, avaliação 360° e PDI"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de diferenciar treinamento de desenvolvimento, dois conceitos frequentemente tratados em conjunto pela sigla T&D, e de conhecer os principais métodos utilizados pelas organizações para capacitar suas equipes. Você vai compreender o que são trilhas de aprendizagem, e como elas ajudam a organizar o desenvolvimento de colaboradores ao longo do tempo. Vai conhecer os modelos de avaliação de desempenho de 90, 180 e 360 graus, entendendo as diferenças entre eles. Vai compreender o que é e como se constrói um Plano de Desenvolvimento Individual, o PDI. E, por fim, vai entender como avaliação de desempenho e desenvolvimento de pessoas formam, juntos, um ciclo contínuo dentro da gestão de pessoas.","bullets":["Treinamento e Desenvolvimento (T&D): conceito e métodos","Trilhas de aprendizagem","Avaliação de desempenho 90, 180 e 360 graus","Plano de Desenvolvimento Individual (PDI)"]},{"id":3,"kind":"conteudo","title":"Treinamento e desenvolvimento (T&D)","caption":"Duas dimensões complementares","narration":"Treinamento e desenvolvimento, frequentemente tratados em conjunto pela sigla T&D, são dois conceitos complementares, mas distintos. O treinamento tem foco de curto prazo, voltado para o desenvolvimento de habilidades específicas necessárias para o desempenho de uma função atual, como um treinamento técnico sobre um novo equipamento ou sistema. Já o desenvolvimento tem foco de mais longo prazo, voltado para o crescimento amplo das competências de uma pessoa, preparando-a inclusive para funções futuras que ainda não ocupa. Antes de planejar qualquer ação de T&D, é importante realizar o que se chama de levantamento de necessidades de treinamento, ou LNT: um diagnóstico que identifica as lacunas entre as competências atuais dos colaboradores e as competências necessárias para o bom desempenho de suas funções, atuais ou futuras. Esse levantamento pode ser feito por meio de avaliações de desempenho — tema que aprofundaremos ainda nesta aula —, entrevistas com gestores, ou análise de indicadores de qualidade e produtividade, como os que estudamos no Capítulo 8, quando falamos de KPIs.","bullets":["Treinamento: foco de curto prazo, habilidades específicas da função atual","Desenvolvimento: foco de longo prazo, crescimento amplo de competências","LNT: levantamento de necessidades de treinamento","LNT identifica lacunas entre competências atuais e necessárias"]},{"id":4,"kind":"conteudo","title":"Principais métodos de T&D","caption":"Como o desenvolvimento acontece na prática","narration":"Existem diversos métodos utilizados pelas organizações para desenvolver seus colaboradores. O treinamento no próprio trabalho, também chamado de on the job, consiste em aprender fazendo, sob supervisão de alguém mais experiente, diretamente no exercício da função. Os cursos e workshops, presenciais ou a distância, oferecem conteúdo estruturado sobre temas específicos, técnicos ou comportamentais. O e-learning utiliza plataformas digitais para oferecer conteúdo de forma flexível, no ritmo de cada colaborador. A mentoria envolve o acompanhamento de um profissional mais experiente, chamado mentor, que compartilha conhecimento e experiência com um colaborador menos experiente, de forma mais ampla e de longo prazo. E o coaching envolve um processo mais estruturado, conduzido por um profissional especializado, focado em ajudar a pessoa a desenvolver competências específicas ou superar desafios pontuais, por meio de perguntas e reflexões guiadas, mais do que de instrução direta. Uma organização madura costuma combinar diferentes métodos, de acordo com o tipo de competência que se deseja desenvolver e o perfil de cada colaborador.","bullets":["On the job: aprender fazendo, sob supervisão","Cursos, workshops e e-learning: conteúdo estruturado","Mentoria: acompanhamento de um profissional mais experiente","Coaching: processo estruturado por perguntas e reflexões guiadas"]},{"id":5,"kind":"conteudo","title":"Trilhas de aprendizagem","caption":"Organizando o desenvolvimento ao longo do tempo","narration":"Uma trilha de aprendizagem é um conjunto estruturado e sequencial de ações de treinamento e desenvolvimento, organizado para apoiar o crescimento de um colaborador em determinada função, área ou carreira dentro da organização. Diferentemente de treinamentos isolados e pontuais, a trilha de aprendizagem tem uma lógica de progressão: costuma começar por conteúdos e competências mais básicas, avançando gradualmente para temas mais avançados e específicos, muitas vezes alinhados às etapas de carreira daquele colaborador dentro da empresa. As trilhas de aprendizagem podem ser organizadas por cargo, preparando colaboradores para as competências específicas de determinada função; por área, reunindo conhecimentos comuns a todos os colaboradores de determinado departamento; ou por competência transversal, como comunicação ou liderança, disponível a colaboradores de diferentes áreas que precisam desenvolver aquela habilidade específica. Construir boas trilhas de aprendizagem exige que a organização tenha clareza sobre as competências necessárias em cada função — retomando, mais uma vez, a importância do planejamento de recursos humanos, estudado no Capítulo 9 deste curso.","bullets":["Trilha de aprendizagem: sequência estruturada de ações de T&D","Progressão do básico ao avançado, ao longo do tempo","Pode ser organizada por cargo, por área ou por competência transversal","Exige clareza sobre as competências necessárias em cada função"]},{"id":6,"kind":"conteudo","title":"Avaliação de desempenho","caption":"Medindo a contribuição das pessoas","narration":"A avaliação de desempenho é o processo estruturado de mensurar a contribuição de um colaborador para a organização, considerando tanto os resultados alcançados quanto os comportamentos e competências demonstrados no exercício de sua função. Ela cumpre pelo menos dois propósitos complementares. O primeiro é o propósito de desenvolvimento: identificar pontos fortes e oportunidades de melhoria de cada colaborador, alimentando diretamente o levantamento de necessidades de treinamento que vimos no início desta aula. O segundo é o propósito de gestão: fornecer subsídios para decisões relacionadas a promoções, remuneração variável, sucessão e, em alguns casos, desligamentos. Para que uma avaliação de desempenho seja justa e útil, é importante que seus critérios sejam claros e conhecidos previamente pelos colaboradores, que combinem indicadores objetivos, como os KPIs estudados no Capítulo 8, com avaliações mais qualitativas de comportamento e competências, e que sejam aplicados com regularidade, e não apenas de forma pontual e isolada.","bullets":["Avaliação de desempenho: mensura resultados, comportamentos e competências","Propósito de desenvolvimento: identifica pontos fortes e a melhorar","Propósito de gestão: subsidia promoções, remuneração e sucessão","Critérios claros, combinando indicadores objetivos e qualitativos"]},{"id":7,"kind":"conteudo","title":"Avaliação 90, 180 e 360 graus","caption":"Quem participa da avaliação?","narration":"Um dos aspectos que diferenciam os modelos de avaliação de desempenho é quantas e quais fontes participam do processo avaliativo, o que dá origem à nomenclatura de 90, 180 e 360 graus. Na avaliação de 90 graus, o modelo mais simples, apenas o gestor direto avalia o colaborador, de forma unilateral — um modelo mais rápido de aplicar, mas mais sujeito a vieses individuais de quem avalia. Na avaliação de 180 graus, o processo se amplia para incluir também a autoavaliação do próprio colaborador, que reflete sobre seu desempenho antes de uma conversa conjunta com o gestor, comparando as duas percepções e buscando alinhamento entre elas. Na avaliação de 360 graus, o modelo mais completo, o colaborador é avaliado por múltiplas fontes: seu gestor direto, seus pares de trabalho, eventuais subordinados, e ele mesmo, por meio de autoavaliação — e, em alguns casos, até por clientes internos ou externos com quem o colaborador se relaciona diretamente. A avaliação de 360 graus tende a oferecer uma visão mais completa e equilibrada do desempenho de uma pessoa, mas exige um processo mais estruturado, mais tempo de aplicação, e uma cultura organizacional madura o suficiente para lidar de forma construtiva com feedback vindo de múltiplas direções.","bullets":["90 graus: apenas o gestor direto avalia o colaborador","180 graus: gestor + autoavaliação do colaborador","360 graus: gestor, pares, subordinados, autoavaliação (e às vezes clientes)","360 graus é mais completa, mas exige mais estrutura e maturidade cultural"]},{"id":8,"kind":"conteudo","title":"Plano de Desenvolvimento Individual (PDI)","caption":"Transformando avaliação em ação","narration":"Uma avaliação de desempenho, por mais bem construída que seja, tem pouco valor prático se não se transformar em ação concreta. É exatamente esse o papel do Plano de Desenvolvimento Individual, ou PDI: um documento que traduz os resultados de uma avaliação de desempenho em ações específicas de desenvolvimento para aquele colaborador, ao longo de um período determinado, geralmente entre seis meses e um ano. Um bom PDI costuma seguir uma lógica muito parecida com a do plano de ação 5W2H, estudado no Capítulo 5 deste curso: para cada competência a ser desenvolvida, definem-se ações específicas, prazos, recursos necessários e formas de acompanhamento do progresso. Essas ações podem incluir a participação em cursos ou treinamentos específicos, muitas vezes já disponíveis na trilha de aprendizagem daquele colaborador, discutida anteriormente nesta aula; a atribuição de novos projetos ou responsabilidades que exijam o desenvolvimento da competência desejada; ou o acompanhamento por um mentor. O PDI deve ser revisado periodicamente, idealmente na próxima avaliação de desempenho, fechando um ciclo contínuo entre avaliar, planejar o desenvolvimento e desenvolver de fato.","bullets":["PDI: traduz a avaliação em ações concretas de desenvolvimento","Lógica parecida com o 5W2H: ações, prazos, recursos e acompanhamento","Pode incluir cursos, novos projetos, mentoria","Revisado periodicamente, fechando o ciclo entre avaliar e desenvolver"]},{"id":9,"kind":"caso","title":"Estudo de caso: o PDI do engenheiro de qualidade","caption":"Do feedback ao plano de ação","narration":"Vamos retomar o exemplo fictício da Metalúrgica Vitória. Depois de um ano de trabalho, o engenheiro de qualidade contratado, que já conhecemos das últimas aulas, passou por sua primeira avaliação de desempenho formal, no modelo de 360 graus. Seu gestor direto destacou forte competência técnica e comprometimento com prazos; seus colegas de equipe destacaram boa colaboração, mas apontaram oportunidade de melhoria em comunicação com outras divisões da empresa — um eco direto dos problemas de comunicação entre divisões identificados no Capítulo 4 deste curso; e sua própria autoavaliação reconheceu essa mesma dificuldade, além de manifestar interesse em, no futuro, assumir responsabilidades de liderança de equipe. A partir desse conjunto de feedbacks, a área de recursos humanos ajudou o engenheiro a construir um Plano de Desenvolvimento Individual para o ano seguinte, incluindo um curso de comunicação assertiva, disponível na trilha de aprendizagem de liderança da empresa, a participação em reuniões mensais entre as diferentes divisões, e um projeto piloto de coordenação de uma pequena equipe, como primeira experiência prática de liderança.","bullets":["Avaliação 360°: gestor, colegas e autoavaliação do próprio engenheiro","Ponto forte: competência técnica; ponto a desenvolver: comunicação entre divisões","Interesse manifestado: assumir futuramente responsabilidades de liderança","PDI: curso de comunicação, reuniões entre divisões, projeto piloto de liderança"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. Treinamento tem foco de curto prazo, em habilidades específicas da função atual; desenvolvimento tem foco de mais longo prazo, no crescimento amplo das competências da pessoa. Os principais métodos de T&D incluem treinamento no próprio trabalho, cursos, e-learning, mentoria e coaching. As trilhas de aprendizagem organizam o desenvolvimento de forma sequencial e progressiva, por cargo, área ou competência transversal. A avaliação de desempenho pode seguir os modelos de 90, 180 ou 360 graus, variando conforme o número de fontes envolvidas na avaliação. E o Plano de Desenvolvimento Individual, o PDI, traduz os resultados de uma avaliação em ações concretas de desenvolvimento, fechando um ciclo contínuo entre avaliar, planejar e desenvolver.","bullets":["Treinamento (curto prazo) x desenvolvimento (longo prazo)","Métodos: on the job, cursos, e-learning, mentoria, coaching","Trilhas de aprendizagem: progressão estruturada de competências","Avaliação 90/180/360° e o Plano de Desenvolvimento Individual (PDI)"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez","caption":"Atividade de reflexão","narration":"Vamos praticar. Pense em uma competência que você gostaria de desenvolver, seja no seu trabalho atual, seja em um projeto pessoal. Reflita sobre qual método de T&D seria mais adequado para desenvolver essa competência: um curso estruturado, uma experiência prática no próprio trabalho, mentoria, ou coaching. Em seguida, imagine que você recebeu uma avaliação de desempenho no modelo 360 graus, com feedbacks de diferentes pessoas sobre essa mesma competência. Tente esboçar um pequeno Plano de Desenvolvimento Individual para os próximos seis meses, definindo pelo menos duas ações concretas, com prazos aproximados, para desenvolver essa competência. Não é preciso ter certeza absoluta nas suas respostas — o objetivo desta atividade é treinar o seu olhar de gestor ou gestora para planejar o desenvolvimento de pessoas de forma estruturada. Você pode registrar suas respostas no Capítulo onze do material didático deste curso.","bullets":["Escolha uma competência que você gostaria de desenvolver","Defina o método de T&D mais adequado para essa competência","Esboce um PDI simples, com pelo menos duas ações e prazos"]},{"id":12,"kind":"encerramento","title":"Até a próxima aula!","caption":"Encerramento e próximos passos","narration":"Muito bem, chegamos ao final da nossa décima primeira aula. Hoje você conheceu a diferença entre treinamento e desenvolvimento, os principais métodos de T&D, o conceito de trilhas de aprendizagem, os modelos de avaliação de desempenho de 90, 180 e 360 graus, e o Plano de Desenvolvimento Individual. Para aprofundar ainda mais esse conteúdo, com exemplos adicionais e questões de revisão, não deixe de ler o Capítulo onze do material didático do curso. Na próxima aula, vamos encerrar a Unidade 3 do nosso curso, estudando a comunicação organizacional e a gestão de conflitos — dois temas essenciais para qualquer gestor, especialmente diante de situações como a dificuldade de comunicação entre divisões que já mencionamos algumas vezes ao longo desta unidade. Muito obrigada pela sua atenção e pela sua dedicação hoje. Eu sou a professora Francisca, e te espero na próxima aula, aqui no DeCastro, o Canal do Conhecimento.","bullets":["Leia o Capítulo 11 do material didático para aprofundar o conteúdo","Próxima aula: Comunicação Organizacional e Gestão de Conflitos","Até a Aula 12!"]}];
   const capa = document.getElementById('capa');
   const introScroll = document.getElementById('introScroll');
   const stage = document.getElementById('stage');
   const btnStart = document.getElementById('btnStart');
-  const btnPrev = document.getElementById('btnPrev');
-  const btnNext = document.getElementById('btnNext');
   const dotsEl = document.getElementById('dots');
   const sceneCount = document.getElementById('sceneCount');
   const captionText = document.getElementById('captionText');
@@ -342,12 +335,7 @@
   const fullNarration = document.getElementById('fullNarration');
   const avatarWrap = document.getElementById('avatarWrap');
   const profPreview = document.getElementById('profPreview');
-  const btnNarrar = document.getElementById('btnNarrar');
-  const btnNarrarMobile = document.getElementById('btnNarrarMobile');
-  const chkAutoplay = document.getElementById('chkAutoplay');
-  const voiceSelect = document.getElementById('voiceSelect');
   const narrNote = document.getElementById('narrNote');
-  const narrControls = document.getElementById('narrControls');
 
   const KIND_LABEL = {
     abertura: 'Abertura', objetivos: 'Objetivos', conteudo: 'Conteúdo',
@@ -357,136 +345,270 @@
   let current = 0;
   let visited = new Set();
 
+  // Destaque da palavra sendo lida em voz alta, sincronizado com o evento
+  // "onboundary" da Web Speech API (disparado pela maioria das vozes, incluindo
+  // as vozes "Online (Natural)" do Chrome/Edge, a cada palavra falada).
+  let wordSpans = [];
+  let lastActiveWordIndex = -1;
+
   // ---------------- Narração por voz (Web Speech API) ----------------
+  // Mesmo critério de escolha de voz usado no material de matemática que já funciona
+  // bem para o autor: busca direta pela voz chamada "Francisca", sem seletor manual,
+  // sem heurísticas extras e sem trocar de voz no meio do caminho.
   const SUPPORTS_TTS = 'speechSynthesis' in window;
-  let ptVoices = [];
-  let allVoices = [];
-  let knownVoiceNames = []; // última lista de nomes de voz carregada (para detectar mudanças reais)
+  let franciscaVoice = null;
 
-  // Nomes comuns de vozes femininas/masculinas em pt-BR/pt-PT nos principais navegadores e sistemas
-  // (Chrome/Google, Microsoft Edge/Windows, Safari/macOS). A Web Speech API não expõe o "gênero"
-  // da voz de forma padronizada — por isso a escolha é feita por heurística de nome.
-  const FEMALE_HINTS = /maria|luciana|francisca|helena|camila|vit[oó]ria|joana|fernanda|raquel|google\s*português|female|feminin/i;
-  const MALE_HINTS = /daniel|ricardo|felipe|jorge|antonio|antônio|paulo|male(?!f)|masculin/i;
-  const PREFERRED_VOICE_NAME = null;
-
-  function pickBestVoice(list){
-    if (PREFERRED_VOICE_NAME) {
-      const exact = list.find(v => v.name === PREFERRED_VOICE_NAME);
-      if (exact) return exact;
-    }
-    let v = list.find(v => FEMALE_HINTS.test(v.name));
-    if (v) return v;
-    v = list.find(v => !MALE_HINTS.test(v.name));
-    if (v) return v;
-    return list[0] || null;
-  }
-
-  // Carrega/atualiza a lista de vozes do navegador SEM perder a escolha do usuário.
-  // O Chrome pode disparar "voiceschanged" mais de uma vez (inclusive durante a
-  // narração de uma cena) — se recalculássemos a "melhor voz" a cada vez, a voz
-  // escolhida para gravação podia trocar sozinha no meio das aulas. Por isso:
-  // 1) só reconstruímos a lista quando ela realmente mudou; e
-  // 2) se a voz já selecionada continuar disponível, ela é mantida (fixada).
   function loadVoices(){
     if (!SUPPORTS_TTS) return;
-    allVoices = window.speechSynthesis.getVoices() || [];
-    ptVoices = allVoices.filter(v => /^pt/i.test(v.lang));
-    const list = ptVoices.length ? ptVoices : allVoices;
-    if (!list.length) {
-      narrNote.textContent = 'Carregando vozes do navegador…';
-      return;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return;
+    franciscaVoice =
+      voices.find(v => v.name === 'Francisca') ||
+      voices.find(v => v.name.toLowerCase().includes('francisca')) ||
+      voices.find(v => v.lang === 'pt-BR') ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('pt')) ||
+      null;
+    if (narrNote) {
+      narrNote.textContent = franciscaVoice
+        ? 'Voz: ' + franciscaVoice.name
+        : 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível.';
     }
-
-    const namesNow = list.map(v => v.name).sort().join('|');
-    const namesBefore = knownVoiceNames.slice().sort().join('|');
-    const listUnchanged = namesNow === namesBefore && voiceSelect.options.length > 0;
-    if (listUnchanged) return; // nada mudou: não mexe na seleção atual do usuário
-
-    const previouslySelected = voiceSelect.value;
-    const stillAvailable = previouslySelected && list.some(v => v.name === previouslySelected);
-    const chosen = stillAvailable ? list.find(v => v.name === previouslySelected) : pickBestVoice(list);
-
-    knownVoiceNames = list.map(v => v.name);
-    voiceSelect.innerHTML = '';
-    list.forEach((v) => {
-      const opt = document.createElement('option');
-      opt.value = v.name;
-      opt.textContent = v.name + ' (' + v.lang + ')';
-      if (chosen && v.name === chosen.name) opt.selected = true;
-      voiceSelect.appendChild(opt);
-    });
-
-    if (!ptVoices.length) {
-      narrNote.textContent = 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível. Para melhor qualidade, tente abrir em um Chrome ou Edge atualizado, com uma voz em português instalada.';
-    } else if (stillAvailable) {
-      narrNote.textContent = 'Voz fixada: ' + chosen.name + '. Ela será usada em todas as cenas desta aula — para trocar, escolha outra na lista acima.';
-    } else {
-      narrNote.textContent = 'Voz em português selecionada automaticamente: ' + (chosen ? chosen.name : '—') + '. Essa escolha fica fixa em todas as cenas; se preferir outra, escolha na lista acima antes de gravar.';
-    }
-  }
-
-  function getSelectedVoice(){
-    const list = ptVoices.length ? ptVoices : allVoices;
-    return list.find(v => v.name === voiceSelect.value) || pickBestVoice(list);
   }
 
   function setSpeakingUI(on){
     avatarWrap.classList.toggle('speaking', on);
-    const label = on ? '⏹ Parar narração' : '🔊 Ouvir esta cena';
-    btnNarrar.textContent = label;
-    if (btnNarrarMobile) btnNarrarMobile.textContent = label;
+  }
+
+  // Fala uma frase de cada vez — nunca um parágrafo inteiro — igual ao material de
+  // matemática: isso evita chegar perto de qualquer limite de duração de fala contínua.
+  // Só quebramos uma frase sozinha se ela já for longa demais.
+  const TTS_CHUNK_MAX_LEN = 220;
+
+  // Cada pedaço guarda também COMO ele termina: uma frase de verdade (. ! ?) merece uma
+  // pausa perceptível, como uma leitura normal faria entre uma frase e outra. Já uma
+  // quebra técnica no meio de uma frase longa demais (feita numa vírgula, ponto e
+  // vírgula, dois-pontos ou travessão só para não estourar o tamanho do trecho) não é
+  // o fim de um pensamento — por isso leva uma pausa bem mais curta, quase imperceptível,
+  // em vez de soar como se fosse o fim do parágrafo.
+  function splitNarrationIntoChunks(text, maxLen){
+    const sentences = (text.match(/[^.!?]+[.!?]+(\s+|$)/g) || [text]).map(s => s.trim()).filter(Boolean);
+    const chunks = [];
+    for (const sentence of sentences) {
+      if (sentence.length <= maxLen) { chunks.push({ text: sentence, softBreak: false }); continue; }
+      // sentença sozinha já é longa demais: quebra em vírgulas/travessões/dois-pontos —
+      // essas quebras são só técnicas, não pausas reais de fim de frase.
+      const parts = sentence.split(/(?<=,|;|:|—)\s+/);
+      let sbuf = '';
+      for (const part of parts) {
+        if ((sbuf + ' ' + part).trim().length <= maxLen) {
+          sbuf = (sbuf ? sbuf + ' ' : '') + part;
+        } else {
+          if (sbuf) chunks.push({ text: sbuf, softBreak: true });
+          if (part.length > maxLen) {
+            const words = part.split(/\s+/);
+            let wbuf = '';
+            for (const w of words) {
+              if ((wbuf + ' ' + w).trim().length <= maxLen) {
+                wbuf = (wbuf ? wbuf + ' ' : '') + w;
+              } else {
+                if (wbuf) chunks.push({ text: wbuf, softBreak: true });
+                wbuf = w;
+              }
+            }
+            sbuf = wbuf;
+          } else {
+            sbuf = part;
+          }
+        }
+      }
+      // o último pedaço de uma sentença quebrada ainda carrega o ponto final dela
+      if (sbuf) chunks.push({ text: sbuf, softBreak: false });
+    }
+    return chunks.length ? chunks : [{ text, softBreak: false }];
+  }
+
+  let speakQueue = [];
+  let speakQueueIndex = 0;
+  let speakToken = 0; // invalida filas antigas quando uma nova narração começa
+
+  // Fala um único trecho e chama onDone quando ele termina (ou dá erro) — igual à
+  // função speak(text, onEnd) do material de matemática. A única rede de segurança
+  // é para o caso de a fala NUNCA começar (ex.: falha de rede da voz "Online"); uma
+  // vez que ela começa, é o próprio fim da frase (onend) que decide quando parar —
+  // sem nenhum limite de duração, mesmo para frases mais longas.
+  function speakOne(text, token, wordStart, onDone){
+    if (!SUPPORTS_TTS) { onDone(); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'pt-BR';
+    if (franciscaVoice) utter.voice = franciscaVoice;
+    utter.rate = 0.98;
+    utter.pitch = 1.1;
+    let started = false;
+    let settled = false;
+    let wordsSpoken = 0;
+    const finish = () => {
+      if (settled || token !== speakToken) return;
+      settled = true;
+      onDone();
+    };
+    utter.onstart = () => { started = true; setSpeakingUI(true); };
+    utter.onboundary = (e) => {
+      if (token !== speakToken) return;
+      // Algumas vozes disparam apenas eventos de palavra; outras também marcam
+      // frase/sentença — só nos interessa o limite de cada palavra.
+      if (e.name && e.name !== 'word') return;
+      highlightWord(wordStart + wordsSpoken);
+      wordsSpoken++;
+    };
+    utter.onend = finish;
+    utter.onerror = finish;
+    window.speechSynthesis.speak(utter);
+    setTimeout(() => {
+      if (settled || started || token !== speakToken) return; // só age se nunca começou
+      window.speechSynthesis.cancel();
+      finish();
+    }, 5000);
+  }
+
+  // Pausa como numa leitura normal: breve entre frases, quase nenhuma dentro de uma
+  // frase que só foi cortada por ser longa demais.
+  const PAUSE_AFTER_SENTENCE_MS = 220;
+  const PAUSE_AFTER_SOFT_BREAK_MS = 70;
+  // Pausa entre o fim da narração de uma cena e o início automático da próxima —
+  // esta versão não tem botões de navegação: a aula avança sozinha, cena após
+  // cena, até a última, para poder ser gravada em vídeo sem qualquer interação.
+  const PAUSE_BETWEEN_SCENES_MS = 900;
+
+  function speakNextChunk(token){
+    if (token !== speakToken) return; // uma narração mais nova já assumiu
+    if (speakQueueIndex >= speakQueue.length) {
+      setSpeakingUI(false);
+      clearWordHighlight();
+      if (current < SCENES.length - 1) {
+        setTimeout(() => { if (token === speakToken) goTo(current + 1); }, PAUSE_BETWEEN_SCENES_MS);
+      } else {
+        setTimeout(() => { if (token === speakToken) finalizarAula(); }, PAUSE_BETWEEN_SCENES_MS);
+      }
+      return;
+    }
+    const chunk = speakQueue[speakQueueIndex++];
+    speakOne(chunk.text, token, chunk.wordStart, () => {
+      if (token !== speakToken) return;
+      const pause = chunk.softBreak ? PAUSE_AFTER_SOFT_BREAK_MS : PAUSE_AFTER_SENTENCE_MS;
+      setTimeout(() => speakNextChunk(token), pause);
+    });
+  }
+
+  // Algumas palavras estrangeiras travam a síntese de voz em português — em especial
+  // nomes com letras raras na ortografia do português, como o "w". O texto exibido na
+  // tela continua com a grafia correta; só o que é enviado à voz é ajustado para uma
+  // grafia foneticamente parecida que o sintetizador consiga ler sem engasgar.
+  // "Kurt Lewin" foi confirmado como problema real (testado); os demais foram
+  // adicionados de forma preventiva, pelo mesmo padrão — avise se algum ainda travar
+  // ou se algum outro nome causar o mesmo problema, para eu ajustar a lista.
+  const TTS_PRONUNCIATION_FIXES = [
+    { pattern: /Kurt Lewin/g, replacement: 'Curt Levin' },
+    { pattern: /Weber/g, replacement: 'Véber' },
+    { pattern: /Hawthorne/g, replacement: 'Hautorn' },
+    { pattern: /Ishikawa/g, replacement: 'Ishicava' },
+    { pattern: /Maslow/g, replacement: 'Maslou' },
+    { pattern: /Osterwalder/g, replacement: 'Osterválder' },
+    { pattern: /Winslow/g, replacement: 'Uinslou' },
+  ];
+
+  function textForSpeech(text){
+    let out = text;
+    for (const fix of TTS_PRONUNCIATION_FIXES) out = out.replace(fix.pattern, fix.replacement);
+    return out;
   }
 
   function speakScene(text){
     if (!SUPPORTS_TTS) return;
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'pt-BR';
-    const v = getSelectedVoice();
-    if (v) utter.voice = v; // mesma voz fixada em getSelectedVoice() para todas as cenas
-    utter.rate = 0.98;
-    utter.pitch = 1.1;
-    utter.onstart = () => setSpeakingUI(true);
-    utter.onend = () => setSpeakingUI(false);
-    utter.onerror = () => setSpeakingUI(false);
-    window.speechSynthesis.speak(utter);
+    speakToken++;
+    const token = speakToken;
+    speakQueue = splitNarrationIntoChunks(textForSpeech(text), TTS_CHUNK_MAX_LEN);
+    // Cada trecho carrega também em qual palavra (do texto exibido na tela) ele
+    // começa, para o destaque de leitura avançar junto com a fala.
+    let wordCursor = 0;
+    for (const chunk of speakQueue) {
+      const n = chunk.text.trim().split(/\s+/).filter(Boolean).length;
+      chunk.wordStart = wordCursor;
+      wordCursor += n;
+    }
+    speakQueueIndex = 0;
+    clearWordHighlight();
+    setTimeout(() => speakNextChunk(token), 50);
   }
 
   function stopSpeaking(){
+    speakToken++; // invalida qualquer fila em andamento
+    speakQueue = [];
+    speakQueueIndex = 0;
     if (SUPPORTS_TTS) window.speechSynthesis.cancel();
     setSpeakingUI(false);
-  }
-
-  function toggleNarration(){
-    if (window.speechSynthesis.speaking) { stopSpeaking(); return; }
-    speakScene(SCENES[current].narration);
+    clearWordHighlight();
   }
 
   if (SUPPORTS_TTS) {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-    btnNarrar.addEventListener('click', toggleNarration);
-    if (btnNarrarMobile) btnNarrarMobile.addEventListener('click', toggleNarration);
-    voiceSelect.addEventListener('change', () => {
-      // troca manual: vira a nova voz fixada a partir de agora
-      if (window.speechSynthesis.speaking) speakScene(SCENES[current].narration);
-    });
   } else {
-    narrControls.style.display = 'none';
-    if (narrControlsMobileEl()) narrControlsMobileEl().style.display = 'none';
     avatarWrap.insertAdjacentHTML('afterend',
       '<div class="narr-note" style="margin-top:10px;">Este navegador não oferece leitura em voz automática (Web Speech API). Use o roteiro em DOCX para a gravação, ou abra esta aula em um navegador desktop atualizado, como Chrome ou Edge.</div>');
   }
-  function narrControlsMobileEl(){ return document.getElementById('narrControlsMobile'); }
+
+  function escapeHtml(str){
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // Reconstrói o texto da narração envolvendo cada palavra em um <span> numerado,
+  // preservando os espaços originais entre elas, para permitir destacar a palavra
+  // que está sendo lida no momento.
+  function renderNarrationWithWordSpans(text){
+    const tokens = text.split(/(\s+)/);
+    let html = '';
+    let widx = 0;
+    for (const tok of tokens) {
+      if (tok === '') continue;
+      if (/^\s+$/.test(tok)) { html += tok; continue; }
+      html += '<span class="tts-word" data-widx="' + widx + '">' + escapeHtml(tok) + '</span>';
+      widx++;
+    }
+    fullNarration.innerHTML = html;
+    wordSpans = Array.prototype.slice.call(fullNarration.querySelectorAll('.tts-word'));
+    lastActiveWordIndex = -1;
+  }
+
+  function highlightWord(idx){
+    if (idx === lastActiveWordIndex) return;
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    if (idx >= 0 && idx < wordSpans.length) {
+      wordSpans[idx].classList.add('active');
+      wordSpans[idx].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    lastActiveWordIndex = idx;
+  }
+
+  function clearWordHighlight(){
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    lastActiveWordIndex = -1;
+  }
 
   function renderDots(){
     dotsEl.innerHTML = '';
     SCENES.forEach((s, i) => {
-      const b = document.createElement('button');
+      const b = document.createElement('span');
       b.className = 'dot' + (i === current ? ' active' : '') + (visited.has(i) ? ' done' : '');
       b.title = 'Cena ' + (i+1) + ': ' + s.title;
-      b.addEventListener('click', () => goTo(i));
       dotsEl.appendChild(b);
     });
   }
@@ -499,10 +621,8 @@
     titleText.textContent = s.title;
     bulletsList.innerHTML = s.bullets.map(b => '<li>' + b + '</li>').join('');
     profPreview.textContent = s.narration;
-    fullNarration.textContent = s.narration;
+    renderNarrationWithWordSpans(s.narration);
     sceneCount.textContent = 'Cena ' + (current+1) + ' de ' + SCENES.length;
-    btnPrev.disabled = current === 0;
-    btnNext.textContent = current === SCENES.length - 1 ? 'Concluir aula ✔' : 'Próxima ▶';
     renderDots();
     // volta o scroll do conteúdo ao topo a cada nova cena
     const contentBox = document.querySelector('.content-box');
@@ -511,8 +631,11 @@
     if (stageBody) stageBody.scrollTop = 0;
 
     if (SUPPORTS_TTS) {
+      speakToken++; // invalida qualquer fila de fala pendente da cena anterior
+      speakQueue = [];
+      speakQueueIndex = 0;
       window.speechSynthesis.cancel();
-      if (chkAutoplay.checked) speakScene(s.narration);
+      speakScene(s.narration);
     }
   }
 
@@ -521,31 +644,16 @@
     render();
   }
 
-  btnStart.addEventListener('click', () => {
-    introScroll.style.display = 'none';
-    stage.classList.add('active');
-    current = 0;
-    render();
-  });
-
-  btnPrev.addEventListener('click', () => goTo(current - 1));
-  btnNext.addEventListener('click', () => {
-    if (current === SCENES.length - 1) {
-      if (SUPPORTS_TTS) window.speechSynthesis.cancel();
-      stage.classList.remove('active');
-      introScroll.style.display = '';
-      btnStart.textContent = 'Rever a aula ▶';
-      marcarComoConcluida();
-    } else {
-      goTo(current + 1);
-    }
-  });
-
-  // ---------------- Integração com o Painel (curso.js) ----------------
-  function marcarComoConcluida(){
+  // Chamada quando a narração da última cena termina — não há mais botão de
+  // "Concluir aula" nesta versão (feita para gravação em vídeo, sem cliques),
+  // então a conclusão é detectada automaticamente aqui.
+  function finalizarAula(){
     if (window.Curso) {
       Curso.marcarAulaConcluida(MODULE_NUMBER);
     }
+    stage.classList.remove('active');
+    introScroll.style.display = '';
+    btnStart.textContent = 'Rever a aula ▶';
     const banner = document.getElementById('concluidaBanner');
     const linkProxima = document.getElementById('linkProximaAula');
     if (linkProxima) {
@@ -561,17 +669,18 @@
     if (banner) banner.style.display = '';
   }
 
+  btnStart.addEventListener('click', () => {
+    introScroll.style.display = 'none';
+    stage.classList.add('active');
+    current = 0;
+    render();
+  });
+
   if (window.Curso) {
     Curso.renderAlunoTag(document.getElementById('alunoTag'));
   }
 
-  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) window.speechSynthesis.cancel(); });
-
-  document.addEventListener('keydown', (e) => {
-    if (!stage.classList.contains('active')) return;
-    if (e.key === 'ArrowRight') btnNext.click();
-    if (e.key === 'ArrowLeft') btnPrev.click();
-  });
+  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) stopSpeaking(); });
 </script>
 
 </body>

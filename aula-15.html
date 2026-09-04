@@ -34,7 +34,7 @@
     /* mesma largura (e mesmo centro) do cartão central: calc() replica o
        padding lateral de 12px do <main>, e o max-width replica o do .wrap */
     width: calc(100% - 24px); max-width: 760px; margin: 8px auto 0; box-sizing:border-box;
-    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; row-gap:6px;
+    display:flex; align-items:center; justify-content:space-between;
     padding: 8px 20px;
     background: var(--teal-dark);
     color:#fff;
@@ -45,7 +45,6 @@
   header.top .brand small{ font-weight:400; opacity:.85; font-style:italic; font-size:.72rem;}
   header.top .course{ font-size:.74rem; opacity:.9; text-align:right;}
   header.top .header-actions{ display:flex; align-items:center; gap:10px; }
-  header.top .course{ flex:1 1 auto; }
   header.top .painel-link{ color:#fff; text-decoration:none; font-size:.68rem; font-weight:600; background:rgba(255,255,255,.16); padding:4px 11px; border-radius:999px; white-space:nowrap; }
   header.top .painel-link:hover{ background:rgba(255,255,255,.27); }
   header.top .aluno-tag{ font-size:.66rem; opacity:.92; white-space:nowrap; display:flex; align-items:center; gap:6px; }
@@ -188,6 +187,17 @@
   .content-box .narration-divider{ border:none; border-top:1px dashed #b9d3cb; margin:0; flex:0 0 auto; }
   .content-box .narration-text{
     font-size:.8rem; line-height:1.6; color:var(--ink); white-space:pre-line; flex:0 0 auto;
+    text-align:justify; text-justify:inter-word;
+  }
+  .tts-word{
+    transition: background-color .12s ease, color .12s ease;
+    border-radius:3px;
+  }
+  .tts-word.active{
+    background: var(--gold);
+    color:#fff;
+    padding:0 2px;
+    margin:0 -2px;
   }
 
   .stage-foot{
@@ -202,7 +212,7 @@
   .navbtn.secondary{ background:#fff; color:var(--teal-dark); border:1px solid var(--teal); }
   .navbtn:disabled{ opacity:.4; cursor:not-allowed; }
   .dots{ display:flex; gap:5px; flex-wrap:wrap; justify-content:center; max-width: 40%; }
-  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:pointer; border:none; padding:0; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:default; border:none; padding:0; }
   .dot.active{ background:var(--teal); transform:scale(1.3); }
   .dot.done{ background:var(--gold); }
 
@@ -287,14 +297,6 @@
           <div class="prof-name">Profa. Francisca</div>
           <div class="prof-role">Narradora do curso</div>
           <div class="prof-preview" id="profPreview"></div>
-          <div class="narr-controls" id="narrControls">
-            <div class="narr-row">
-              <button class="narr-btn" id="btnNarrar">🔊 Ouvir esta cena</button>
-            </div>
-            <label class="narr-toggle"><input type="checkbox" id="chkAutoplay" checked> Narrar automaticamente ao trocar de cena</label>
-            <select class="narr-voice" id="voiceSelect"></select>
-            <div class="narr-note" id="narrNote"></div>
-          </div>
         </div>
         <div class="content-col">
           <div class="badge-kind" id="kindBadge"></div>
@@ -307,15 +309,8 @@
           </div>
         </div>
       </div>
-      <div class="narr-controls-mobile" id="narrControlsMobile">
-        <div class="narr-row">
-          <button class="narr-btn" id="btnNarrarMobile">🔊 Ouvir esta cena</button>
-        </div>
-      </div>
-      <div class="stage-foot">
-        <button class="navbtn secondary" id="btnPrev">◀ Anterior</button>
+      <div class="stage-foot" style="justify-content:center;">
         <div class="dots" id="dots"></div>
-        <button class="navbtn" id="btnNext">Próxima ▶</button>
       </div>
     </section>
 
@@ -324,15 +319,13 @@
 
 <script src="curso.js"></script>
 <script>
+  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos de volta!","caption":"Retomando a Aula 14 e encerrando a Unidade 4","narration":"Olá, seja bem-vindo, seja bem-vinda de volta ao curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e este é o nosso décimo quinto encontro. Na Aula 14, estudamos a gestão de custos e a formação de preços, incluindo o cálculo do ponto de equilíbrio e o método de markup. Hoje, vamos encerrar a Unidade 4 do nosso curso, dedicada à gestão financeira e de custos, estudando como as empresas planejam seus recursos financeiros para o futuro, por meio do orçamento empresarial, e como acompanham indicadores financeiros que sintetizam seu desempenho. Vamos estudar as etapas do orçamento empresarial, o método de orçamento base zero, os indicadores ROI e EBITDA, a margem de contribuição em uma perspectiva orçamentária, e o processo de controle orçamentário. Vamos começar?","bullets":["Recapitulando a Aula 14: gestão de custos e formação de preços","Aula 15: encerramento da Unidade 4 — Gestão Financeira e de Custos","Orçamento empresarial, indicadores financeiros e controle orçamentário"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de compreender o conceito e as principais etapas do orçamento empresarial, entendendo como ele conecta o planejamento estratégico da empresa às suas metas financeiras de curto prazo. Você vai conhecer o método de orçamento base zero, e suas diferenças em relação ao orçamento tradicional. Vai compreender os indicadores ROI e EBITDA, amplamente utilizados na análise de desempenho de empresas e de projetos. Vai aprofundar o conceito de margem de contribuição em uma perspectiva orçamentária, já introduzido no capítulo anterior. E, por fim, vai compreender o processo de controle orçamentário, essencial para que o orçamento planejado efetivamente oriente a gestão da empresa ao longo do ano.","bullets":["Orçamento empresarial: conceito e etapas","Orçamento base zero","Indicadores ROI e EBITDA","Controle orçamentário"]},{"id":3,"kind":"conteudo","title":"Orçamento empresarial: conceito e etapas","caption":"Traduzindo a estratégia em números","narration":"O orçamento empresarial é o instrumento de planejamento financeiro que traduz os objetivos estratégicos e táticos da empresa, estudados no Capítulo 5, em metas financeiras específicas para um período determinado, geralmente um ano. Ele projeta receitas, custos, despesas e investimentos esperados, servindo tanto como guia para as decisões futuras quanto como parâmetro para avaliar o desempenho realizado. O processo de elaboração do orçamento costuma seguir algumas etapas principais. Primeiro, a projeção do orçamento de vendas, que estima a receita esperada com base em metas comerciais, histórico de vendas e condições de mercado, retomando o planejamento tático estudado no Capítulo 5. A partir dessa projeção de vendas, elabora-se o orçamento de produção ou de compras, necessário para atender à demanda projetada. Em seguida, projetam-se os orçamentos de custos e despesas, incluindo custos fixos e variáveis, estudados no Capítulo 14, e despesas administrativas e comerciais. Por fim, todos esses orçamentos parciais são consolidados em um orçamento financeiro geral, que projeta o fluxo de caixa, a DRE e o Balanço Patrimonial esperados para o período, retomando os demonstrativos estudados no Capítulo 13.","bullets":["Orçamento: traduz objetivos estratégicos e táticos em metas financeiras","Orçamento de vendas: ponto de partida do processo orçamentário","Orçamentos de produção, custos e despesas derivados da projeção de vendas","Consolidação em um orçamento financeiro geral (fluxo de caixa, DRE, Balanço)"]},{"id":4,"kind":"conteudo","title":"Orçamento base zero","caption":"Justificando cada gasto a partir do zero","narration":"A forma mais comum de elaborar um orçamento é o chamado orçamento incremental, que parte do orçamento do período anterior e o ajusta de acordo com expectativas de crescimento, inflação ou mudanças pontuais, mantendo, em grande parte, a estrutura de gastos já existente. Uma abordagem alternativa é o orçamento base zero, método no qual cada área ou departamento da empresa deve justificar a totalidade de suas despesas a cada novo ciclo orçamentário, partindo literalmente do zero, e não do orçamento aprovado no período anterior. No orçamento base zero, nenhum gasto é automaticamente aprovado apenas por ter sido aprovado antes: cada atividade e cada despesa precisam ser justificadas em função do valor que agregam aos objetivos da empresa, o que costuma revelar gastos obsoletos ou pouco eficientes que passariam despercebidos em um orçamento puramente incremental. Por outro lado, o orçamento base zero exige um esforço de elaboração significativamente maior do que o orçamento incremental, o que leva muitas empresas a aplicá-lo apenas periodicamente, ou apenas a determinadas áreas consideradas mais críticas, em vez de adotá-lo de forma completa e recorrente em toda a organização.","bullets":["Orçamento incremental: parte do orçamento anterior, com ajustes","Orçamento base zero: cada despesa deve ser justificada a partir do zero","Vantagem: revela gastos obsoletos ou pouco eficientes","Desvantagem: exige esforço de elaboração significativamente maior"]},{"id":5,"kind":"conteudo","title":"Indicador ROI","caption":"O retorno sobre o investimento realizado","narration":"O ROI, sigla em inglês para retorno sobre o investimento, é um dos indicadores financeiros mais utilizados para avaliar a viabilidade de um investimento ou de um projeto específico, complementando os indicadores de rentabilidade estudados no Capítulo 13, como o ROE e o ROA, que avaliam a rentabilidade da empresa como um todo. O ROI é calculado pela divisão do ganho obtido com determinado investimento, descontado o valor originalmente investido, pelo próprio valor investido, geralmente expresso em percentual. Um ROI positivo indica que o investimento gerou retorno superior ao valor aplicado; um ROI negativo indica prejuízo. Esse indicador é amplamente utilizado para comparar diferentes projetos ou investimentos entre si, ajudando a priorizar aqueles com maior potencial de retorno relativo, e também é bastante utilizado fora do contexto puramente financeiro, como na avaliação de campanhas de marketing, tema que retomaremos na Unidade 5 deste curso, ao estudarmos a gestão comercial.","bullets":["ROI: retorno sobre o investimento realizado em um projeto específico","ROI = (Ganho obtido − Valor investido) ÷ Valor investido","Útil para comparar e priorizar diferentes projetos ou investimentos","Aplicável também fora do contexto financeiro, como em marketing"]},{"id":6,"kind":"conteudo","title":"Indicador EBITDA","caption":"O potencial de geração de caixa operacional","narration":"O EBITDA é a sigla em inglês para lucro antes de juros, impostos, depreciação e amortização. Trata-se de um indicador que parte do lucro operacional apurado na DRE, estudada no Capítulo 13, e a ele soma de volta a depreciação e a amortização — despesas contábeis que não representam, necessariamente, uma saída efetiva de caixa no período. O objetivo do EBITDA é aproximar uma medida do potencial de geração de caixa puramente operacional da empresa, isolando o efeito de decisões de financiamento, de política tributária, e de investimentos passados em ativos de longo prazo, que se refletem justamente na depreciação e na amortização. Por isso, o EBITDA é um indicador bastante utilizado para comparar o desempenho operacional de empresas de portes ou estruturas de capital diferentes, já que remove parte das distorções causadas por essas diferenças. É importante destacar, no entanto, que o EBITDA não deve ser confundido com o fluxo de caixa efetivo da empresa, estudado no Capítulo 13: ele é uma aproximação contábil, e não uma medida direta de caixa disponível, já que não considera, por exemplo, variações no capital de giro ou investimentos correntes em ativos.","bullets":["EBITDA: lucro antes de juros, impostos, depreciação e amortização","Aproxima o potencial de geração de caixa operacional da empresa","Útil para comparar empresas com estruturas de capital diferentes","Não deve ser confundido com o fluxo de caixa efetivo da empresa"]},{"id":7,"kind":"conteudo","title":"Margem de contribuição no orçamento","caption":"Da análise de produto ao planejamento do período","narration":"No Capítulo 14, estudamos a margem de contribuição como o valor que resta do preço de venda de um produto após descontar seus custos variáveis, e como base para o cálculo do ponto de equilíbrio de um negócio. No contexto do orçamento empresarial, esse conceito ganha uma aplicação adicional: ao projetar o orçamento de vendas de diferentes produtos ou linhas de negócio, a empresa pode utilizar a margem de contribuição de cada um deles para identificar quais produtos mais contribuem, proporcionalmente, para a cobertura dos custos fixos totais da empresa e para a geração de lucro no período orçado. Produtos com margem de contribuição mais alta tendem a ser priorizados nas metas comerciais e nas decisões de alocação de recursos, como investimentos em marketing ou em capacidade produtiva, especialmente em cenários de recursos limitados, em que a empresa não consegue investir igualmente em todas as suas linhas de produtos ao mesmo tempo. Dessa forma, a margem de contribuição deixa de ser apenas um conceito de análise de custos, e passa a orientar diretamente decisões estratégicas de composição do orçamento e do mix de produtos da empresa.","bullets":["Margem de contribuição orienta a priorização de produtos no orçamento","Produtos com margem mais alta contribuem proporcionalmente mais","Apoia decisões de alocação de recursos em cenários limitados","Conecta a análise de custos às decisões estratégicas de mix de produtos"]},{"id":8,"kind":"conteudo","title":"Controle orçamentário","caption":"Comparando o planejado com o realizado","narration":"Elaborar um orçamento é apenas a primeira etapa do processo orçamentário; a segunda etapa, igualmente importante, é o controle orçamentário: o processo contínuo de comparação entre os valores orçados e os valores efetivamente realizados pela empresa ao longo do período, geralmente com periodicidade mensal. Essa comparação gera o que se chama de análise de variações, ou desvios orçamentários, que podem ser favoráveis, quando o resultado realizado é melhor do que o orçado, como uma receita maior ou um custo menor do que o previsto, ou desfavoráveis, quando o resultado realizado é pior do que o orçado. O controle orçamentário não tem como único objetivo apontar desvios, mas principalmente compreender suas causas, e permitir ajustes tempestivos nas ações da empresa, retomando, em certa medida, a lógica dos indicadores estudados no Capítulo 8, ao discutirmos o Balanced Scorecard: um bom controle orçamentário funciona como um painel de controle financeiro, permitindo à gestão corrigir o curso antes que pequenos desvios se transformem em problemas financeiros mais graves. Um controle orçamentário eficaz também alimenta o ciclo orçamentário seguinte, tornando as projeções futuras mais precisas com base no aprendizado obtido a cada período.","bullets":["Controle orçamentário: compara valores orçados e valores realizados","Análise de variações: desvios favoráveis e desfavoráveis","Objetivo: compreender causas dos desvios e permitir ajustes tempestivos","Alimenta e aprimora o ciclo orçamentário dos períodos seguintes"]},{"id":9,"kind":"caso","title":"Estudo de caso: o orçamento anual da Metalúrgica Vitória","caption":"Do planejamento ao acompanhamento dos resultados","narration":"Vamos retomar, pela última vez nesta unidade, o exemplo fictício da Metalúrgica Vitória. Ao elaborar seu orçamento anual, a empresa projetou o orçamento de vendas com base nas metas comerciais definidas para o ano, e, a partir dele, projetou os orçamentos de produção, de custos e de despesas, incluindo os custos fixos adicionais da nova linha de produtos avaliada no capítulo anterior. Durante o processo, a diretoria decidiu aplicar o orçamento base zero especificamente às despesas administrativas da empresa, exigindo que cada área justificasse seus gastos previstos, o que revelou um contrato de serviços terceirizados pouco utilizado, cujo cancelamento gerou economia relevante no orçamento final. Ao longo do ano, a empresa realizou o controle orçamentário mensalmente, comparando valores orçados e realizados. No terceiro mês, identificou-se um desvio desfavorável relevante nos custos variáveis de matéria-prima, causado por um reajuste de fornecedores acima do previsto no orçamento original. Diante desse desvio, a diretoria revisou seu método de markup para os produtos mais afetados, ajustando os preços de venda para preservar a margem de contribuição projetada, e evitando que o desvio nos custos comprometesse o EBITDA projetado para o ano.","bullets":["Orçamento base zero nas despesas administrativas revela gasto pouco eficiente","Controle orçamentário mensal identifica desvio desfavorável em custos","Causa do desvio: reajuste de fornecedores acima do previsto","Resposta: revisão do markup para preservar margem de contribuição e EBITDA"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. O orçamento empresarial traduz os objetivos estratégicos e táticos da empresa em metas financeiras específicas, partindo do orçamento de vendas até a consolidação em um orçamento financeiro geral. O orçamento base zero exige que cada despesa seja justificada a partir do zero a cada ciclo, em contraste com o orçamento incremental, que parte do período anterior. O ROI mede o retorno sobre um investimento específico, enquanto o EBITDA aproxima o potencial de geração de caixa operacional da empresa, a partir do lucro operacional somado à depreciação e à amortização. A margem de contribuição, no contexto orçamentário, orienta a priorização de produtos e a alocação de recursos. E o controle orçamentário compara valores orçados e realizados, identificando desvios favoráveis e desfavoráveis e permitindo ajustes ao longo do período. Com esta aula, encerramos a Unidade 4 do nosso curso, dedicada à gestão financeira e de custos.","bullets":["Orçamento empresarial: do orçamento de vendas ao orçamento financeiro geral","Orçamento base zero x orçamento incremental","ROI (retorno de investimentos específicos) e EBITDA (caixa operacional)","Controle orçamentário: comparação entre orçado e realizado"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez","caption":"Atividade de reflexão","narration":"Vamos praticar. Pense em uma empresa que você conhece bem — pode ser a empresa em que você trabalha, um negócio da família, ou uma empresa fictícia que você imagine para este exercício. Reflita sobre como seria o processo de elaboração do orçamento anual dessa empresa: por onde ele começaria, e quais orçamentos parciais precisariam ser projetados até se chegar a um orçamento financeiro geral? Em seguida, pense em uma área ou departamento específico dessa empresa, e reflita se a aplicação do orçamento base zero a essa área poderia revelar gastos obsoletos ou pouco eficientes. Por fim, imagine que, ao longo do ano, essa empresa identificasse um desvio orçamentário desfavorável relevante: que tipo de ação você recomendaria à gestão, com base no que aprendemos sobre controle orçamentário? Você pode registrar suas respostas no Capítulo quinze do material didático deste curso.","bullets":["Esboce as etapas do orçamento anual de uma empresa que você conhece","Avalie se o orçamento base zero revelaria gastos pouco eficientes em alguma área","Recomende uma ação diante de um desvio orçamentário desfavorável"]},{"id":12,"kind":"encerramento","title":"Até a próxima aula!","caption":"Encerramento da Unidade 4 e próximos passos","narration":"Muito bem, chegamos ao final da nossa décima quinta aula, e também ao final da Unidade 4 do nosso curso. Hoje você conheceu as etapas do orçamento empresarial, o método de orçamento base zero, os indicadores ROI e EBITDA, a margem de contribuição em uma perspectiva orçamentária, e o processo de controle orçamentário. Para aprofundar ainda mais esse conteúdo, com exemplos adicionais e questões de revisão, não deixe de ler o Capítulo quinze do material didático do curso. A partir da próxima aula, iniciamos a Unidade 5 do nosso curso, dedicada a marketing, processos e qualidade. Na Aula 16, vamos estudar os fundamentos de marketing e gestão comercial, incluindo o composto de marketing, a segmentação e o posicionamento, o funil de vendas, e uma visão geral de marketing digital. Muito obrigada pela sua atenção e pela sua dedicação ao longo de toda esta quarta unidade. Eu sou a professora Francisca, e te espero na próxima aula, aqui no DeCastro, o Canal do Conhecimento.","bullets":["Leia o Capítulo 15 do material didático para aprofundar o conteúdo","Fim da Unidade 4 — Gestão Financeira e de Custos","Próxima aula: Unidade 5 — Fundamentos de Marketing e Gestão Comercial"]}];
   const MODULE_NUMBER = 15;
   const TOTAL_MODULES = 22;
-  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos de volta!","caption":"Retomando a Aula 14 e encerrando a Unidade 4","narration":"Olá, seja bem-vindo, seja bem-vinda de volta ao curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e este é o nosso décimo quinto encontro. Na Aula 14, estudamos a gestão de custos e a formação de preços, incluindo o cálculo do ponto de equilíbrio e o método de markup. Hoje, vamos encerrar a Unidade 4 do nosso curso, dedicada à gestão financeira e de custos, estudando como as empresas planejam seus recursos financeiros para o futuro, por meio do orçamento empresarial, e como acompanham indicadores financeiros que sintetizam seu desempenho. Vamos estudar as etapas do orçamento empresarial, o método de orçamento base zero, os indicadores ROI e EBITDA, a margem de contribuição em uma perspectiva orçamentária, e o processo de controle orçamentário. Vamos começar?","bullets":["Recapitulando a Aula 14: gestão de custos e formação de preços","Aula 15: encerramento da Unidade 4 — Gestão Financeira e de Custos","Orçamento empresarial, indicadores financeiros e controle orçamentário"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de compreender o conceito e as principais etapas do orçamento empresarial, entendendo como ele conecta o planejamento estratégico da empresa às suas metas financeiras de curto prazo. Você vai conhecer o método de orçamento base zero, e suas diferenças em relação ao orçamento tradicional. Vai compreender os indicadores ROI e EBITDA, amplamente utilizados na análise de desempenho de empresas e de projetos. Vai aprofundar o conceito de margem de contribuição em uma perspectiva orçamentária, já introduzido no capítulo anterior. E, por fim, vai compreender o processo de controle orçamentário, essencial para que o orçamento planejado efetivamente oriente a gestão da empresa ao longo do ano.","bullets":["Orçamento empresarial: conceito e etapas","Orçamento base zero","Indicadores ROI e EBITDA","Controle orçamentário"]},{"id":3,"kind":"conteudo","title":"Orçamento empresarial: conceito e etapas","caption":"Traduzindo a estratégia em números","narration":"O orçamento empresarial é o instrumento de planejamento financeiro que traduz os objetivos estratégicos e táticos da empresa, estudados no Capítulo 5, em metas financeiras específicas para um período determinado, geralmente um ano. Ele projeta receitas, custos, despesas e investimentos esperados, servindo tanto como guia para as decisões futuras quanto como parâmetro para avaliar o desempenho realizado. O processo de elaboração do orçamento costuma seguir algumas etapas principais. Primeiro, a projeção do orçamento de vendas, que estima a receita esperada com base em metas comerciais, histórico de vendas e condições de mercado, retomando o planejamento tático estudado no Capítulo 5. A partir dessa projeção de vendas, elabora-se o orçamento de produção ou de compras, necessário para atender à demanda projetada. Em seguida, projetam-se os orçamentos de custos e despesas, incluindo custos fixos e variáveis, estudados no Capítulo 14, e despesas administrativas e comerciais. Por fim, todos esses orçamentos parciais são consolidados em um orçamento financeiro geral, que projeta o fluxo de caixa, a DRE e o Balanço Patrimonial esperados para o período, retomando os demonstrativos estudados no Capítulo 13.","bullets":["Orçamento: traduz objetivos estratégicos e táticos em metas financeiras","Orçamento de vendas: ponto de partida do processo orçamentário","Orçamentos de produção, custos e despesas derivados da projeção de vendas","Consolidação em um orçamento financeiro geral (fluxo de caixa, DRE, Balanço)"]},{"id":4,"kind":"conteudo","title":"Orçamento base zero","caption":"Justificando cada gasto a partir do zero","narration":"A forma mais comum de elaborar um orçamento é o chamado orçamento incremental, que parte do orçamento do período anterior e o ajusta de acordo com expectativas de crescimento, inflação ou mudanças pontuais, mantendo, em grande parte, a estrutura de gastos já existente. Uma abordagem alternativa é o orçamento base zero, método no qual cada área ou departamento da empresa deve justificar a totalidade de suas despesas a cada novo ciclo orçamentário, partindo literalmente do zero, e não do orçamento aprovado no período anterior. No orçamento base zero, nenhum gasto é automaticamente aprovado apenas por ter sido aprovado antes: cada atividade e cada despesa precisam ser justificadas em função do valor que agregam aos objetivos da empresa, o que costuma revelar gastos obsoletos ou pouco eficientes que passariam despercebidos em um orçamento puramente incremental. Por outro lado, o orçamento base zero exige um esforço de elaboração significativamente maior do que o orçamento incremental, o que leva muitas empresas a aplicá-lo apenas periodicamente, ou apenas a determinadas áreas consideradas mais críticas, em vez de adotá-lo de forma completa e recorrente em toda a organização.","bullets":["Orçamento incremental: parte do orçamento anterior, com ajustes","Orçamento base zero: cada despesa deve ser justificada a partir do zero","Vantagem: revela gastos obsoletos ou pouco eficientes","Desvantagem: exige esforço de elaboração significativamente maior"]},{"id":5,"kind":"conteudo","title":"Indicador ROI","caption":"O retorno sobre o investimento realizado","narration":"O ROI, sigla em inglês para retorno sobre o investimento, é um dos indicadores financeiros mais utilizados para avaliar a viabilidade de um investimento ou de um projeto específico, complementando os indicadores de rentabilidade estudados no Capítulo 13, como o ROE e o ROA, que avaliam a rentabilidade da empresa como um todo. O ROI é calculado pela divisão do ganho obtido com determinado investimento, descontado o valor originalmente investido, pelo próprio valor investido, geralmente expresso em percentual. Um ROI positivo indica que o investimento gerou retorno superior ao valor aplicado; um ROI negativo indica prejuízo. Esse indicador é amplamente utilizado para comparar diferentes projetos ou investimentos entre si, ajudando a priorizar aqueles com maior potencial de retorno relativo, e também é bastante utilizado fora do contexto puramente financeiro, como na avaliação de campanhas de marketing, tema que retomaremos na Unidade 5 deste curso, ao estudarmos a gestão comercial.","bullets":["ROI: retorno sobre o investimento realizado em um projeto específico","ROI = (Ganho obtido − Valor investido) ÷ Valor investido","Útil para comparar e priorizar diferentes projetos ou investimentos","Aplicável também fora do contexto financeiro, como em marketing"]},{"id":6,"kind":"conteudo","title":"Indicador EBITDA","caption":"O potencial de geração de caixa operacional","narration":"O EBITDA é a sigla em inglês para lucro antes de juros, impostos, depreciação e amortização. Trata-se de um indicador que parte do lucro operacional apurado na DRE, estudada no Capítulo 13, e a ele soma de volta a depreciação e a amortização — despesas contábeis que não representam, necessariamente, uma saída efetiva de caixa no período. O objetivo do EBITDA é aproximar uma medida do potencial de geração de caixa puramente operacional da empresa, isolando o efeito de decisões de financiamento, de política tributária, e de investimentos passados em ativos de longo prazo, que se refletem justamente na depreciação e na amortização. Por isso, o EBITDA é um indicador bastante utilizado para comparar o desempenho operacional de empresas de portes ou estruturas de capital diferentes, já que remove parte das distorções causadas por essas diferenças. É importante destacar, no entanto, que o EBITDA não deve ser confundido com o fluxo de caixa efetivo da empresa, estudado no Capítulo 13: ele é uma aproximação contábil, e não uma medida direta de caixa disponível, já que não considera, por exemplo, variações no capital de giro ou investimentos correntes em ativos.","bullets":["EBITDA: lucro antes de juros, impostos, depreciação e amortização","Aproxima o potencial de geração de caixa operacional da empresa","Útil para comparar empresas com estruturas de capital diferentes","Não deve ser confundido com o fluxo de caixa efetivo da empresa"]},{"id":7,"kind":"conteudo","title":"Margem de contribuição no orçamento","caption":"Da análise de produto ao planejamento do período","narration":"No Capítulo 14, estudamos a margem de contribuição como o valor que resta do preço de venda de um produto após descontar seus custos variáveis, e como base para o cálculo do ponto de equilíbrio de um negócio. No contexto do orçamento empresarial, esse conceito ganha uma aplicação adicional: ao projetar o orçamento de vendas de diferentes produtos ou linhas de negócio, a empresa pode utilizar a margem de contribuição de cada um deles para identificar quais produtos mais contribuem, proporcionalmente, para a cobertura dos custos fixos totais da empresa e para a geração de lucro no período orçado. Produtos com margem de contribuição mais alta tendem a ser priorizados nas metas comerciais e nas decisões de alocação de recursos, como investimentos em marketing ou em capacidade produtiva, especialmente em cenários de recursos limitados, em que a empresa não consegue investir igualmente em todas as suas linhas de produtos ao mesmo tempo. Dessa forma, a margem de contribuição deixa de ser apenas um conceito de análise de custos, e passa a orientar diretamente decisões estratégicas de composição do orçamento e do mix de produtos da empresa.","bullets":["Margem de contribuição orienta a priorização de produtos no orçamento","Produtos com margem mais alta contribuem proporcionalmente mais","Apoia decisões de alocação de recursos em cenários limitados","Conecta a análise de custos às decisões estratégicas de mix de produtos"]},{"id":8,"kind":"conteudo","title":"Controle orçamentário","caption":"Comparando o planejado com o realizado","narration":"Elaborar um orçamento é apenas a primeira etapa do processo orçamentário; a segunda etapa, igualmente importante, é o controle orçamentário: o processo contínuo de comparação entre os valores orçados e os valores efetivamente realizados pela empresa ao longo do período, geralmente com periodicidade mensal. Essa comparação gera o que se chama de análise de variações, ou desvios orçamentários, que podem ser favoráveis, quando o resultado realizado é melhor do que o orçado, como uma receita maior ou um custo menor do que o previsto, ou desfavoráveis, quando o resultado realizado é pior do que o orçado. O controle orçamentário não tem como único objetivo apontar desvios, mas principalmente compreender suas causas, e permitir ajustes tempestivos nas ações da empresa, retomando, em certa medida, a lógica dos indicadores estudados no Capítulo 8, ao discutirmos o Balanced Scorecard: um bom controle orçamentário funciona como um painel de controle financeiro, permitindo à gestão corrigir o curso antes que pequenos desvios se transformem em problemas financeiros mais graves. Um controle orçamentário eficaz também alimenta o ciclo orçamentário seguinte, tornando as projeções futuras mais precisas com base no aprendizado obtido a cada período.","bullets":["Controle orçamentário: compara valores orçados e valores realizados","Análise de variações: desvios favoráveis e desfavoráveis","Objetivo: compreender causas dos desvios e permitir ajustes tempestivos","Alimenta e aprimora o ciclo orçamentário dos períodos seguintes"]},{"id":9,"kind":"caso","title":"Estudo de caso: o orçamento anual da Metalúrgica Vitória","caption":"Do planejamento ao acompanhamento dos resultados","narration":"Vamos retomar, pela última vez nesta unidade, o exemplo fictício da Metalúrgica Vitória. Ao elaborar seu orçamento anual, a empresa projetou o orçamento de vendas com base nas metas comerciais definidas para o ano, e, a partir dele, projetou os orçamentos de produção, de custos e de despesas, incluindo os custos fixos adicionais da nova linha de produtos avaliada no capítulo anterior. Durante o processo, a diretoria decidiu aplicar o orçamento base zero especificamente às despesas administrativas da empresa, exigindo que cada área justificasse seus gastos previstos, o que revelou um contrato de serviços terceirizados pouco utilizado, cujo cancelamento gerou economia relevante no orçamento final. Ao longo do ano, a empresa realizou o controle orçamentário mensalmente, comparando valores orçados e realizados. No terceiro mês, identificou-se um desvio desfavorável relevante nos custos variáveis de matéria-prima, causado por um reajuste de fornecedores acima do previsto no orçamento original. Diante desse desvio, a diretoria revisou seu método de markup para os produtos mais afetados, ajustando os preços de venda para preservar a margem de contribuição projetada, e evitando que o desvio nos custos comprometesse o EBITDA projetado para o ano.","bullets":["Orçamento base zero nas despesas administrativas revela gasto pouco eficiente","Controle orçamentário mensal identifica desvio desfavorável em custos","Causa do desvio: reajuste de fornecedores acima do previsto","Resposta: revisão do markup para preservar margem de contribuição e EBITDA"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. O orçamento empresarial traduz os objetivos estratégicos e táticos da empresa em metas financeiras específicas, partindo do orçamento de vendas até a consolidação em um orçamento financeiro geral. O orçamento base zero exige que cada despesa seja justificada a partir do zero a cada ciclo, em contraste com o orçamento incremental, que parte do período anterior. O ROI mede o retorno sobre um investimento específico, enquanto o EBITDA aproxima o potencial de geração de caixa operacional da empresa, a partir do lucro operacional somado à depreciação e à amortização. A margem de contribuição, no contexto orçamentário, orienta a priorização de produtos e a alocação de recursos. E o controle orçamentário compara valores orçados e realizados, identificando desvios favoráveis e desfavoráveis e permitindo ajustes ao longo do período. Com esta aula, encerramos a Unidade 4 do nosso curso, dedicada à gestão financeira e de custos.","bullets":["Orçamento empresarial: do orçamento de vendas ao orçamento financeiro geral","Orçamento base zero x orçamento incremental","ROI (retorno de investimentos específicos) e EBITDA (caixa operacional)","Controle orçamentário: comparação entre orçado e realizado"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez","caption":"Atividade de reflexão","narration":"Vamos praticar. Pense em uma empresa que você conhece bem — pode ser a empresa em que você trabalha, um negócio da família, ou uma empresa fictícia que você imagine para este exercício. Reflita sobre como seria o processo de elaboração do orçamento anual dessa empresa: por onde ele começaria, e quais orçamentos parciais precisariam ser projetados até se chegar a um orçamento financeiro geral? Em seguida, pense em uma área ou departamento específico dessa empresa, e reflita se a aplicação do orçamento base zero a essa área poderia revelar gastos obsoletos ou pouco eficientes. Por fim, imagine que, ao longo do ano, essa empresa identificasse um desvio orçamentário desfavorável relevante: que tipo de ação você recomendaria à gestão, com base no que aprendemos sobre controle orçamentário? Você pode registrar suas respostas no Capítulo quinze do material didático deste curso.","bullets":["Esboce as etapas do orçamento anual de uma empresa que você conhece","Avalie se o orçamento base zero revelaria gastos pouco eficientes em alguma área","Recomende uma ação diante de um desvio orçamentário desfavorável"]},{"id":12,"kind":"encerramento","title":"Até a próxima aula!","caption":"Encerramento da Unidade 4 e próximos passos","narration":"Muito bem, chegamos ao final da nossa décima quinta aula, e também ao final da Unidade 4 do nosso curso. Hoje você conheceu as etapas do orçamento empresarial, o método de orçamento base zero, os indicadores ROI e EBITDA, a margem de contribuição em uma perspectiva orçamentária, e o processo de controle orçamentário. Para aprofundar ainda mais esse conteúdo, com exemplos adicionais e questões de revisão, não deixe de ler o Capítulo quinze do material didático do curso. A partir da próxima aula, iniciamos a Unidade 5 do nosso curso, dedicada a marketing, processos e qualidade. Na Aula 16, vamos estudar os fundamentos de marketing e gestão comercial, incluindo o composto de marketing, a segmentação e o posicionamento, o funil de vendas, e uma visão geral de marketing digital. Muito obrigada pela sua atenção e pela sua dedicação ao longo de toda esta quarta unidade. Eu sou a professora Francisca, e te espero na próxima aula, aqui no DeCastro, o Canal do Conhecimento.","bullets":["Leia o Capítulo 15 do material didático para aprofundar o conteúdo","Fim da Unidade 4 — Gestão Financeira e de Custos","Próxima aula: Unidade 5 — Fundamentos de Marketing e Gestão Comercial"]}];
   const capa = document.getElementById('capa');
   const introScroll = document.getElementById('introScroll');
   const stage = document.getElementById('stage');
   const btnStart = document.getElementById('btnStart');
-  const btnPrev = document.getElementById('btnPrev');
-  const btnNext = document.getElementById('btnNext');
   const dotsEl = document.getElementById('dots');
   const sceneCount = document.getElementById('sceneCount');
   const captionText = document.getElementById('captionText');
@@ -342,12 +335,7 @@
   const fullNarration = document.getElementById('fullNarration');
   const avatarWrap = document.getElementById('avatarWrap');
   const profPreview = document.getElementById('profPreview');
-  const btnNarrar = document.getElementById('btnNarrar');
-  const btnNarrarMobile = document.getElementById('btnNarrarMobile');
-  const chkAutoplay = document.getElementById('chkAutoplay');
-  const voiceSelect = document.getElementById('voiceSelect');
   const narrNote = document.getElementById('narrNote');
-  const narrControls = document.getElementById('narrControls');
 
   const KIND_LABEL = {
     abertura: 'Abertura', objetivos: 'Objetivos', conteudo: 'Conteúdo',
@@ -357,136 +345,270 @@
   let current = 0;
   let visited = new Set();
 
+  // Destaque da palavra sendo lida em voz alta, sincronizado com o evento
+  // "onboundary" da Web Speech API (disparado pela maioria das vozes, incluindo
+  // as vozes "Online (Natural)" do Chrome/Edge, a cada palavra falada).
+  let wordSpans = [];
+  let lastActiveWordIndex = -1;
+
   // ---------------- Narração por voz (Web Speech API) ----------------
+  // Mesmo critério de escolha de voz usado no material de matemática que já funciona
+  // bem para o autor: busca direta pela voz chamada "Francisca", sem seletor manual,
+  // sem heurísticas extras e sem trocar de voz no meio do caminho.
   const SUPPORTS_TTS = 'speechSynthesis' in window;
-  let ptVoices = [];
-  let allVoices = [];
-  let knownVoiceNames = []; // última lista de nomes de voz carregada (para detectar mudanças reais)
+  let franciscaVoice = null;
 
-  // Nomes comuns de vozes femininas/masculinas em pt-BR/pt-PT nos principais navegadores e sistemas
-  // (Chrome/Google, Microsoft Edge/Windows, Safari/macOS). A Web Speech API não expõe o "gênero"
-  // da voz de forma padronizada — por isso a escolha é feita por heurística de nome.
-  const FEMALE_HINTS = /maria|luciana|francisca|helena|camila|vit[oó]ria|joana|fernanda|raquel|google\s*português|female|feminin/i;
-  const MALE_HINTS = /daniel|ricardo|felipe|jorge|antonio|antônio|paulo|male(?!f)|masculin/i;
-  const PREFERRED_VOICE_NAME = null;
-
-  function pickBestVoice(list){
-    if (PREFERRED_VOICE_NAME) {
-      const exact = list.find(v => v.name === PREFERRED_VOICE_NAME);
-      if (exact) return exact;
-    }
-    let v = list.find(v => FEMALE_HINTS.test(v.name));
-    if (v) return v;
-    v = list.find(v => !MALE_HINTS.test(v.name));
-    if (v) return v;
-    return list[0] || null;
-  }
-
-  // Carrega/atualiza a lista de vozes do navegador SEM perder a escolha do usuário.
-  // O Chrome pode disparar "voiceschanged" mais de uma vez (inclusive durante a
-  // narração de uma cena) — se recalculássemos a "melhor voz" a cada vez, a voz
-  // escolhida para gravação podia trocar sozinha no meio das aulas. Por isso:
-  // 1) só reconstruímos a lista quando ela realmente mudou; e
-  // 2) se a voz já selecionada continuar disponível, ela é mantida (fixada).
   function loadVoices(){
     if (!SUPPORTS_TTS) return;
-    allVoices = window.speechSynthesis.getVoices() || [];
-    ptVoices = allVoices.filter(v => /^pt/i.test(v.lang));
-    const list = ptVoices.length ? ptVoices : allVoices;
-    if (!list.length) {
-      narrNote.textContent = 'Carregando vozes do navegador…';
-      return;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return;
+    franciscaVoice =
+      voices.find(v => v.name === 'Francisca') ||
+      voices.find(v => v.name.toLowerCase().includes('francisca')) ||
+      voices.find(v => v.lang === 'pt-BR') ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('pt')) ||
+      null;
+    if (narrNote) {
+      narrNote.textContent = franciscaVoice
+        ? 'Voz: ' + franciscaVoice.name
+        : 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível.';
     }
-
-    const namesNow = list.map(v => v.name).sort().join('|');
-    const namesBefore = knownVoiceNames.slice().sort().join('|');
-    const listUnchanged = namesNow === namesBefore && voiceSelect.options.length > 0;
-    if (listUnchanged) return; // nada mudou: não mexe na seleção atual do usuário
-
-    const previouslySelected = voiceSelect.value;
-    const stillAvailable = previouslySelected && list.some(v => v.name === previouslySelected);
-    const chosen = stillAvailable ? list.find(v => v.name === previouslySelected) : pickBestVoice(list);
-
-    knownVoiceNames = list.map(v => v.name);
-    voiceSelect.innerHTML = '';
-    list.forEach((v) => {
-      const opt = document.createElement('option');
-      opt.value = v.name;
-      opt.textContent = v.name + ' (' + v.lang + ')';
-      if (chosen && v.name === chosen.name) opt.selected = true;
-      voiceSelect.appendChild(opt);
-    });
-
-    if (!ptVoices.length) {
-      narrNote.textContent = 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível. Para melhor qualidade, tente abrir em um Chrome ou Edge atualizado, com uma voz em português instalada.';
-    } else if (stillAvailable) {
-      narrNote.textContent = 'Voz fixada: ' + chosen.name + '. Ela será usada em todas as cenas desta aula — para trocar, escolha outra na lista acima.';
-    } else {
-      narrNote.textContent = 'Voz em português selecionada automaticamente: ' + (chosen ? chosen.name : '—') + '. Essa escolha fica fixa em todas as cenas; se preferir outra, escolha na lista acima antes de gravar.';
-    }
-  }
-
-  function getSelectedVoice(){
-    const list = ptVoices.length ? ptVoices : allVoices;
-    return list.find(v => v.name === voiceSelect.value) || pickBestVoice(list);
   }
 
   function setSpeakingUI(on){
     avatarWrap.classList.toggle('speaking', on);
-    const label = on ? '⏹ Parar narração' : '🔊 Ouvir esta cena';
-    btnNarrar.textContent = label;
-    if (btnNarrarMobile) btnNarrarMobile.textContent = label;
+  }
+
+  // Fala uma frase de cada vez — nunca um parágrafo inteiro — igual ao material de
+  // matemática: isso evita chegar perto de qualquer limite de duração de fala contínua.
+  // Só quebramos uma frase sozinha se ela já for longa demais.
+  const TTS_CHUNK_MAX_LEN = 220;
+
+  // Cada pedaço guarda também COMO ele termina: uma frase de verdade (. ! ?) merece uma
+  // pausa perceptível, como uma leitura normal faria entre uma frase e outra. Já uma
+  // quebra técnica no meio de uma frase longa demais (feita numa vírgula, ponto e
+  // vírgula, dois-pontos ou travessão só para não estourar o tamanho do trecho) não é
+  // o fim de um pensamento — por isso leva uma pausa bem mais curta, quase imperceptível,
+  // em vez de soar como se fosse o fim do parágrafo.
+  function splitNarrationIntoChunks(text, maxLen){
+    const sentences = (text.match(/[^.!?]+[.!?]+(\s+|$)/g) || [text]).map(s => s.trim()).filter(Boolean);
+    const chunks = [];
+    for (const sentence of sentences) {
+      if (sentence.length <= maxLen) { chunks.push({ text: sentence, softBreak: false }); continue; }
+      // sentença sozinha já é longa demais: quebra em vírgulas/travessões/dois-pontos —
+      // essas quebras são só técnicas, não pausas reais de fim de frase.
+      const parts = sentence.split(/(?<=,|;|:|—)\s+/);
+      let sbuf = '';
+      for (const part of parts) {
+        if ((sbuf + ' ' + part).trim().length <= maxLen) {
+          sbuf = (sbuf ? sbuf + ' ' : '') + part;
+        } else {
+          if (sbuf) chunks.push({ text: sbuf, softBreak: true });
+          if (part.length > maxLen) {
+            const words = part.split(/\s+/);
+            let wbuf = '';
+            for (const w of words) {
+              if ((wbuf + ' ' + w).trim().length <= maxLen) {
+                wbuf = (wbuf ? wbuf + ' ' : '') + w;
+              } else {
+                if (wbuf) chunks.push({ text: wbuf, softBreak: true });
+                wbuf = w;
+              }
+            }
+            sbuf = wbuf;
+          } else {
+            sbuf = part;
+          }
+        }
+      }
+      // o último pedaço de uma sentença quebrada ainda carrega o ponto final dela
+      if (sbuf) chunks.push({ text: sbuf, softBreak: false });
+    }
+    return chunks.length ? chunks : [{ text, softBreak: false }];
+  }
+
+  let speakQueue = [];
+  let speakQueueIndex = 0;
+  let speakToken = 0; // invalida filas antigas quando uma nova narração começa
+
+  // Fala um único trecho e chama onDone quando ele termina (ou dá erro) — igual à
+  // função speak(text, onEnd) do material de matemática. A única rede de segurança
+  // é para o caso de a fala NUNCA começar (ex.: falha de rede da voz "Online"); uma
+  // vez que ela começa, é o próprio fim da frase (onend) que decide quando parar —
+  // sem nenhum limite de duração, mesmo para frases mais longas.
+  function speakOne(text, token, wordStart, onDone){
+    if (!SUPPORTS_TTS) { onDone(); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'pt-BR';
+    if (franciscaVoice) utter.voice = franciscaVoice;
+    utter.rate = 0.98;
+    utter.pitch = 1.1;
+    let started = false;
+    let settled = false;
+    let wordsSpoken = 0;
+    const finish = () => {
+      if (settled || token !== speakToken) return;
+      settled = true;
+      onDone();
+    };
+    utter.onstart = () => { started = true; setSpeakingUI(true); };
+    utter.onboundary = (e) => {
+      if (token !== speakToken) return;
+      // Algumas vozes disparam apenas eventos de palavra; outras também marcam
+      // frase/sentença — só nos interessa o limite de cada palavra.
+      if (e.name && e.name !== 'word') return;
+      highlightWord(wordStart + wordsSpoken);
+      wordsSpoken++;
+    };
+    utter.onend = finish;
+    utter.onerror = finish;
+    window.speechSynthesis.speak(utter);
+    setTimeout(() => {
+      if (settled || started || token !== speakToken) return; // só age se nunca começou
+      window.speechSynthesis.cancel();
+      finish();
+    }, 5000);
+  }
+
+  // Pausa como numa leitura normal: breve entre frases, quase nenhuma dentro de uma
+  // frase que só foi cortada por ser longa demais.
+  const PAUSE_AFTER_SENTENCE_MS = 220;
+  const PAUSE_AFTER_SOFT_BREAK_MS = 70;
+  // Pausa entre o fim da narração de uma cena e o início automático da próxima —
+  // esta versão não tem botões de navegação: a aula avança sozinha, cena após
+  // cena, até a última, para poder ser gravada em vídeo sem qualquer interação.
+  const PAUSE_BETWEEN_SCENES_MS = 900;
+
+  function speakNextChunk(token){
+    if (token !== speakToken) return; // uma narração mais nova já assumiu
+    if (speakQueueIndex >= speakQueue.length) {
+      setSpeakingUI(false);
+      clearWordHighlight();
+      if (current < SCENES.length - 1) {
+        setTimeout(() => { if (token === speakToken) goTo(current + 1); }, PAUSE_BETWEEN_SCENES_MS);
+      } else {
+        setTimeout(() => { if (token === speakToken) finalizarAula(); }, PAUSE_BETWEEN_SCENES_MS);
+      }
+      return;
+    }
+    const chunk = speakQueue[speakQueueIndex++];
+    speakOne(chunk.text, token, chunk.wordStart, () => {
+      if (token !== speakToken) return;
+      const pause = chunk.softBreak ? PAUSE_AFTER_SOFT_BREAK_MS : PAUSE_AFTER_SENTENCE_MS;
+      setTimeout(() => speakNextChunk(token), pause);
+    });
+  }
+
+  // Algumas palavras estrangeiras travam a síntese de voz em português — em especial
+  // nomes com letras raras na ortografia do português, como o "w". O texto exibido na
+  // tela continua com a grafia correta; só o que é enviado à voz é ajustado para uma
+  // grafia foneticamente parecida que o sintetizador consiga ler sem engasgar.
+  // "Kurt Lewin" foi confirmado como problema real (testado); os demais foram
+  // adicionados de forma preventiva, pelo mesmo padrão — avise se algum ainda travar
+  // ou se algum outro nome causar o mesmo problema, para eu ajustar a lista.
+  const TTS_PRONUNCIATION_FIXES = [
+    { pattern: /Kurt Lewin/g, replacement: 'Curt Levin' },
+    { pattern: /Weber/g, replacement: 'Véber' },
+    { pattern: /Hawthorne/g, replacement: 'Hautorn' },
+    { pattern: /Ishikawa/g, replacement: 'Ishicava' },
+    { pattern: /Maslow/g, replacement: 'Maslou' },
+    { pattern: /Osterwalder/g, replacement: 'Osterválder' },
+    { pattern: /Winslow/g, replacement: 'Uinslou' },
+  ];
+
+  function textForSpeech(text){
+    let out = text;
+    for (const fix of TTS_PRONUNCIATION_FIXES) out = out.replace(fix.pattern, fix.replacement);
+    return out;
   }
 
   function speakScene(text){
     if (!SUPPORTS_TTS) return;
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'pt-BR';
-    const v = getSelectedVoice();
-    if (v) utter.voice = v; // mesma voz fixada em getSelectedVoice() para todas as cenas
-    utter.rate = 0.98;
-    utter.pitch = 1.1;
-    utter.onstart = () => setSpeakingUI(true);
-    utter.onend = () => setSpeakingUI(false);
-    utter.onerror = () => setSpeakingUI(false);
-    window.speechSynthesis.speak(utter);
+    speakToken++;
+    const token = speakToken;
+    speakQueue = splitNarrationIntoChunks(textForSpeech(text), TTS_CHUNK_MAX_LEN);
+    // Cada trecho carrega também em qual palavra (do texto exibido na tela) ele
+    // começa, para o destaque de leitura avançar junto com a fala.
+    let wordCursor = 0;
+    for (const chunk of speakQueue) {
+      const n = chunk.text.trim().split(/\s+/).filter(Boolean).length;
+      chunk.wordStart = wordCursor;
+      wordCursor += n;
+    }
+    speakQueueIndex = 0;
+    clearWordHighlight();
+    setTimeout(() => speakNextChunk(token), 50);
   }
 
   function stopSpeaking(){
+    speakToken++; // invalida qualquer fila em andamento
+    speakQueue = [];
+    speakQueueIndex = 0;
     if (SUPPORTS_TTS) window.speechSynthesis.cancel();
     setSpeakingUI(false);
-  }
-
-  function toggleNarration(){
-    if (window.speechSynthesis.speaking) { stopSpeaking(); return; }
-    speakScene(SCENES[current].narration);
+    clearWordHighlight();
   }
 
   if (SUPPORTS_TTS) {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-    btnNarrar.addEventListener('click', toggleNarration);
-    if (btnNarrarMobile) btnNarrarMobile.addEventListener('click', toggleNarration);
-    voiceSelect.addEventListener('change', () => {
-      // troca manual: vira a nova voz fixada a partir de agora
-      if (window.speechSynthesis.speaking) speakScene(SCENES[current].narration);
-    });
   } else {
-    narrControls.style.display = 'none';
-    if (narrControlsMobileEl()) narrControlsMobileEl().style.display = 'none';
     avatarWrap.insertAdjacentHTML('afterend',
       '<div class="narr-note" style="margin-top:10px;">Este navegador não oferece leitura em voz automática (Web Speech API). Use o roteiro em DOCX para a gravação, ou abra esta aula em um navegador desktop atualizado, como Chrome ou Edge.</div>');
   }
-  function narrControlsMobileEl(){ return document.getElementById('narrControlsMobile'); }
+
+  function escapeHtml(str){
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // Reconstrói o texto da narração envolvendo cada palavra em um <span> numerado,
+  // preservando os espaços originais entre elas, para permitir destacar a palavra
+  // que está sendo lida no momento.
+  function renderNarrationWithWordSpans(text){
+    const tokens = text.split(/(\s+)/);
+    let html = '';
+    let widx = 0;
+    for (const tok of tokens) {
+      if (tok === '') continue;
+      if (/^\s+$/.test(tok)) { html += tok; continue; }
+      html += '<span class="tts-word" data-widx="' + widx + '">' + escapeHtml(tok) + '</span>';
+      widx++;
+    }
+    fullNarration.innerHTML = html;
+    wordSpans = Array.prototype.slice.call(fullNarration.querySelectorAll('.tts-word'));
+    lastActiveWordIndex = -1;
+  }
+
+  function highlightWord(idx){
+    if (idx === lastActiveWordIndex) return;
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    if (idx >= 0 && idx < wordSpans.length) {
+      wordSpans[idx].classList.add('active');
+      wordSpans[idx].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    lastActiveWordIndex = idx;
+  }
+
+  function clearWordHighlight(){
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    lastActiveWordIndex = -1;
+  }
 
   function renderDots(){
     dotsEl.innerHTML = '';
     SCENES.forEach((s, i) => {
-      const b = document.createElement('button');
+      const b = document.createElement('span');
       b.className = 'dot' + (i === current ? ' active' : '') + (visited.has(i) ? ' done' : '');
       b.title = 'Cena ' + (i+1) + ': ' + s.title;
-      b.addEventListener('click', () => goTo(i));
       dotsEl.appendChild(b);
     });
   }
@@ -499,10 +621,8 @@
     titleText.textContent = s.title;
     bulletsList.innerHTML = s.bullets.map(b => '<li>' + b + '</li>').join('');
     profPreview.textContent = s.narration;
-    fullNarration.textContent = s.narration;
+    renderNarrationWithWordSpans(s.narration);
     sceneCount.textContent = 'Cena ' + (current+1) + ' de ' + SCENES.length;
-    btnPrev.disabled = current === 0;
-    btnNext.textContent = current === SCENES.length - 1 ? 'Concluir aula ✔' : 'Próxima ▶';
     renderDots();
     // volta o scroll do conteúdo ao topo a cada nova cena
     const contentBox = document.querySelector('.content-box');
@@ -511,8 +631,11 @@
     if (stageBody) stageBody.scrollTop = 0;
 
     if (SUPPORTS_TTS) {
+      speakToken++; // invalida qualquer fila de fala pendente da cena anterior
+      speakQueue = [];
+      speakQueueIndex = 0;
       window.speechSynthesis.cancel();
-      if (chkAutoplay.checked) speakScene(s.narration);
+      speakScene(s.narration);
     }
   }
 
@@ -521,31 +644,16 @@
     render();
   }
 
-  btnStart.addEventListener('click', () => {
-    introScroll.style.display = 'none';
-    stage.classList.add('active');
-    current = 0;
-    render();
-  });
-
-  btnPrev.addEventListener('click', () => goTo(current - 1));
-  btnNext.addEventListener('click', () => {
-    if (current === SCENES.length - 1) {
-      if (SUPPORTS_TTS) window.speechSynthesis.cancel();
-      stage.classList.remove('active');
-      introScroll.style.display = '';
-      btnStart.textContent = 'Rever a aula ▶';
-      marcarComoConcluida();
-    } else {
-      goTo(current + 1);
-    }
-  });
-
-  // ---------------- Integração com o Painel (curso.js) ----------------
-  function marcarComoConcluida(){
+  // Chamada quando a narração da última cena termina — não há mais botão de
+  // "Concluir aula" nesta versão (feita para gravação em vídeo, sem cliques),
+  // então a conclusão é detectada automaticamente aqui.
+  function finalizarAula(){
     if (window.Curso) {
       Curso.marcarAulaConcluida(MODULE_NUMBER);
     }
+    stage.classList.remove('active');
+    introScroll.style.display = '';
+    btnStart.textContent = 'Rever a aula ▶';
     const banner = document.getElementById('concluidaBanner');
     const linkProxima = document.getElementById('linkProximaAula');
     if (linkProxima) {
@@ -561,17 +669,18 @@
     if (banner) banner.style.display = '';
   }
 
+  btnStart.addEventListener('click', () => {
+    introScroll.style.display = 'none';
+    stage.classList.add('active');
+    current = 0;
+    render();
+  });
+
   if (window.Curso) {
     Curso.renderAlunoTag(document.getElementById('alunoTag'));
   }
 
-  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) window.speechSynthesis.cancel(); });
-
-  document.addEventListener('keydown', (e) => {
-    if (!stage.classList.contains('active')) return;
-    if (e.key === 'ArrowRight') btnNext.click();
-    if (e.key === 'ArrowLeft') btnPrev.click();
-  });
+  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) stopSpeaking(); });
 </script>
 
 </body>

@@ -34,7 +34,7 @@
     /* mesma largura (e mesmo centro) do cartão central: calc() replica o
        padding lateral de 12px do <main>, e o max-width replica o do .wrap */
     width: calc(100% - 24px); max-width: 760px; margin: 8px auto 0; box-sizing:border-box;
-    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; row-gap:6px;
+    display:flex; align-items:center; justify-content:space-between;
     padding: 8px 20px;
     background: var(--teal-dark);
     color:#fff;
@@ -45,7 +45,6 @@
   header.top .brand small{ font-weight:400; opacity:.85; font-style:italic; font-size:.72rem;}
   header.top .course{ font-size:.74rem; opacity:.9; text-align:right;}
   header.top .header-actions{ display:flex; align-items:center; gap:10px; }
-  header.top .course{ flex:1 1 auto; }
   header.top .painel-link{ color:#fff; text-decoration:none; font-size:.68rem; font-weight:600; background:rgba(255,255,255,.16); padding:4px 11px; border-radius:999px; white-space:nowrap; }
   header.top .painel-link:hover{ background:rgba(255,255,255,.27); }
   header.top .aluno-tag{ font-size:.66rem; opacity:.92; white-space:nowrap; display:flex; align-items:center; gap:6px; }
@@ -188,6 +187,17 @@
   .content-box .narration-divider{ border:none; border-top:1px dashed #b9d3cb; margin:0; flex:0 0 auto; }
   .content-box .narration-text{
     font-size:.8rem; line-height:1.6; color:var(--ink); white-space:pre-line; flex:0 0 auto;
+    text-align:justify; text-justify:inter-word;
+  }
+  .tts-word{
+    transition: background-color .12s ease, color .12s ease;
+    border-radius:3px;
+  }
+  .tts-word.active{
+    background: var(--gold);
+    color:#fff;
+    padding:0 2px;
+    margin:0 -2px;
   }
 
   .stage-foot{
@@ -202,7 +212,7 @@
   .navbtn.secondary{ background:#fff; color:var(--teal-dark); border:1px solid var(--teal); }
   .navbtn:disabled{ opacity:.4; cursor:not-allowed; }
   .dots{ display:flex; gap:5px; flex-wrap:wrap; justify-content:center; max-width: 40%; }
-  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:pointer; border:none; padding:0; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:default; border:none; padding:0; }
   .dot.active{ background:var(--teal); transform:scale(1.3); }
   .dot.done{ background:var(--gold); }
 
@@ -287,14 +297,6 @@
           <div class="prof-name">Profa. Francisca</div>
           <div class="prof-role">Narradora do curso</div>
           <div class="prof-preview" id="profPreview"></div>
-          <div class="narr-controls" id="narrControls">
-            <div class="narr-row">
-              <button class="narr-btn" id="btnNarrar">🔊 Ouvir esta cena</button>
-            </div>
-            <label class="narr-toggle"><input type="checkbox" id="chkAutoplay" checked> Narrar automaticamente ao trocar de cena</label>
-            <select class="narr-voice" id="voiceSelect"></select>
-            <div class="narr-note" id="narrNote"></div>
-          </div>
         </div>
         <div class="content-col">
           <div class="badge-kind" id="kindBadge"></div>
@@ -307,15 +309,8 @@
           </div>
         </div>
       </div>
-      <div class="narr-controls-mobile" id="narrControlsMobile">
-        <div class="narr-row">
-          <button class="narr-btn" id="btnNarrarMobile">🔊 Ouvir esta cena</button>
-        </div>
-      </div>
-      <div class="stage-foot">
-        <button class="navbtn secondary" id="btnPrev">◀ Anterior</button>
+      <div class="stage-foot" style="justify-content:center;">
         <div class="dots" id="dots"></div>
-        <button class="navbtn" id="btnNext">Próxima ▶</button>
       </div>
     </section>
 
@@ -324,15 +319,13 @@
 
 <script src="curso.js"></script>
 <script>
+  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos de volta!","caption":"Retomando a Aula 19 e avançando na Unidade 6","narration":"Olá, seja bem-vindo, seja bem-vinda de volta ao curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e este é o nosso vigésimo encontro. Na Aula 19, estudamos os fundamentos da gestão de projetos, incluindo o PMBOK e os métodos ágeis Scrum e Kanban. Hoje, vamos continuar dentro da Unidade 6, a última do nosso curso, estudando um tema cada vez mais central para a sobrevivência e o crescimento das empresas: a inovação. Vamos estudar a diferença entre inovação incremental e disruptiva, o conceito de intraempreendedorismo, a transformação digital e seus principais impactos na gestão, e os elementos que compõem uma cultura organizacional voltada à inovação. Vamos começar?","bullets":["Recapitulando a Aula 19: gestão de projetos, PMBOK e métodos ágeis","Unidade 6 — Gestão Estratégica Avançada e Tendências, continuação","Aula 20: inovação, intraempreendedorismo e transformação digital"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de diferenciar inovação incremental e inovação disruptiva, reconhecendo exemplos de cada uma delas. Você vai compreender o conceito de intraempreendedorismo, e como ele se manifesta dentro de organizações já estabelecidas. Vai compreender o conceito de transformação digital, e seus principais impactos sobre a forma como as empresas se organizam e competem. Vai conhecer os elementos que compõem uma cultura organizacional voltada à inovação, incluindo a tolerância a erros e o incentivo à experimentação. E, por fim, vai relacionar a gestão da inovação ao planejamento estratégico da empresa, estudado no início deste curso.","bullets":["Inovação incremental x inovação disruptiva","Intraempreendedorismo","Transformação digital","Cultura organizacional voltada à inovação"]},{"id":3,"kind":"conteudo","title":"Inovação incremental x inovação disruptiva","caption":"Dois caminhos distintos para inovar","narration":"A inovação pode ser definida como a implementação bem-sucedida de uma ideia nova que gera valor, seja para a empresa, para seus clientes, ou para a sociedade em geral. Uma das distinções mais importantes na literatura de inovação é aquela entre inovação incremental e inovação disruptiva, popularizada pelo professor Clayton Christensen. A inovação incremental consiste em melhorias graduais e contínuas sobre produtos, serviços ou processos já existentes, aprimorando aspectos como qualidade, eficiência ou experiência do cliente, sem alterar de forma radical o modelo de negócio da empresa — dialogando diretamente com a filosofia Kaizen, estudada no Capítulo 18. Já a inovação disruptiva consiste na introdução de um produto, serviço ou modelo de negócio que, inicialmente, atende a um mercado menor ou mais simples, muitas vezes negligenciado pelos players estabelecidos, mas que, ao longo do tempo, evolui e acaba por substituir soluções anteriormente dominantes no mercado, muitas vezes surpreendendo empresas já consolidadas, que não perceberam a ameaça a tempo. Enquanto a inovação incremental tende a ser mais previsível e menos arriscada, a inovação disruptiva envolve maior incerteza, mas também maior potencial de transformação do mercado em que a empresa atua.","bullets":["Inovação: implementação bem-sucedida de uma ideia nova que gera valor","Inovação incremental: melhorias graduais sobre o que já existe (dialoga com o Kaizen)","Inovação disruptiva: conceito de Clayton Christensen","Disruptiva: começa em nichos menores e pode substituir soluções dominantes"]},{"id":4,"kind":"conteudo","title":"Intraempreendedorismo","caption":"Empreender dentro de uma organização já estabelecida","narration":"O intraempreendedorismo, também chamado de empreendedorismo corporativo, refere-se à aplicação de atitudes e práticas tipicamente empreendedoras, como identificação de oportunidades, iniciativa e disposição a assumir riscos calculados, por colaboradores que atuam dentro de uma organização já estabelecida, e não como fundadores de um novo negócio independente. O intraempreendedor é, portanto, um colaborador que identifica oportunidades de inovação dentro da empresa em que trabalha, e que assume um papel ativo para transformar essas oportunidades em iniciativas concretas, muitas vezes enfrentando resistências internas típicas de estruturas organizacionais mais consolidadas, retomando o tema da estrutura organizacional estudado no Capítulo 3. Para estimular o intraempreendedorismo, muitas organizações criam mecanismos específicos, como programas de inovação aberta a sugestões de colaboradores, tempo dedicado especificamente à exploração de novas ideias, e estruturas internas mais flexíveis, semelhantes a startups, que permitem testar iniciativas inovadoras com maior agilidade antes de uma eventual expansão para toda a organização — retomando, inclusive, a lógica de projetos-piloto discutida no Capítulo 19, ao estudarmos o ciclo PDCA e a gestão de projetos.","bullets":["Intraempreendedorismo: atitude empreendedora dentro de uma empresa já estabelecida","Intraempreendedor: identifica oportunidades e assume papel ativo na inovação","Pode enfrentar resistências típicas de estruturas organizacionais consolidadas","Mecanismos de incentivo: programas de inovação, tempo dedicado, estruturas ágeis internas"]},{"id":5,"kind":"conteudo","title":"Transformação digital","caption":"Repensando a empresa a partir da tecnologia","narration":"A transformação digital é o processo de integração de tecnologias digitais em todas as áreas de uma organização, alterando de forma profunda a maneira como ela opera, entrega valor aos seus clientes, e compete em seu mercado. É importante destacar que a transformação digital vai muito além da simples digitalização de processos já existentes: enquanto a digitalização costuma se limitar a converter processos analógicos para um formato digital, mantendo, em essência, a mesma lógica de funcionamento, a transformação digital envolve repensar de forma mais ampla o próprio modelo de negócio da empresa, retomando o Business Model Canvas estudado no Capítulo 6, a partir das possibilidades abertas pela tecnologia. A transformação digital impacta praticamente todas as áreas estudadas ao longo deste curso: no marketing e na gestão comercial, discutidos no Capítulo 16, amplia o alcance de canais digitais e a capacidade de mensuração de resultados; na gestão de processos e operações, discutida no Capítulo 17, permite automação e maior eficiência; e na gestão de pessoas, discutida na Unidade 3 deste curso, exige o desenvolvimento de novas competências digitais entre os colaboradores da organização. Empresas que não conduzem sua própria transformação digital de forma deliberada correm o risco de se tornar vulneráveis a concorrentes ou a novos entrantes que utilizam a tecnologia de forma mais estratégica, conectando-se diretamente ao conceito de inovação disruptiva estudado anteriormente nesta aula.","bullets":["Transformação digital: integração de tecnologias digitais em toda a organização","Diferente de mera digitalização: repensa o próprio modelo de negócio","Impacta marketing, processos, operações e gestão de pessoas","Empresas que não se transformam ficam vulneráveis à inovação disruptiva"]},{"id":6,"kind":"conteudo","title":"Impactos da transformação digital na gestão","caption":"Novas competências e novas formas de trabalhar","narration":"A transformação digital traz impactos concretos sobre a forma como as empresas são geridas no dia a dia. Um dos impactos mais relevantes é a crescente disponibilidade de dados sobre o desempenho da empresa e o comportamento de seus clientes, o que reforça a importância dos indicadores de desempenho estudados ao longo deste curso, como os do Balanced Scorecard, apresentado no Capítulo 8, agora sustentados por informações mais detalhadas e atualizadas com maior frequência. Outro impacto relevante é a aceleração do ritmo de mudança nos mercados, o que aumenta a relevância de abordagens ágeis de gestão, como o Scrum e o Kanban, estudados na aula anterior, capazes de se adaptar rapidamente a novas informações. A transformação digital também exige novas competências dos colaboradores, o que reforça a importância de trilhas de aprendizagem atualizadas, tema discutido no Capítulo 11, incluindo competências relacionadas ao uso de novas ferramentas digitais, à análise de dados, e à colaboração em ambientes de trabalho cada vez mais remotos ou híbridos. Por fim, a transformação digital também impacta a forma como as empresas se relacionam com seus clientes, exigindo maior personalização e capacidade de resposta, retomando os conceitos de segmentação e posicionamento estudados no Capítulo 16.","bullets":["Maior disponibilidade de dados fortalece indicadores como o BSC","Aceleração do ritmo de mudança reforça a relevância de abordagens ágeis","Exige novas competências digitais e atualização das trilhas de aprendizagem","Exige maior personalização e capacidade de resposta ao cliente"]},{"id":7,"kind":"conteudo","title":"Cultura organizacional voltada à inovação","caption":"O ambiente que sustenta a inovação","narration":"De pouco adianta uma empresa investir em tecnologia e em processos formais de inovação, se sua cultura organizacional, tema estudado no Capítulo 4 deste curso, não for favorável à inovação na prática. Alguns elementos costumam caracterizar uma cultura organizacional voltada à inovação. O primeiro é a tolerância a erros: uma cultura que pune severamente qualquer tentativa fracassada tende a desestimular a experimentação, essencial ao processo de inovação, especialmente em iniciativas de maior incerteza, como as inovações disruptivas discutidas anteriormente nesta aula. O segundo é o incentivo à experimentação, muitas vezes por meio de pequenos testes controlados, semelhantes à lógica do ciclo PDCA estudado no Capítulo 18, antes de uma implementação em maior escala. O terceiro é a valorização da diversidade de perspectivas, já que ideias inovadoras frequentemente surgem do cruzamento de diferentes experiências e formas de enxergar um mesmo problema. E o quarto é o apoio explícito da liderança à inovação, não apenas em discursos, mas também na alocação real de tempo, recursos financeiros e reconhecimento a iniciativas inovadoras, retomando o tema da liderança estudado no Capítulo 10 deste curso. Construir uma cultura de inovação é, em geral, um processo mais lento e mais desafiador do que adquirir uma nova tecnologia, mas costuma ser o fator mais determinante para o sucesso sustentado das iniciativas de inovação de uma empresa.","bullets":["Tolerância a erros: essencial para estimular a experimentação","Incentivo a testes controlados, na lógica do ciclo PDCA","Valorização da diversidade de perspectivas","Apoio explícito da liderança, com tempo, recursos e reconhecimento reais"]},{"id":8,"kind":"conteudo","title":"Inovação e planejamento estratégico","caption":"Inovar com direção, não ao acaso","narration":"A gestão da inovação, assim como os demais temas estudados ao longo deste curso, não deve ser tratada de forma isolada do planejamento estratégico da empresa, estudado no Capítulo 5. Inovar sem direção estratégica clara pode levar a esforços dispersos, que consomem recursos sem gerar resultados consistentes com os objetivos da empresa. Por isso, é recomendável que as iniciativas de inovação, sejam elas incrementais ou disruptivas, estejam conectadas à missão, à visão e aos valores da empresa, estudados no Capítulo 6, e à sua proposta de valor definida no Business Model Canvas. Da mesma forma, a análise SWOT, estudada no Capítulo 7, pode ajudar a identificar em quais frentes específicas a inovação é mais urgente ou mais promissora para a empresa, seja para fortalecer um ponto forte já existente, seja para responder a uma ameaça competitiva identificada no ambiente externo. Empresas maduras em gestão da inovação costumam equilibrar deliberadamente seus investimentos entre inovações incrementais, que sustentam a competitividade no curto prazo, e inovações mais disruptivas, que preparam a empresa para mudanças mais profundas no médio e longo prazo — um equilíbrio que também deve ser refletido no orçamento empresarial estudado no Capítulo 15.","bullets":["Inovação deve estar conectada ao planejamento estratégico, não dispersa","Conexão com missão, visão, valores e proposta de valor (Capítulo 6)","SWOT ajuda a identificar frentes prioritárias para inovação","Equilíbrio entre inovação incremental (curto prazo) e disruptiva (longo prazo)"]},{"id":9,"kind":"caso","title":"Estudo de caso: o laboratório de inovação da Metalúrgica Vitória","caption":"Do intraempreendedorismo à transformação digital","narration":"Vamos retomar o exemplo fictício da Metalúrgica Vitória, agora sob a perspectiva de inovação. Depois de consolidar melhorias incrementais em seus processos, estudadas em capítulos anteriores, a diretoria da empresa percebeu um risco de disrupção em seu setor: fornecedores digitais começavam a oferecer plataformas on-line que conectavam diretamente fabricantes de peças metálicas a clientes industriais, ameaçando o modelo tradicional de vendas baseado em relacionamento direto, no qual a empresa historicamente se apoiava. Diante desse cenário, um analista comercial da própria empresa, sem vínculo com a área de tecnologia, propôs à diretoria a criação de um pequeno laboratório interno de inovação, com tempo dedicado e orçamento próprio, para testar, em pequena escala, uma plataforma digital simplificada de orçamentos on-line para clientes recorrentes. A diretoria apoiou a iniciativa, alocando recursos específicos e tolerando o risco de que o piloto pudesse não funcionar como esperado. O piloto, conduzido com uma abordagem ágil semelhante ao Kanban estudado na aula anterior, revelou ajustes importantes nas primeiras semanas, mas, após algumas iterações, resultou em uma ferramenta que reduziu significativamente o tempo de resposta a orçamentos, sem eliminar o relacionamento comercial direto que a empresa considerava um diferencial de seu posicionamento estratégico, discutido no Capítulo 16.","bullets":["Risco de disrupção identificado: plataformas digitais de fornecedores concorrentes","Iniciativa de intraempreendedorismo parte de um analista comercial da empresa","Diretoria apoia com recursos, tempo e tolerância ao risco do piloto","Resultado: ferramenta digital que combina eficiência com o diferencial estratégico da empresa"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. A inovação incremental melhora gradualmente produtos, serviços e processos já existentes, enquanto a inovação disruptiva introduz soluções que podem, ao longo do tempo, substituir modelos de negócio dominantes. O intraempreendedorismo aplica atitudes empreendedoras dentro de organizações já estabelecidas, exigindo mecanismos específicos de incentivo. A transformação digital integra tecnologias digitais em toda a organização, repensando seu modelo de negócio, e impacta áreas como marketing, processos, gestão de pessoas e a relação com os clientes. Uma cultura organizacional voltada à inovação depende de tolerância a erros, incentivo à experimentação, valorização da diversidade e apoio real da liderança. E a gestão da inovação deve estar sempre conectada ao planejamento estratégico da empresa, equilibrando iniciativas incrementais e disruptivas.","bullets":["Inovação incremental x disruptiva","Intraempreendedorismo: empreender dentro de uma organização estabelecida","Transformação digital: repensa o modelo de negócio a partir da tecnologia","Cultura de inovação e conexão com o planejamento estratégico"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez","caption":"Atividade de reflexão","narration":"Vamos praticar. Pense em uma empresa ou em um setor que você conhece bem, e reflita sobre um exemplo de inovação incremental e um exemplo de inovação disruptiva que você já tenha observado nesse contexto. Em seguida, pense em uma organização em que você já trabalhou, ou trabalha atualmente: você identifica elementos de uma cultura organizacional voltada à inovação, como tolerância a erros e incentivo à experimentação? Que elementos poderiam ser fortalecidos? Por fim, reflita sobre como a transformação digital já impactou, ou poderia impactar, essa mesma organização, considerando áreas como marketing, processos ou gestão de pessoas. Você pode registrar suas respostas no Capítulo vinte do material didático deste curso.","bullets":["Identifique exemplos de inovação incremental e disruptiva em um setor conhecido","Avalie os elementos de cultura de inovação presentes em uma organização","Reflita sobre impactos da transformação digital nessa organização"]},{"id":12,"kind":"encerramento","title":"Até a próxima aula!","caption":"Encerramento da aula e próximos passos","narration":"Muito bem, chegamos ao final da nossa vigésima aula. Hoje você conheceu a diferença entre inovação incremental e disruptiva, o conceito de intraempreendedorismo, a transformação digital e seus principais impactos na gestão, e os elementos que compõem uma cultura organizacional voltada à inovação. Para aprofundar ainda mais esse conteúdo, com exemplos adicionais e questões de revisão, não deixe de ler o Capítulo vinte do material didático do curso. Na próxima aula, vamos continuar dentro da Unidade 6, estudando ética, responsabilidade social e sustentabilidade, incluindo os critérios ESG, ambiental, social e de governança, e o conceito de governança corporativa. Muito obrigada pela sua atenção, e te espero na próxima aula, aqui no DeCastro, o Canal do Conhecimento.","bullets":["Leia o Capítulo 20 do material didático para aprofundar o conteúdo","Continuação da Unidade 6 — Gestão Estratégica Avançada e Tendências","Próxima aula: Ética, Responsabilidade Social e Sustentabilidade (ESG)"]}];
   const MODULE_NUMBER = 20;
   const TOTAL_MODULES = 22;
-  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos de volta!","caption":"Retomando a Aula 19 e avançando na Unidade 6","narration":"Olá, seja bem-vindo, seja bem-vinda de volta ao curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e este é o nosso vigésimo encontro. Na Aula 19, estudamos os fundamentos da gestão de projetos, incluindo o PMBOK e os métodos ágeis Scrum e Kanban. Hoje, vamos continuar dentro da Unidade 6, a última do nosso curso, estudando um tema cada vez mais central para a sobrevivência e o crescimento das empresas: a inovação. Vamos estudar a diferença entre inovação incremental e disruptiva, o conceito de intraempreendedorismo, a transformação digital e seus principais impactos na gestão, e os elementos que compõem uma cultura organizacional voltada à inovação. Vamos começar?","bullets":["Recapitulando a Aula 19: gestão de projetos, PMBOK e métodos ágeis","Unidade 6 — Gestão Estratégica Avançada e Tendências, continuação","Aula 20: inovação, intraempreendedorismo e transformação digital"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de diferenciar inovação incremental e inovação disruptiva, reconhecendo exemplos de cada uma delas. Você vai compreender o conceito de intraempreendedorismo, e como ele se manifesta dentro de organizações já estabelecidas. Vai compreender o conceito de transformação digital, e seus principais impactos sobre a forma como as empresas se organizam e competem. Vai conhecer os elementos que compõem uma cultura organizacional voltada à inovação, incluindo a tolerância a erros e o incentivo à experimentação. E, por fim, vai relacionar a gestão da inovação ao planejamento estratégico da empresa, estudado no início deste curso.","bullets":["Inovação incremental x inovação disruptiva","Intraempreendedorismo","Transformação digital","Cultura organizacional voltada à inovação"]},{"id":3,"kind":"conteudo","title":"Inovação incremental x inovação disruptiva","caption":"Dois caminhos distintos para inovar","narration":"A inovação pode ser definida como a implementação bem-sucedida de uma ideia nova que gera valor, seja para a empresa, para seus clientes, ou para a sociedade em geral. Uma das distinções mais importantes na literatura de inovação é aquela entre inovação incremental e inovação disruptiva, popularizada pelo professor Clayton Christensen. A inovação incremental consiste em melhorias graduais e contínuas sobre produtos, serviços ou processos já existentes, aprimorando aspectos como qualidade, eficiência ou experiência do cliente, sem alterar de forma radical o modelo de negócio da empresa — dialogando diretamente com a filosofia Kaizen, estudada no Capítulo 18. Já a inovação disruptiva consiste na introdução de um produto, serviço ou modelo de negócio que, inicialmente, atende a um mercado menor ou mais simples, muitas vezes negligenciado pelos players estabelecidos, mas que, ao longo do tempo, evolui e acaba por substituir soluções anteriormente dominantes no mercado, muitas vezes surpreendendo empresas já consolidadas, que não perceberam a ameaça a tempo. Enquanto a inovação incremental tende a ser mais previsível e menos arriscada, a inovação disruptiva envolve maior incerteza, mas também maior potencial de transformação do mercado em que a empresa atua.","bullets":["Inovação: implementação bem-sucedida de uma ideia nova que gera valor","Inovação incremental: melhorias graduais sobre o que já existe (dialoga com o Kaizen)","Inovação disruptiva: conceito de Clayton Christensen","Disruptiva: começa em nichos menores e pode substituir soluções dominantes"]},{"id":4,"kind":"conteudo","title":"Intraempreendedorismo","caption":"Empreender dentro de uma organização já estabelecida","narration":"O intraempreendedorismo, também chamado de empreendedorismo corporativo, refere-se à aplicação de atitudes e práticas tipicamente empreendedoras, como identificação de oportunidades, iniciativa e disposição a assumir riscos calculados, por colaboradores que atuam dentro de uma organização já estabelecida, e não como fundadores de um novo negócio independente. O intraempreendedor é, portanto, um colaborador que identifica oportunidades de inovação dentro da empresa em que trabalha, e que assume um papel ativo para transformar essas oportunidades em iniciativas concretas, muitas vezes enfrentando resistências internas típicas de estruturas organizacionais mais consolidadas, retomando o tema da estrutura organizacional estudado no Capítulo 3. Para estimular o intraempreendedorismo, muitas organizações criam mecanismos específicos, como programas de inovação aberta a sugestões de colaboradores, tempo dedicado especificamente à exploração de novas ideias, e estruturas internas mais flexíveis, semelhantes a startups, que permitem testar iniciativas inovadoras com maior agilidade antes de uma eventual expansão para toda a organização — retomando, inclusive, a lógica de projetos-piloto discutida no Capítulo 19, ao estudarmos o ciclo PDCA e a gestão de projetos.","bullets":["Intraempreendedorismo: atitude empreendedora dentro de uma empresa já estabelecida","Intraempreendedor: identifica oportunidades e assume papel ativo na inovação","Pode enfrentar resistências típicas de estruturas organizacionais consolidadas","Mecanismos de incentivo: programas de inovação, tempo dedicado, estruturas ágeis internas"]},{"id":5,"kind":"conteudo","title":"Transformação digital","caption":"Repensando a empresa a partir da tecnologia","narration":"A transformação digital é o processo de integração de tecnologias digitais em todas as áreas de uma organização, alterando de forma profunda a maneira como ela opera, entrega valor aos seus clientes, e compete em seu mercado. É importante destacar que a transformação digital vai muito além da simples digitalização de processos já existentes: enquanto a digitalização costuma se limitar a converter processos analógicos para um formato digital, mantendo, em essência, a mesma lógica de funcionamento, a transformação digital envolve repensar de forma mais ampla o próprio modelo de negócio da empresa, retomando o Business Model Canvas estudado no Capítulo 6, a partir das possibilidades abertas pela tecnologia. A transformação digital impacta praticamente todas as áreas estudadas ao longo deste curso: no marketing e na gestão comercial, discutidos no Capítulo 16, amplia o alcance de canais digitais e a capacidade de mensuração de resultados; na gestão de processos e operações, discutida no Capítulo 17, permite automação e maior eficiência; e na gestão de pessoas, discutida na Unidade 3 deste curso, exige o desenvolvimento de novas competências digitais entre os colaboradores da organização. Empresas que não conduzem sua própria transformação digital de forma deliberada correm o risco de se tornar vulneráveis a concorrentes ou a novos entrantes que utilizam a tecnologia de forma mais estratégica, conectando-se diretamente ao conceito de inovação disruptiva estudado anteriormente nesta aula.","bullets":["Transformação digital: integração de tecnologias digitais em toda a organização","Diferente de mera digitalização: repensa o próprio modelo de negócio","Impacta marketing, processos, operações e gestão de pessoas","Empresas que não se transformam ficam vulneráveis à inovação disruptiva"]},{"id":6,"kind":"conteudo","title":"Impactos da transformação digital na gestão","caption":"Novas competências e novas formas de trabalhar","narration":"A transformação digital traz impactos concretos sobre a forma como as empresas são geridas no dia a dia. Um dos impactos mais relevantes é a crescente disponibilidade de dados sobre o desempenho da empresa e o comportamento de seus clientes, o que reforça a importância dos indicadores de desempenho estudados ao longo deste curso, como os do Balanced Scorecard, apresentado no Capítulo 8, agora sustentados por informações mais detalhadas e atualizadas com maior frequência. Outro impacto relevante é a aceleração do ritmo de mudança nos mercados, o que aumenta a relevância de abordagens ágeis de gestão, como o Scrum e o Kanban, estudados na aula anterior, capazes de se adaptar rapidamente a novas informações. A transformação digital também exige novas competências dos colaboradores, o que reforça a importância de trilhas de aprendizagem atualizadas, tema discutido no Capítulo 11, incluindo competências relacionadas ao uso de novas ferramentas digitais, à análise de dados, e à colaboração em ambientes de trabalho cada vez mais remotos ou híbridos. Por fim, a transformação digital também impacta a forma como as empresas se relacionam com seus clientes, exigindo maior personalização e capacidade de resposta, retomando os conceitos de segmentação e posicionamento estudados no Capítulo 16.","bullets":["Maior disponibilidade de dados fortalece indicadores como o BSC","Aceleração do ritmo de mudança reforça a relevância de abordagens ágeis","Exige novas competências digitais e atualização das trilhas de aprendizagem","Exige maior personalização e capacidade de resposta ao cliente"]},{"id":7,"kind":"conteudo","title":"Cultura organizacional voltada à inovação","caption":"O ambiente que sustenta a inovação","narration":"De pouco adianta uma empresa investir em tecnologia e em processos formais de inovação, se sua cultura organizacional, tema estudado no Capítulo 4 deste curso, não for favorável à inovação na prática. Alguns elementos costumam caracterizar uma cultura organizacional voltada à inovação. O primeiro é a tolerância a erros: uma cultura que pune severamente qualquer tentativa fracassada tende a desestimular a experimentação, essencial ao processo de inovação, especialmente em iniciativas de maior incerteza, como as inovações disruptivas discutidas anteriormente nesta aula. O segundo é o incentivo à experimentação, muitas vezes por meio de pequenos testes controlados, semelhantes à lógica do ciclo PDCA estudado no Capítulo 18, antes de uma implementação em maior escala. O terceiro é a valorização da diversidade de perspectivas, já que ideias inovadoras frequentemente surgem do cruzamento de diferentes experiências e formas de enxergar um mesmo problema. E o quarto é o apoio explícito da liderança à inovação, não apenas em discursos, mas também na alocação real de tempo, recursos financeiros e reconhecimento a iniciativas inovadoras, retomando o tema da liderança estudado no Capítulo 10 deste curso. Construir uma cultura de inovação é, em geral, um processo mais lento e mais desafiador do que adquirir uma nova tecnologia, mas costuma ser o fator mais determinante para o sucesso sustentado das iniciativas de inovação de uma empresa.","bullets":["Tolerância a erros: essencial para estimular a experimentação","Incentivo a testes controlados, na lógica do ciclo PDCA","Valorização da diversidade de perspectivas","Apoio explícito da liderança, com tempo, recursos e reconhecimento reais"]},{"id":8,"kind":"conteudo","title":"Inovação e planejamento estratégico","caption":"Inovar com direção, não ao acaso","narration":"A gestão da inovação, assim como os demais temas estudados ao longo deste curso, não deve ser tratada de forma isolada do planejamento estratégico da empresa, estudado no Capítulo 5. Inovar sem direção estratégica clara pode levar a esforços dispersos, que consomem recursos sem gerar resultados consistentes com os objetivos da empresa. Por isso, é recomendável que as iniciativas de inovação, sejam elas incrementais ou disruptivas, estejam conectadas à missão, à visão e aos valores da empresa, estudados no Capítulo 6, e à sua proposta de valor definida no Business Model Canvas. Da mesma forma, a análise SWOT, estudada no Capítulo 7, pode ajudar a identificar em quais frentes específicas a inovação é mais urgente ou mais promissora para a empresa, seja para fortalecer um ponto forte já existente, seja para responder a uma ameaça competitiva identificada no ambiente externo. Empresas maduras em gestão da inovação costumam equilibrar deliberadamente seus investimentos entre inovações incrementais, que sustentam a competitividade no curto prazo, e inovações mais disruptivas, que preparam a empresa para mudanças mais profundas no médio e longo prazo — um equilíbrio que também deve ser refletido no orçamento empresarial estudado no Capítulo 15.","bullets":["Inovação deve estar conectada ao planejamento estratégico, não dispersa","Conexão com missão, visão, valores e proposta de valor (Capítulo 6)","SWOT ajuda a identificar frentes prioritárias para inovação","Equilíbrio entre inovação incremental (curto prazo) e disruptiva (longo prazo)"]},{"id":9,"kind":"caso","title":"Estudo de caso: o laboratório de inovação da Metalúrgica Vitória","caption":"Do intraempreendedorismo à transformação digital","narration":"Vamos retomar o exemplo fictício da Metalúrgica Vitória, agora sob a perspectiva de inovação. Depois de consolidar melhorias incrementais em seus processos, estudadas em capítulos anteriores, a diretoria da empresa percebeu um risco de disrupção em seu setor: fornecedores digitais começavam a oferecer plataformas on-line que conectavam diretamente fabricantes de peças metálicas a clientes industriais, ameaçando o modelo tradicional de vendas baseado em relacionamento direto, no qual a empresa historicamente se apoiava. Diante desse cenário, um analista comercial da própria empresa, sem vínculo com a área de tecnologia, propôs à diretoria a criação de um pequeno laboratório interno de inovação, com tempo dedicado e orçamento próprio, para testar, em pequena escala, uma plataforma digital simplificada de orçamentos on-line para clientes recorrentes. A diretoria apoiou a iniciativa, alocando recursos específicos e tolerando o risco de que o piloto pudesse não funcionar como esperado. O piloto, conduzido com uma abordagem ágil semelhante ao Kanban estudado na aula anterior, revelou ajustes importantes nas primeiras semanas, mas, após algumas iterações, resultou em uma ferramenta que reduziu significativamente o tempo de resposta a orçamentos, sem eliminar o relacionamento comercial direto que a empresa considerava um diferencial de seu posicionamento estratégico, discutido no Capítulo 16.","bullets":["Risco de disrupção identificado: plataformas digitais de fornecedores concorrentes","Iniciativa de intraempreendedorismo parte de um analista comercial da empresa","Diretoria apoia com recursos, tempo e tolerância ao risco do piloto","Resultado: ferramenta digital que combina eficiência com o diferencial estratégico da empresa"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. A inovação incremental melhora gradualmente produtos, serviços e processos já existentes, enquanto a inovação disruptiva introduz soluções que podem, ao longo do tempo, substituir modelos de negócio dominantes. O intraempreendedorismo aplica atitudes empreendedoras dentro de organizações já estabelecidas, exigindo mecanismos específicos de incentivo. A transformação digital integra tecnologias digitais em toda a organização, repensando seu modelo de negócio, e impacta áreas como marketing, processos, gestão de pessoas e a relação com os clientes. Uma cultura organizacional voltada à inovação depende de tolerância a erros, incentivo à experimentação, valorização da diversidade e apoio real da liderança. E a gestão da inovação deve estar sempre conectada ao planejamento estratégico da empresa, equilibrando iniciativas incrementais e disruptivas.","bullets":["Inovação incremental x disruptiva","Intraempreendedorismo: empreender dentro de uma organização estabelecida","Transformação digital: repensa o modelo de negócio a partir da tecnologia","Cultura de inovação e conexão com o planejamento estratégico"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez","caption":"Atividade de reflexão","narration":"Vamos praticar. Pense em uma empresa ou em um setor que você conhece bem, e reflita sobre um exemplo de inovação incremental e um exemplo de inovação disruptiva que você já tenha observado nesse contexto. Em seguida, pense em uma organização em que você já trabalhou, ou trabalha atualmente: você identifica elementos de uma cultura organizacional voltada à inovação, como tolerância a erros e incentivo à experimentação? Que elementos poderiam ser fortalecidos? Por fim, reflita sobre como a transformação digital já impactou, ou poderia impactar, essa mesma organização, considerando áreas como marketing, processos ou gestão de pessoas. Você pode registrar suas respostas no Capítulo vinte do material didático deste curso.","bullets":["Identifique exemplos de inovação incremental e disruptiva em um setor conhecido","Avalie os elementos de cultura de inovação presentes em uma organização","Reflita sobre impactos da transformação digital nessa organização"]},{"id":12,"kind":"encerramento","title":"Até a próxima aula!","caption":"Encerramento da aula e próximos passos","narration":"Muito bem, chegamos ao final da nossa vigésima aula. Hoje você conheceu a diferença entre inovação incremental e disruptiva, o conceito de intraempreendedorismo, a transformação digital e seus principais impactos na gestão, e os elementos que compõem uma cultura organizacional voltada à inovação. Para aprofundar ainda mais esse conteúdo, com exemplos adicionais e questões de revisão, não deixe de ler o Capítulo vinte do material didático do curso. Na próxima aula, vamos continuar dentro da Unidade 6, estudando ética, responsabilidade social e sustentabilidade, incluindo os critérios ESG, ambiental, social e de governança, e o conceito de governança corporativa. Muito obrigada pela sua atenção, e te espero na próxima aula, aqui no DeCastro, o Canal do Conhecimento.","bullets":["Leia o Capítulo 20 do material didático para aprofundar o conteúdo","Continuação da Unidade 6 — Gestão Estratégica Avançada e Tendências","Próxima aula: Ética, Responsabilidade Social e Sustentabilidade (ESG)"]}];
   const capa = document.getElementById('capa');
   const introScroll = document.getElementById('introScroll');
   const stage = document.getElementById('stage');
   const btnStart = document.getElementById('btnStart');
-  const btnPrev = document.getElementById('btnPrev');
-  const btnNext = document.getElementById('btnNext');
   const dotsEl = document.getElementById('dots');
   const sceneCount = document.getElementById('sceneCount');
   const captionText = document.getElementById('captionText');
@@ -342,12 +335,7 @@
   const fullNarration = document.getElementById('fullNarration');
   const avatarWrap = document.getElementById('avatarWrap');
   const profPreview = document.getElementById('profPreview');
-  const btnNarrar = document.getElementById('btnNarrar');
-  const btnNarrarMobile = document.getElementById('btnNarrarMobile');
-  const chkAutoplay = document.getElementById('chkAutoplay');
-  const voiceSelect = document.getElementById('voiceSelect');
   const narrNote = document.getElementById('narrNote');
-  const narrControls = document.getElementById('narrControls');
 
   const KIND_LABEL = {
     abertura: 'Abertura', objetivos: 'Objetivos', conteudo: 'Conteúdo',
@@ -357,136 +345,270 @@
   let current = 0;
   let visited = new Set();
 
+  // Destaque da palavra sendo lida em voz alta, sincronizado com o evento
+  // "onboundary" da Web Speech API (disparado pela maioria das vozes, incluindo
+  // as vozes "Online (Natural)" do Chrome/Edge, a cada palavra falada).
+  let wordSpans = [];
+  let lastActiveWordIndex = -1;
+
   // ---------------- Narração por voz (Web Speech API) ----------------
+  // Mesmo critério de escolha de voz usado no material de matemática que já funciona
+  // bem para o autor: busca direta pela voz chamada "Francisca", sem seletor manual,
+  // sem heurísticas extras e sem trocar de voz no meio do caminho.
   const SUPPORTS_TTS = 'speechSynthesis' in window;
-  let ptVoices = [];
-  let allVoices = [];
-  let knownVoiceNames = []; // última lista de nomes de voz carregada (para detectar mudanças reais)
+  let franciscaVoice = null;
 
-  // Nomes comuns de vozes femininas/masculinas em pt-BR/pt-PT nos principais navegadores e sistemas
-  // (Chrome/Google, Microsoft Edge/Windows, Safari/macOS). A Web Speech API não expõe o "gênero"
-  // da voz de forma padronizada — por isso a escolha é feita por heurística de nome.
-  const FEMALE_HINTS = /maria|luciana|francisca|helena|camila|vit[oó]ria|joana|fernanda|raquel|google\s*português|female|feminin/i;
-  const MALE_HINTS = /daniel|ricardo|felipe|jorge|antonio|antônio|paulo|male(?!f)|masculin/i;
-  const PREFERRED_VOICE_NAME = null;
-
-  function pickBestVoice(list){
-    if (PREFERRED_VOICE_NAME) {
-      const exact = list.find(v => v.name === PREFERRED_VOICE_NAME);
-      if (exact) return exact;
-    }
-    let v = list.find(v => FEMALE_HINTS.test(v.name));
-    if (v) return v;
-    v = list.find(v => !MALE_HINTS.test(v.name));
-    if (v) return v;
-    return list[0] || null;
-  }
-
-  // Carrega/atualiza a lista de vozes do navegador SEM perder a escolha do usuário.
-  // O Chrome pode disparar "voiceschanged" mais de uma vez (inclusive durante a
-  // narração de uma cena) — se recalculássemos a "melhor voz" a cada vez, a voz
-  // escolhida para gravação podia trocar sozinha no meio das aulas. Por isso:
-  // 1) só reconstruímos a lista quando ela realmente mudou; e
-  // 2) se a voz já selecionada continuar disponível, ela é mantida (fixada).
   function loadVoices(){
     if (!SUPPORTS_TTS) return;
-    allVoices = window.speechSynthesis.getVoices() || [];
-    ptVoices = allVoices.filter(v => /^pt/i.test(v.lang));
-    const list = ptVoices.length ? ptVoices : allVoices;
-    if (!list.length) {
-      narrNote.textContent = 'Carregando vozes do navegador…';
-      return;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return;
+    franciscaVoice =
+      voices.find(v => v.name === 'Francisca') ||
+      voices.find(v => v.name.toLowerCase().includes('francisca')) ||
+      voices.find(v => v.lang === 'pt-BR') ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('pt')) ||
+      null;
+    if (narrNote) {
+      narrNote.textContent = franciscaVoice
+        ? 'Voz: ' + franciscaVoice.name
+        : 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível.';
     }
-
-    const namesNow = list.map(v => v.name).sort().join('|');
-    const namesBefore = knownVoiceNames.slice().sort().join('|');
-    const listUnchanged = namesNow === namesBefore && voiceSelect.options.length > 0;
-    if (listUnchanged) return; // nada mudou: não mexe na seleção atual do usuário
-
-    const previouslySelected = voiceSelect.value;
-    const stillAvailable = previouslySelected && list.some(v => v.name === previouslySelected);
-    const chosen = stillAvailable ? list.find(v => v.name === previouslySelected) : pickBestVoice(list);
-
-    knownVoiceNames = list.map(v => v.name);
-    voiceSelect.innerHTML = '';
-    list.forEach((v) => {
-      const opt = document.createElement('option');
-      opt.value = v.name;
-      opt.textContent = v.name + ' (' + v.lang + ')';
-      if (chosen && v.name === chosen.name) opt.selected = true;
-      voiceSelect.appendChild(opt);
-    });
-
-    if (!ptVoices.length) {
-      narrNote.textContent = 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível. Para melhor qualidade, tente abrir em um Chrome ou Edge atualizado, com uma voz em português instalada.';
-    } else if (stillAvailable) {
-      narrNote.textContent = 'Voz fixada: ' + chosen.name + '. Ela será usada em todas as cenas desta aula — para trocar, escolha outra na lista acima.';
-    } else {
-      narrNote.textContent = 'Voz em português selecionada automaticamente: ' + (chosen ? chosen.name : '—') + '. Essa escolha fica fixa em todas as cenas; se preferir outra, escolha na lista acima antes de gravar.';
-    }
-  }
-
-  function getSelectedVoice(){
-    const list = ptVoices.length ? ptVoices : allVoices;
-    return list.find(v => v.name === voiceSelect.value) || pickBestVoice(list);
   }
 
   function setSpeakingUI(on){
     avatarWrap.classList.toggle('speaking', on);
-    const label = on ? '⏹ Parar narração' : '🔊 Ouvir esta cena';
-    btnNarrar.textContent = label;
-    if (btnNarrarMobile) btnNarrarMobile.textContent = label;
+  }
+
+  // Fala uma frase de cada vez — nunca um parágrafo inteiro — igual ao material de
+  // matemática: isso evita chegar perto de qualquer limite de duração de fala contínua.
+  // Só quebramos uma frase sozinha se ela já for longa demais.
+  const TTS_CHUNK_MAX_LEN = 220;
+
+  // Cada pedaço guarda também COMO ele termina: uma frase de verdade (. ! ?) merece uma
+  // pausa perceptível, como uma leitura normal faria entre uma frase e outra. Já uma
+  // quebra técnica no meio de uma frase longa demais (feita numa vírgula, ponto e
+  // vírgula, dois-pontos ou travessão só para não estourar o tamanho do trecho) não é
+  // o fim de um pensamento — por isso leva uma pausa bem mais curta, quase imperceptível,
+  // em vez de soar como se fosse o fim do parágrafo.
+  function splitNarrationIntoChunks(text, maxLen){
+    const sentences = (text.match(/[^.!?]+[.!?]+(\s+|$)/g) || [text]).map(s => s.trim()).filter(Boolean);
+    const chunks = [];
+    for (const sentence of sentences) {
+      if (sentence.length <= maxLen) { chunks.push({ text: sentence, softBreak: false }); continue; }
+      // sentença sozinha já é longa demais: quebra em vírgulas/travessões/dois-pontos —
+      // essas quebras são só técnicas, não pausas reais de fim de frase.
+      const parts = sentence.split(/(?<=,|;|:|—)\s+/);
+      let sbuf = '';
+      for (const part of parts) {
+        if ((sbuf + ' ' + part).trim().length <= maxLen) {
+          sbuf = (sbuf ? sbuf + ' ' : '') + part;
+        } else {
+          if (sbuf) chunks.push({ text: sbuf, softBreak: true });
+          if (part.length > maxLen) {
+            const words = part.split(/\s+/);
+            let wbuf = '';
+            for (const w of words) {
+              if ((wbuf + ' ' + w).trim().length <= maxLen) {
+                wbuf = (wbuf ? wbuf + ' ' : '') + w;
+              } else {
+                if (wbuf) chunks.push({ text: wbuf, softBreak: true });
+                wbuf = w;
+              }
+            }
+            sbuf = wbuf;
+          } else {
+            sbuf = part;
+          }
+        }
+      }
+      // o último pedaço de uma sentença quebrada ainda carrega o ponto final dela
+      if (sbuf) chunks.push({ text: sbuf, softBreak: false });
+    }
+    return chunks.length ? chunks : [{ text, softBreak: false }];
+  }
+
+  let speakQueue = [];
+  let speakQueueIndex = 0;
+  let speakToken = 0; // invalida filas antigas quando uma nova narração começa
+
+  // Fala um único trecho e chama onDone quando ele termina (ou dá erro) — igual à
+  // função speak(text, onEnd) do material de matemática. A única rede de segurança
+  // é para o caso de a fala NUNCA começar (ex.: falha de rede da voz "Online"); uma
+  // vez que ela começa, é o próprio fim da frase (onend) que decide quando parar —
+  // sem nenhum limite de duração, mesmo para frases mais longas.
+  function speakOne(text, token, wordStart, onDone){
+    if (!SUPPORTS_TTS) { onDone(); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'pt-BR';
+    if (franciscaVoice) utter.voice = franciscaVoice;
+    utter.rate = 0.98;
+    utter.pitch = 1.1;
+    let started = false;
+    let settled = false;
+    let wordsSpoken = 0;
+    const finish = () => {
+      if (settled || token !== speakToken) return;
+      settled = true;
+      onDone();
+    };
+    utter.onstart = () => { started = true; setSpeakingUI(true); };
+    utter.onboundary = (e) => {
+      if (token !== speakToken) return;
+      // Algumas vozes disparam apenas eventos de palavra; outras também marcam
+      // frase/sentença — só nos interessa o limite de cada palavra.
+      if (e.name && e.name !== 'word') return;
+      highlightWord(wordStart + wordsSpoken);
+      wordsSpoken++;
+    };
+    utter.onend = finish;
+    utter.onerror = finish;
+    window.speechSynthesis.speak(utter);
+    setTimeout(() => {
+      if (settled || started || token !== speakToken) return; // só age se nunca começou
+      window.speechSynthesis.cancel();
+      finish();
+    }, 5000);
+  }
+
+  // Pausa como numa leitura normal: breve entre frases, quase nenhuma dentro de uma
+  // frase que só foi cortada por ser longa demais.
+  const PAUSE_AFTER_SENTENCE_MS = 220;
+  const PAUSE_AFTER_SOFT_BREAK_MS = 70;
+  // Pausa entre o fim da narração de uma cena e o início automático da próxima —
+  // esta versão não tem botões de navegação: a aula avança sozinha, cena após
+  // cena, até a última, para poder ser gravada em vídeo sem qualquer interação.
+  const PAUSE_BETWEEN_SCENES_MS = 900;
+
+  function speakNextChunk(token){
+    if (token !== speakToken) return; // uma narração mais nova já assumiu
+    if (speakQueueIndex >= speakQueue.length) {
+      setSpeakingUI(false);
+      clearWordHighlight();
+      if (current < SCENES.length - 1) {
+        setTimeout(() => { if (token === speakToken) goTo(current + 1); }, PAUSE_BETWEEN_SCENES_MS);
+      } else {
+        setTimeout(() => { if (token === speakToken) finalizarAula(); }, PAUSE_BETWEEN_SCENES_MS);
+      }
+      return;
+    }
+    const chunk = speakQueue[speakQueueIndex++];
+    speakOne(chunk.text, token, chunk.wordStart, () => {
+      if (token !== speakToken) return;
+      const pause = chunk.softBreak ? PAUSE_AFTER_SOFT_BREAK_MS : PAUSE_AFTER_SENTENCE_MS;
+      setTimeout(() => speakNextChunk(token), pause);
+    });
+  }
+
+  // Algumas palavras estrangeiras travam a síntese de voz em português — em especial
+  // nomes com letras raras na ortografia do português, como o "w". O texto exibido na
+  // tela continua com a grafia correta; só o que é enviado à voz é ajustado para uma
+  // grafia foneticamente parecida que o sintetizador consiga ler sem engasgar.
+  // "Kurt Lewin" foi confirmado como problema real (testado); os demais foram
+  // adicionados de forma preventiva, pelo mesmo padrão — avise se algum ainda travar
+  // ou se algum outro nome causar o mesmo problema, para eu ajustar a lista.
+  const TTS_PRONUNCIATION_FIXES = [
+    { pattern: /Kurt Lewin/g, replacement: 'Curt Levin' },
+    { pattern: /Weber/g, replacement: 'Véber' },
+    { pattern: /Hawthorne/g, replacement: 'Hautorn' },
+    { pattern: /Ishikawa/g, replacement: 'Ishicava' },
+    { pattern: /Maslow/g, replacement: 'Maslou' },
+    { pattern: /Osterwalder/g, replacement: 'Osterválder' },
+    { pattern: /Winslow/g, replacement: 'Uinslou' },
+  ];
+
+  function textForSpeech(text){
+    let out = text;
+    for (const fix of TTS_PRONUNCIATION_FIXES) out = out.replace(fix.pattern, fix.replacement);
+    return out;
   }
 
   function speakScene(text){
     if (!SUPPORTS_TTS) return;
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'pt-BR';
-    const v = getSelectedVoice();
-    if (v) utter.voice = v; // mesma voz fixada em getSelectedVoice() para todas as cenas
-    utter.rate = 0.98;
-    utter.pitch = 1.1;
-    utter.onstart = () => setSpeakingUI(true);
-    utter.onend = () => setSpeakingUI(false);
-    utter.onerror = () => setSpeakingUI(false);
-    window.speechSynthesis.speak(utter);
+    speakToken++;
+    const token = speakToken;
+    speakQueue = splitNarrationIntoChunks(textForSpeech(text), TTS_CHUNK_MAX_LEN);
+    // Cada trecho carrega também em qual palavra (do texto exibido na tela) ele
+    // começa, para o destaque de leitura avançar junto com a fala.
+    let wordCursor = 0;
+    for (const chunk of speakQueue) {
+      const n = chunk.text.trim().split(/\s+/).filter(Boolean).length;
+      chunk.wordStart = wordCursor;
+      wordCursor += n;
+    }
+    speakQueueIndex = 0;
+    clearWordHighlight();
+    setTimeout(() => speakNextChunk(token), 50);
   }
 
   function stopSpeaking(){
+    speakToken++; // invalida qualquer fila em andamento
+    speakQueue = [];
+    speakQueueIndex = 0;
     if (SUPPORTS_TTS) window.speechSynthesis.cancel();
     setSpeakingUI(false);
-  }
-
-  function toggleNarration(){
-    if (window.speechSynthesis.speaking) { stopSpeaking(); return; }
-    speakScene(SCENES[current].narration);
+    clearWordHighlight();
   }
 
   if (SUPPORTS_TTS) {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-    btnNarrar.addEventListener('click', toggleNarration);
-    if (btnNarrarMobile) btnNarrarMobile.addEventListener('click', toggleNarration);
-    voiceSelect.addEventListener('change', () => {
-      // troca manual: vira a nova voz fixada a partir de agora
-      if (window.speechSynthesis.speaking) speakScene(SCENES[current].narration);
-    });
   } else {
-    narrControls.style.display = 'none';
-    if (narrControlsMobileEl()) narrControlsMobileEl().style.display = 'none';
     avatarWrap.insertAdjacentHTML('afterend',
       '<div class="narr-note" style="margin-top:10px;">Este navegador não oferece leitura em voz automática (Web Speech API). Use o roteiro em DOCX para a gravação, ou abra esta aula em um navegador desktop atualizado, como Chrome ou Edge.</div>');
   }
-  function narrControlsMobileEl(){ return document.getElementById('narrControlsMobile'); }
+
+  function escapeHtml(str){
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // Reconstrói o texto da narração envolvendo cada palavra em um <span> numerado,
+  // preservando os espaços originais entre elas, para permitir destacar a palavra
+  // que está sendo lida no momento.
+  function renderNarrationWithWordSpans(text){
+    const tokens = text.split(/(\s+)/);
+    let html = '';
+    let widx = 0;
+    for (const tok of tokens) {
+      if (tok === '') continue;
+      if (/^\s+$/.test(tok)) { html += tok; continue; }
+      html += '<span class="tts-word" data-widx="' + widx + '">' + escapeHtml(tok) + '</span>';
+      widx++;
+    }
+    fullNarration.innerHTML = html;
+    wordSpans = Array.prototype.slice.call(fullNarration.querySelectorAll('.tts-word'));
+    lastActiveWordIndex = -1;
+  }
+
+  function highlightWord(idx){
+    if (idx === lastActiveWordIndex) return;
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    if (idx >= 0 && idx < wordSpans.length) {
+      wordSpans[idx].classList.add('active');
+      wordSpans[idx].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    lastActiveWordIndex = idx;
+  }
+
+  function clearWordHighlight(){
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    lastActiveWordIndex = -1;
+  }
 
   function renderDots(){
     dotsEl.innerHTML = '';
     SCENES.forEach((s, i) => {
-      const b = document.createElement('button');
+      const b = document.createElement('span');
       b.className = 'dot' + (i === current ? ' active' : '') + (visited.has(i) ? ' done' : '');
       b.title = 'Cena ' + (i+1) + ': ' + s.title;
-      b.addEventListener('click', () => goTo(i));
       dotsEl.appendChild(b);
     });
   }
@@ -499,10 +621,8 @@
     titleText.textContent = s.title;
     bulletsList.innerHTML = s.bullets.map(b => '<li>' + b + '</li>').join('');
     profPreview.textContent = s.narration;
-    fullNarration.textContent = s.narration;
+    renderNarrationWithWordSpans(s.narration);
     sceneCount.textContent = 'Cena ' + (current+1) + ' de ' + SCENES.length;
-    btnPrev.disabled = current === 0;
-    btnNext.textContent = current === SCENES.length - 1 ? 'Concluir aula ✔' : 'Próxima ▶';
     renderDots();
     // volta o scroll do conteúdo ao topo a cada nova cena
     const contentBox = document.querySelector('.content-box');
@@ -511,8 +631,11 @@
     if (stageBody) stageBody.scrollTop = 0;
 
     if (SUPPORTS_TTS) {
+      speakToken++; // invalida qualquer fila de fala pendente da cena anterior
+      speakQueue = [];
+      speakQueueIndex = 0;
       window.speechSynthesis.cancel();
-      if (chkAutoplay.checked) speakScene(s.narration);
+      speakScene(s.narration);
     }
   }
 
@@ -521,31 +644,16 @@
     render();
   }
 
-  btnStart.addEventListener('click', () => {
-    introScroll.style.display = 'none';
-    stage.classList.add('active');
-    current = 0;
-    render();
-  });
-
-  btnPrev.addEventListener('click', () => goTo(current - 1));
-  btnNext.addEventListener('click', () => {
-    if (current === SCENES.length - 1) {
-      if (SUPPORTS_TTS) window.speechSynthesis.cancel();
-      stage.classList.remove('active');
-      introScroll.style.display = '';
-      btnStart.textContent = 'Rever a aula ▶';
-      marcarComoConcluida();
-    } else {
-      goTo(current + 1);
-    }
-  });
-
-  // ---------------- Integração com o Painel (curso.js) ----------------
-  function marcarComoConcluida(){
+  // Chamada quando a narração da última cena termina — não há mais botão de
+  // "Concluir aula" nesta versão (feita para gravação em vídeo, sem cliques),
+  // então a conclusão é detectada automaticamente aqui.
+  function finalizarAula(){
     if (window.Curso) {
       Curso.marcarAulaConcluida(MODULE_NUMBER);
     }
+    stage.classList.remove('active');
+    introScroll.style.display = '';
+    btnStart.textContent = 'Rever a aula ▶';
     const banner = document.getElementById('concluidaBanner');
     const linkProxima = document.getElementById('linkProximaAula');
     if (linkProxima) {
@@ -561,17 +669,18 @@
     if (banner) banner.style.display = '';
   }
 
+  btnStart.addEventListener('click', () => {
+    introScroll.style.display = 'none';
+    stage.classList.add('active');
+    current = 0;
+    render();
+  });
+
   if (window.Curso) {
     Curso.renderAlunoTag(document.getElementById('alunoTag'));
   }
 
-  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) window.speechSynthesis.cancel(); });
-
-  document.addEventListener('keydown', (e) => {
-    if (!stage.classList.contains('active')) return;
-    if (e.key === 'ArrowRight') btnNext.click();
-    if (e.key === 'ArrowLeft') btnPrev.click();
-  });
+  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) stopSpeaking(); });
 </script>
 
 </body>

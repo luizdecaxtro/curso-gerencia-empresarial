@@ -34,7 +34,7 @@
     /* mesma largura (e mesmo centro) do cartão central: calc() replica o
        padding lateral de 12px do <main>, e o max-width replica o do .wrap */
     width: calc(100% - 24px); max-width: 760px; margin: 8px auto 0; box-sizing:border-box;
-    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; row-gap:6px;
+    display:flex; align-items:center; justify-content:space-between;
     padding: 8px 20px;
     background: var(--teal-dark);
     color:#fff;
@@ -45,7 +45,6 @@
   header.top .brand small{ font-weight:400; opacity:.85; font-style:italic; font-size:.72rem;}
   header.top .course{ font-size:.74rem; opacity:.9; text-align:right;}
   header.top .header-actions{ display:flex; align-items:center; gap:10px; }
-  header.top .course{ flex:1 1 auto; }
   header.top .painel-link{ color:#fff; text-decoration:none; font-size:.68rem; font-weight:600; background:rgba(255,255,255,.16); padding:4px 11px; border-radius:999px; white-space:nowrap; }
   header.top .painel-link:hover{ background:rgba(255,255,255,.27); }
   header.top .aluno-tag{ font-size:.66rem; opacity:.92; white-space:nowrap; display:flex; align-items:center; gap:6px; }
@@ -188,6 +187,17 @@
   .content-box .narration-divider{ border:none; border-top:1px dashed #b9d3cb; margin:0; flex:0 0 auto; }
   .content-box .narration-text{
     font-size:.8rem; line-height:1.6; color:var(--ink); white-space:pre-line; flex:0 0 auto;
+    text-align:justify; text-justify:inter-word;
+  }
+  .tts-word{
+    transition: background-color .12s ease, color .12s ease;
+    border-radius:3px;
+  }
+  .tts-word.active{
+    background: var(--gold);
+    color:#fff;
+    padding:0 2px;
+    margin:0 -2px;
   }
 
   .stage-foot{
@@ -202,7 +212,7 @@
   .navbtn.secondary{ background:#fff; color:var(--teal-dark); border:1px solid var(--teal); }
   .navbtn:disabled{ opacity:.4; cursor:not-allowed; }
   .dots{ display:flex; gap:5px; flex-wrap:wrap; justify-content:center; max-width: 40%; }
-  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:pointer; border:none; padding:0; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:default; border:none; padding:0; }
   .dot.active{ background:var(--teal); transform:scale(1.3); }
   .dot.done{ background:var(--gold); }
 
@@ -287,14 +297,6 @@
           <div class="prof-name">Profa. Francisca</div>
           <div class="prof-role">Narradora do curso</div>
           <div class="prof-preview" id="profPreview"></div>
-          <div class="narr-controls" id="narrControls">
-            <div class="narr-row">
-              <button class="narr-btn" id="btnNarrar">🔊 Ouvir esta cena</button>
-            </div>
-            <label class="narr-toggle"><input type="checkbox" id="chkAutoplay" checked> Narrar automaticamente ao trocar de cena</label>
-            <select class="narr-voice" id="voiceSelect"></select>
-            <div class="narr-note" id="narrNote"></div>
-          </div>
         </div>
         <div class="content-col">
           <div class="badge-kind" id="kindBadge"></div>
@@ -307,15 +309,8 @@
           </div>
         </div>
       </div>
-      <div class="narr-controls-mobile" id="narrControlsMobile">
-        <div class="narr-row">
-          <button class="narr-btn" id="btnNarrarMobile">🔊 Ouvir esta cena</button>
-        </div>
-      </div>
-      <div class="stage-foot">
-        <button class="navbtn secondary" id="btnPrev">◀ Anterior</button>
+      <div class="stage-foot" style="justify-content:center;">
         <div class="dots" id="dots"></div>
-        <button class="navbtn" id="btnNext">Próxima ▶</button>
       </div>
     </section>
 
@@ -324,15 +319,13 @@
 
 <script src="curso.js"></script>
 <script>
+  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos de volta!","caption":"Retomando a Aula 6 e apresentando a Aula 7","narration":"Olá, seja bem-vindo, seja bem-vinda de volta ao curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e este é o nosso sétimo encontro. Na Aula 6, aprendemos a formalizar a missão, a visão e os valores de uma organização, e conhecemos o Business Model Canvas como ferramenta para representar o modelo de negócio. Mas, para que missão, visão e modelo de negócio façam sentido, é preciso primeiro entender o ambiente em que a empresa está inserida: quais são suas forças e fraquezas internas, quais oportunidades e ameaças vêm do mercado, e como a concorrência nesse mercado efetivamente funciona. É esse o assunto de hoje. Vamos estudar quatro ferramentas centrais da análise estratégica: a análise SWOT, as cinco forças competitivas de Michael Porter, o conceito de cadeia de valor, e as estratégias competitivas genéricas. Vamos começar?","bullets":["Recapitulando a Aula 6: missão, visão, valores e Business Model Canvas","Aula 7: análise de ambiente e vantagem competitiva","SWOT, 5 Forças de Porter, cadeia de valor e estratégias genéricas"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de realizar uma análise SWOT, ou FOFA, distinguindo com clareza os fatores internos e externos que afetam uma organização. Você vai aprender a aplicar o modelo das cinco forças competitivas de Michael Porter para avaliar a atratividade de um determinado setor de atuação. Vai compreender o conceito de cadeia de valor, e como as atividades de uma empresa se dividem entre atividades primárias e atividades de apoio. Vai conhecer as três estratégias competitivas genéricas propostas por Porter: liderança em custo, diferenciação e foco. E, por fim, vai entender como essas quatro ferramentas se relacionam entre si na construção de uma vantagem competitiva sustentável para a organização.","bullets":["Análise SWOT (ou FOFA): fatores internos e externos","As cinco forças competitivas de Michael Porter","Cadeia de valor: atividades primárias e de apoio","Estratégias competitivas genéricas: custo, diferenciação e foco"]},{"id":3,"kind":"conteudo","title":"Por que analisar o ambiente?","caption":"Retomando o diagnóstico estratégico","narration":"Na Aula 5, quando apresentamos o processo de planejamento estratégico, vimos que sua primeira etapa é o diagnóstico estratégico: a análise do ambiente externo, em busca de oportunidades e ameaças, e do ambiente interno, em busca de forças e fraquezas da própria organização. É exatamente esse diagnóstico que vamos aprofundar hoje, com ferramentas específicas para realizá-lo de forma estruturada. Entender o ambiente em que a empresa está inserida é fundamental por pelo menos duas razões. Primeiro, porque nenhuma estratégia é boa ou ruim em termos absolutos: sua qualidade depende do contexto competitivo em que a empresa está inserida. Segundo, porque a vantagem competitiva de uma empresa — aquilo que a diferencia de seus concorrentes de forma valiosa e difícil de copiar — só pode ser identificada e fortalecida quando se compreende, com profundidade, tanto o ambiente externo quanto as próprias capacidades internas da organização.","bullets":["Diagnóstico estratégico: primeira etapa do planejamento estratégico (Aula 5)","Ambiente externo: oportunidades e ameaças","Ambiente interno: forças e fraquezas","Vantagem competitiva depende de compreender contexto e capacidades internas"]},{"id":4,"kind":"conteudo","title":"Análise SWOT (ou FOFA)","caption":"Cruzando o ambiente interno e externo","narration":"A ferramenta mais conhecida para o diagnóstico estratégico é a análise SWOT, sigla em inglês para Strengths, Weaknesses, Opportunities e Threats — em português, forças, fraquezas, oportunidades e ameaças, o que também dá origem à sigla FOFA. A análise SWOT organiza o diagnóstico estratégico em uma matriz de quatro quadrantes, divididos em dois eixos. O primeiro eixo separa fatores internos de fatores externos à organização. As forças e as fraquezas são fatores internos: características da própria empresa, como sua estrutura, seus recursos, suas competências e suas limitações, sobre as quais a organização tem, em geral, alguma capacidade de atuação direta. Já as oportunidades e as ameaças são fatores externos: características do ambiente de mercado, da concorrência, da economia ou da tecnologia, sobre as quais a empresa normalmente não tem controle direto, mas às quais precisa se adaptar. O segundo eixo separa fatores positivos de fatores negativos: forças e oportunidades são fatores positivos para a organização, enquanto fraquezas e ameaças são fatores negativos.","bullets":["SWOT (ou FOFA): Forças, Fraquezas, Oportunidades e Ameaças","Eixo 1: fatores internos (forças, fraquezas) x externos (oportunidades, ameaças)","Eixo 2: fatores positivos (forças, oportunidades) x negativos (fraquezas, ameaças)","Fatores internos: a empresa tem controle direto; externos: precisa se adaptar"]},{"id":5,"kind":"conteudo","title":"Da matriz à ação: o cruzamento SWOT","caption":"Transformando diagnóstico em estratégia","narration":"Preencher os quatro quadrantes da matriz SWOT é apenas o primeiro passo: o verdadeiro valor estratégico da ferramenta está no cruzamento entre esses quadrantes. Ao cruzar forças com oportunidades, a organização identifica onde pode utilizar suas capacidades internas para aproveitar condições favoráveis do mercado — por exemplo, usar uma forte capacidade de produção para atender a uma demanda de mercado em crescimento. Ao cruzar forças com ameaças, a organização identifica onde suas capacidades internas podem ajudar a se proteger de riscos externos — por exemplo, usar uma marca forte para se defender da entrada de um novo concorrente. Ao cruzar fraquezas com oportunidades, a organização identifica quais limitações internas precisam ser superadas para que ela consiga aproveitar determinada oportunidade de mercado. E, por fim, ao cruzar fraquezas com ameaças, a organização identifica as situações de maior risco, em que uma limitação interna se combina com um risco externo, exigindo atenção prioritária da gestão. É esse cruzamento, e não apenas o preenchimento da matriz, que efetivamente orienta decisões estratégicas concretas.","bullets":["Forças + Oportunidades: onde investir e crescer com confiança","Forças + Ameaças: como se proteger usando capacidades internas","Fraquezas + Oportunidades: o que desenvolver para não perder a chance","Fraquezas + Ameaças: zona de maior risco, exige atenção prioritária"]},{"id":6,"kind":"conteudo","title":"As cinco forças competitivas de Porter","caption":"Avaliando a atratividade de um setor","narration":"Enquanto a análise SWOT ajuda a organizar o diagnóstico de uma empresa específica, o modelo das cinco forças competitivas, desenvolvido pelo professor Michael Porter, ajuda a entender a atratividade e a intensidade da concorrência em um setor inteiro. As cinco forças são: a rivalidade entre concorrentes já estabelecidos no setor, que tende a ser mais intensa quanto maior o número de concorrentes e quanto mais parecidos forem seus produtos; o poder de negociação dos clientes, que tende a ser maior quando existem poucos compradores concentrados, comprando grandes volumes, ou quando é fácil para eles trocar de fornecedor; o poder de negociação dos fornecedores, que tende a ser maior quando existem poucos fornecedores disponíveis, ou quando é caro ou difícil para a empresa trocar de fornecedor; a ameaça de novos entrantes, que tende a ser maior quando as barreiras para entrar naquele setor são baixas, como pouco investimento inicial necessário ou pouca exigência regulatória; e a ameaça de produtos ou serviços substitutos, que tende a ser maior quando existem alternativas de outros setores capazes de atender à mesma necessidade do cliente por outro caminho. Quanto mais intensas essas cinco forças, menos atrativo tende a ser o setor, em termos de potencial de rentabilidade para as empresas que nele competem.","bullets":["Rivalidade entre concorrentes já estabelecidos","Poder de negociação dos clientes","Poder de negociação dos fornecedores","Ameaça de novos entrantes","Ameaça de produtos ou serviços substitutos"]},{"id":7,"kind":"conteudo","title":"Cadeia de valor","caption":"De onde vem a margem da empresa","narration":"Outra contribuição importante de Michael Porter para a análise estratégica é o conceito de cadeia de valor: um modelo que representa o conjunto de atividades que uma empresa realiza para projetar, produzir, vender, entregar e sustentar seu produto ou serviço. A cadeia de valor divide essas atividades em dois grandes grupos. As atividades primárias estão diretamente relacionadas à criação física do produto ou serviço e à sua venda e transferência ao comprador, incluindo a logística de entrada de insumos, as operações de produção propriamente ditas, a logística de saída dos produtos, o marketing e vendas, e os serviços de pós-venda. As atividades de apoio, por sua vez, sustentam as atividades primárias e incluem a infraestrutura da empresa, a gestão de recursos humanos, o desenvolvimento de tecnologia, e as compras de insumos e serviços utilizados em toda a cadeia. A margem da empresa — ou seja, sua rentabilidade — resulta da diferença entre o valor total gerado por essa cadeia de atividades e o custo total de realizá-las. Analisar a cadeia de valor ajuda o gestor a identificar em quais atividades específicas a empresa consegue gerar mais valor do que seus concorrentes, ou reduzir custos de forma mais eficiente, revelando fontes concretas de vantagem competitiva.","bullets":["Cadeia de valor: conjunto de atividades para criar e entregar valor","Atividades primárias: logística, operações, marketing e vendas, pós-venda","Atividades de apoio: infraestrutura, RH, tecnologia, compras","Margem = valor gerado pela cadeia menos o custo de realizá-la"]},{"id":8,"kind":"conteudo","title":"Estratégias competitivas genéricas","caption":"Três caminhos para a vantagem competitiva","narration":"Com base na análise do setor e da cadeia de valor, Michael Porter propôs que as empresas costumam buscar vantagem competitiva por meio de três estratégias competitivas genéricas. A liderança em custo consiste em se tornar o produtor de menor custo em determinado setor, o que permite competir por preço, mantendo margens saudáveis mesmo com preços mais baixos que os concorrentes — uma estratégia que costuma exigir escala de produção elevada e forte controle sobre custos ao longo de toda a cadeia de valor. A diferenciação consiste em oferecer um produto ou serviço percebido pelo mercado como único ou superior em algum atributo valorizado pelo cliente, como qualidade, design, inovação ou atendimento, o que permite cobrar um preço mais alto sem perder competitividade. E o foco consiste em concentrar os esforços da empresa em um segmento específico de mercado — seja um grupo particular de clientes, uma linha de produtos ou uma região geográfica —, buscando liderança em custo ou diferenciação dentro desse nicho específico, em vez de competir de forma ampla em todo o mercado. Segundo Porter, uma empresa que não escolhe claramente um desses caminhos corre o risco de ficar “no meio do caminho”, sem vantagem competitiva clara em nenhuma das duas dimensões.","bullets":["Liderança em custo: menor custo do setor, competir por preço","Diferenciação: produto ou serviço percebido como único ou superior","Foco: concentrar esforços em um segmento específico de mercado","Risco de ficar “no meio do caminho”, sem vantagem competitiva clara"]},{"id":9,"kind":"caso","title":"Estudo de caso: a análise de ambiente na Metalúrgica Vitória","caption":"Avaliando a entrada no mercado de veículos elétricos","narration":"Vamos retomar o exemplo fictício da Metalúrgica Vitória, que, como vimos nas últimas aulas, definiu o objetivo estratégico de se tornar fornecedora de peças metálicas para montadoras de veículos elétricos em sua região. Antes de avançar com esse plano, a diretoria decidiu realizar uma análise de ambiente mais completa. Na análise SWOT, identificaram como força a experiência técnica da equipe de produção; como fraqueza, a falta de certificações específicas do setor automotivo elétrico; como oportunidade, o crescimento da demanda por veículos elétricos na região; e como ameaça, a entrada de concorrentes internacionais no mercado local. Ao aplicar as cinco forças de Porter para o setor de fornecimento de peças para montadoras, a diretoria identificou um alto poder de negociação dos clientes, já que as montadoras são grandes compradoras concentradas, e uma ameaça moderada de novos entrantes, dado o investimento técnico necessário para atender a esse mercado. Diante desse cenário, a empresa optou por uma estratégia de diferenciação, apostando na precisão técnica e na confiabilidade de prazos como seus principais diferenciais, em vez de competir apenas por preço com concorrentes maiores.","bullets":["SWOT: força técnica x falta de certificações; oportunidade x concorrência internacional","5 Forças: alto poder de negociação das montadoras (clientes)","Ameaça moderada de novos entrantes, dado o investimento técnico necessário","Estratégia escolhida: diferenciação por precisão técnica e confiabilidade"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. A análise SWOT, ou FOFA, organiza o diagnóstico estratégico em quatro quadrantes — forças, fraquezas, oportunidades e ameaças —, sendo o cruzamento entre esses quadrantes o que efetivamente orienta decisões estratégicas concretas. O modelo das cinco forças de Michael Porter avalia a atratividade de um setor a partir da rivalidade entre concorrentes, do poder de negociação de clientes e fornecedores, e das ameaças de novos entrantes e de produtos substitutos. A cadeia de valor representa o conjunto de atividades primárias e de apoio realizadas por uma empresa, sendo a origem concreta de sua margem e de possíveis fontes de vantagem competitiva. E as três estratégias competitivas genéricas — liderança em custo, diferenciação e foco — representam os principais caminhos pelos quais uma empresa pode buscar se destacar da concorrência de forma sustentável.","bullets":["SWOT: quatro quadrantes e, principalmente, o cruzamento entre eles","5 Forças de Porter: avaliam a atratividade de um setor inteiro","Cadeia de valor: atividades primárias e de apoio, origem da margem","Estratégias genéricas: liderança em custo, diferenciação ou foco"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez","caption":"Atividade de reflexão","narration":"Vamos praticar. Pense em uma empresa que você conheça bem, ou em um negócio próprio, real ou hipotético. Tente listar pelo menos duas forças, duas fraquezas, duas oportunidades e duas ameaças para essa empresa, organizando-as em uma matriz SWOT simples. Em seguida, escolha uma combinação de cruzamento — por exemplo, uma força específica com uma oportunidade específica — e reflita sobre uma ação concreta que a empresa poderia tomar a partir desse cruzamento. Por fim, reflita sobre qual das três estratégias competitivas genéricas — liderança em custo, diferenciação ou foco — parece mais coerente com a realidade dessa empresa, e por quê. Não é preciso ter certeza absoluta nas suas respostas — o objetivo desta atividade é treinar o seu olhar de gestor ou gestora para analisar o ambiente competitivo de uma organização de forma estruturada. Você pode registrar suas respostas no Capítulo sete do material didático deste curso.","bullets":["Monte uma matriz SWOT simples para uma empresa que você conhece","Escolha um cruzamento e proponha uma ação concreta","Reflita sobre qual estratégia competitiva genérica é mais coerente"]},{"id":12,"kind":"encerramento","title":"Até a próxima aula!","caption":"Encerramento e próximos passos","narration":"Muito bem, chegamos ao final da nossa sétima aula. Hoje você conheceu quatro ferramentas centrais da análise estratégica: a análise SWOT, as cinco forças competitivas de Michael Porter, o conceito de cadeia de valor, e as estratégias competitivas genéricas. Para aprofundar ainda mais esse conteúdo, com exemplos adicionais e questões de revisão, não deixe de ler o Capítulo sete do material didático do curso. Na próxima aula, vamos encerrar a Unidade 2 do nosso curso, aprendendo a traduzir a estratégia definida ao longo destas últimas aulas em indicadores de desempenho mensuráveis, por meio de uma ferramenta muito utilizada pelas organizações: o Balanced Scorecard. Muito obrigada pela sua atenção e pela sua dedicação hoje. Eu sou a professora Francisca, e te espero na próxima aula, aqui no DeCastro, o Canal do Conhecimento.","bullets":["Leia o Capítulo 7 do material didático para aprofundar o conteúdo","Próxima aula: Indicadores de Desempenho e Balanced Scorecard (BSC)","Até a Aula 8!"]}];
   const MODULE_NUMBER = 7;
   const TOTAL_MODULES = 22;
-  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos de volta!","caption":"Retomando a Aula 6 e apresentando a Aula 7","narration":"Olá, seja bem-vindo, seja bem-vinda de volta ao curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e este é o nosso sétimo encontro. Na Aula 6, aprendemos a formalizar a missão, a visão e os valores de uma organização, e conhecemos o Business Model Canvas como ferramenta para representar o modelo de negócio. Mas, para que missão, visão e modelo de negócio façam sentido, é preciso primeiro entender o ambiente em que a empresa está inserida: quais são suas forças e fraquezas internas, quais oportunidades e ameaças vêm do mercado, e como a concorrência nesse mercado efetivamente funciona. É esse o assunto de hoje. Vamos estudar quatro ferramentas centrais da análise estratégica: a análise SWOT, as cinco forças competitivas de Michael Porter, o conceito de cadeia de valor, e as estratégias competitivas genéricas. Vamos começar?","bullets":["Recapitulando a Aula 6: missão, visão, valores e Business Model Canvas","Aula 7: análise de ambiente e vantagem competitiva","SWOT, 5 Forças de Porter, cadeia de valor e estratégias genéricas"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de realizar uma análise SWOT, ou FOFA, distinguindo com clareza os fatores internos e externos que afetam uma organização. Você vai aprender a aplicar o modelo das cinco forças competitivas de Michael Porter para avaliar a atratividade de um determinado setor de atuação. Vai compreender o conceito de cadeia de valor, e como as atividades de uma empresa se dividem entre atividades primárias e atividades de apoio. Vai conhecer as três estratégias competitivas genéricas propostas por Porter: liderança em custo, diferenciação e foco. E, por fim, vai entender como essas quatro ferramentas se relacionam entre si na construção de uma vantagem competitiva sustentável para a organização.","bullets":["Análise SWOT (ou FOFA): fatores internos e externos","As cinco forças competitivas de Michael Porter","Cadeia de valor: atividades primárias e de apoio","Estratégias competitivas genéricas: custo, diferenciação e foco"]},{"id":3,"kind":"conteudo","title":"Por que analisar o ambiente?","caption":"Retomando o diagnóstico estratégico","narration":"Na Aula 5, quando apresentamos o processo de planejamento estratégico, vimos que sua primeira etapa é o diagnóstico estratégico: a análise do ambiente externo, em busca de oportunidades e ameaças, e do ambiente interno, em busca de forças e fraquezas da própria organização. É exatamente esse diagnóstico que vamos aprofundar hoje, com ferramentas específicas para realizá-lo de forma estruturada. Entender o ambiente em que a empresa está inserida é fundamental por pelo menos duas razões. Primeiro, porque nenhuma estratégia é boa ou ruim em termos absolutos: sua qualidade depende do contexto competitivo em que a empresa está inserida. Segundo, porque a vantagem competitiva de uma empresa — aquilo que a diferencia de seus concorrentes de forma valiosa e difícil de copiar — só pode ser identificada e fortalecida quando se compreende, com profundidade, tanto o ambiente externo quanto as próprias capacidades internas da organização.","bullets":["Diagnóstico estratégico: primeira etapa do planejamento estratégico (Aula 5)","Ambiente externo: oportunidades e ameaças","Ambiente interno: forças e fraquezas","Vantagem competitiva depende de compreender contexto e capacidades internas"]},{"id":4,"kind":"conteudo","title":"Análise SWOT (ou FOFA)","caption":"Cruzando o ambiente interno e externo","narration":"A ferramenta mais conhecida para o diagnóstico estratégico é a análise SWOT, sigla em inglês para Strengths, Weaknesses, Opportunities e Threats — em português, forças, fraquezas, oportunidades e ameaças, o que também dá origem à sigla FOFA. A análise SWOT organiza o diagnóstico estratégico em uma matriz de quatro quadrantes, divididos em dois eixos. O primeiro eixo separa fatores internos de fatores externos à organização. As forças e as fraquezas são fatores internos: características da própria empresa, como sua estrutura, seus recursos, suas competências e suas limitações, sobre as quais a organização tem, em geral, alguma capacidade de atuação direta. Já as oportunidades e as ameaças são fatores externos: características do ambiente de mercado, da concorrência, da economia ou da tecnologia, sobre as quais a empresa normalmente não tem controle direto, mas às quais precisa se adaptar. O segundo eixo separa fatores positivos de fatores negativos: forças e oportunidades são fatores positivos para a organização, enquanto fraquezas e ameaças são fatores negativos.","bullets":["SWOT (ou FOFA): Forças, Fraquezas, Oportunidades e Ameaças","Eixo 1: fatores internos (forças, fraquezas) x externos (oportunidades, ameaças)","Eixo 2: fatores positivos (forças, oportunidades) x negativos (fraquezas, ameaças)","Fatores internos: a empresa tem controle direto; externos: precisa se adaptar"]},{"id":5,"kind":"conteudo","title":"Da matriz à ação: o cruzamento SWOT","caption":"Transformando diagnóstico em estratégia","narration":"Preencher os quatro quadrantes da matriz SWOT é apenas o primeiro passo: o verdadeiro valor estratégico da ferramenta está no cruzamento entre esses quadrantes. Ao cruzar forças com oportunidades, a organização identifica onde pode utilizar suas capacidades internas para aproveitar condições favoráveis do mercado — por exemplo, usar uma forte capacidade de produção para atender a uma demanda de mercado em crescimento. Ao cruzar forças com ameaças, a organização identifica onde suas capacidades internas podem ajudar a se proteger de riscos externos — por exemplo, usar uma marca forte para se defender da entrada de um novo concorrente. Ao cruzar fraquezas com oportunidades, a organização identifica quais limitações internas precisam ser superadas para que ela consiga aproveitar determinada oportunidade de mercado. E, por fim, ao cruzar fraquezas com ameaças, a organização identifica as situações de maior risco, em que uma limitação interna se combina com um risco externo, exigindo atenção prioritária da gestão. É esse cruzamento, e não apenas o preenchimento da matriz, que efetivamente orienta decisões estratégicas concretas.","bullets":["Forças + Oportunidades: onde investir e crescer com confiança","Forças + Ameaças: como se proteger usando capacidades internas","Fraquezas + Oportunidades: o que desenvolver para não perder a chance","Fraquezas + Ameaças: zona de maior risco, exige atenção prioritária"]},{"id":6,"kind":"conteudo","title":"As cinco forças competitivas de Porter","caption":"Avaliando a atratividade de um setor","narration":"Enquanto a análise SWOT ajuda a organizar o diagnóstico de uma empresa específica, o modelo das cinco forças competitivas, desenvolvido pelo professor Michael Porter, ajuda a entender a atratividade e a intensidade da concorrência em um setor inteiro. As cinco forças são: a rivalidade entre concorrentes já estabelecidos no setor, que tende a ser mais intensa quanto maior o número de concorrentes e quanto mais parecidos forem seus produtos; o poder de negociação dos clientes, que tende a ser maior quando existem poucos compradores concentrados, comprando grandes volumes, ou quando é fácil para eles trocar de fornecedor; o poder de negociação dos fornecedores, que tende a ser maior quando existem poucos fornecedores disponíveis, ou quando é caro ou difícil para a empresa trocar de fornecedor; a ameaça de novos entrantes, que tende a ser maior quando as barreiras para entrar naquele setor são baixas, como pouco investimento inicial necessário ou pouca exigência regulatória; e a ameaça de produtos ou serviços substitutos, que tende a ser maior quando existem alternativas de outros setores capazes de atender à mesma necessidade do cliente por outro caminho. Quanto mais intensas essas cinco forças, menos atrativo tende a ser o setor, em termos de potencial de rentabilidade para as empresas que nele competem.","bullets":["Rivalidade entre concorrentes já estabelecidos","Poder de negociação dos clientes","Poder de negociação dos fornecedores","Ameaça de novos entrantes","Ameaça de produtos ou serviços substitutos"]},{"id":7,"kind":"conteudo","title":"Cadeia de valor","caption":"De onde vem a margem da empresa","narration":"Outra contribuição importante de Michael Porter para a análise estratégica é o conceito de cadeia de valor: um modelo que representa o conjunto de atividades que uma empresa realiza para projetar, produzir, vender, entregar e sustentar seu produto ou serviço. A cadeia de valor divide essas atividades em dois grandes grupos. As atividades primárias estão diretamente relacionadas à criação física do produto ou serviço e à sua venda e transferência ao comprador, incluindo a logística de entrada de insumos, as operações de produção propriamente ditas, a logística de saída dos produtos, o marketing e vendas, e os serviços de pós-venda. As atividades de apoio, por sua vez, sustentam as atividades primárias e incluem a infraestrutura da empresa, a gestão de recursos humanos, o desenvolvimento de tecnologia, e as compras de insumos e serviços utilizados em toda a cadeia. A margem da empresa — ou seja, sua rentabilidade — resulta da diferença entre o valor total gerado por essa cadeia de atividades e o custo total de realizá-las. Analisar a cadeia de valor ajuda o gestor a identificar em quais atividades específicas a empresa consegue gerar mais valor do que seus concorrentes, ou reduzir custos de forma mais eficiente, revelando fontes concretas de vantagem competitiva.","bullets":["Cadeia de valor: conjunto de atividades para criar e entregar valor","Atividades primárias: logística, operações, marketing e vendas, pós-venda","Atividades de apoio: infraestrutura, RH, tecnologia, compras","Margem = valor gerado pela cadeia menos o custo de realizá-la"]},{"id":8,"kind":"conteudo","title":"Estratégias competitivas genéricas","caption":"Três caminhos para a vantagem competitiva","narration":"Com base na análise do setor e da cadeia de valor, Michael Porter propôs que as empresas costumam buscar vantagem competitiva por meio de três estratégias competitivas genéricas. A liderança em custo consiste em se tornar o produtor de menor custo em determinado setor, o que permite competir por preço, mantendo margens saudáveis mesmo com preços mais baixos que os concorrentes — uma estratégia que costuma exigir escala de produção elevada e forte controle sobre custos ao longo de toda a cadeia de valor. A diferenciação consiste em oferecer um produto ou serviço percebido pelo mercado como único ou superior em algum atributo valorizado pelo cliente, como qualidade, design, inovação ou atendimento, o que permite cobrar um preço mais alto sem perder competitividade. E o foco consiste em concentrar os esforços da empresa em um segmento específico de mercado — seja um grupo particular de clientes, uma linha de produtos ou uma região geográfica —, buscando liderança em custo ou diferenciação dentro desse nicho específico, em vez de competir de forma ampla em todo o mercado. Segundo Porter, uma empresa que não escolhe claramente um desses caminhos corre o risco de ficar “no meio do caminho”, sem vantagem competitiva clara em nenhuma das duas dimensões.","bullets":["Liderança em custo: menor custo do setor, competir por preço","Diferenciação: produto ou serviço percebido como único ou superior","Foco: concentrar esforços em um segmento específico de mercado","Risco de ficar “no meio do caminho”, sem vantagem competitiva clara"]},{"id":9,"kind":"caso","title":"Estudo de caso: a análise de ambiente na Metalúrgica Vitória","caption":"Avaliando a entrada no mercado de veículos elétricos","narration":"Vamos retomar o exemplo fictício da Metalúrgica Vitória, que, como vimos nas últimas aulas, definiu o objetivo estratégico de se tornar fornecedora de peças metálicas para montadoras de veículos elétricos em sua região. Antes de avançar com esse plano, a diretoria decidiu realizar uma análise de ambiente mais completa. Na análise SWOT, identificaram como força a experiência técnica da equipe de produção; como fraqueza, a falta de certificações específicas do setor automotivo elétrico; como oportunidade, o crescimento da demanda por veículos elétricos na região; e como ameaça, a entrada de concorrentes internacionais no mercado local. Ao aplicar as cinco forças de Porter para o setor de fornecimento de peças para montadoras, a diretoria identificou um alto poder de negociação dos clientes, já que as montadoras são grandes compradoras concentradas, e uma ameaça moderada de novos entrantes, dado o investimento técnico necessário para atender a esse mercado. Diante desse cenário, a empresa optou por uma estratégia de diferenciação, apostando na precisão técnica e na confiabilidade de prazos como seus principais diferenciais, em vez de competir apenas por preço com concorrentes maiores.","bullets":["SWOT: força técnica x falta de certificações; oportunidade x concorrência internacional","5 Forças: alto poder de negociação das montadoras (clientes)","Ameaça moderada de novos entrantes, dado o investimento técnico necessário","Estratégia escolhida: diferenciação por precisão técnica e confiabilidade"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. A análise SWOT, ou FOFA, organiza o diagnóstico estratégico em quatro quadrantes — forças, fraquezas, oportunidades e ameaças —, sendo o cruzamento entre esses quadrantes o que efetivamente orienta decisões estratégicas concretas. O modelo das cinco forças de Michael Porter avalia a atratividade de um setor a partir da rivalidade entre concorrentes, do poder de negociação de clientes e fornecedores, e das ameaças de novos entrantes e de produtos substitutos. A cadeia de valor representa o conjunto de atividades primárias e de apoio realizadas por uma empresa, sendo a origem concreta de sua margem e de possíveis fontes de vantagem competitiva. E as três estratégias competitivas genéricas — liderança em custo, diferenciação e foco — representam os principais caminhos pelos quais uma empresa pode buscar se destacar da concorrência de forma sustentável.","bullets":["SWOT: quatro quadrantes e, principalmente, o cruzamento entre eles","5 Forças de Porter: avaliam a atratividade de um setor inteiro","Cadeia de valor: atividades primárias e de apoio, origem da margem","Estratégias genéricas: liderança em custo, diferenciação ou foco"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez","caption":"Atividade de reflexão","narration":"Vamos praticar. Pense em uma empresa que você conheça bem, ou em um negócio próprio, real ou hipotético. Tente listar pelo menos duas forças, duas fraquezas, duas oportunidades e duas ameaças para essa empresa, organizando-as em uma matriz SWOT simples. Em seguida, escolha uma combinação de cruzamento — por exemplo, uma força específica com uma oportunidade específica — e reflita sobre uma ação concreta que a empresa poderia tomar a partir desse cruzamento. Por fim, reflita sobre qual das três estratégias competitivas genéricas — liderança em custo, diferenciação ou foco — parece mais coerente com a realidade dessa empresa, e por quê. Não é preciso ter certeza absoluta nas suas respostas — o objetivo desta atividade é treinar o seu olhar de gestor ou gestora para analisar o ambiente competitivo de uma organização de forma estruturada. Você pode registrar suas respostas no Capítulo sete do material didático deste curso.","bullets":["Monte uma matriz SWOT simples para uma empresa que você conhece","Escolha um cruzamento e proponha uma ação concreta","Reflita sobre qual estratégia competitiva genérica é mais coerente"]},{"id":12,"kind":"encerramento","title":"Até a próxima aula!","caption":"Encerramento e próximos passos","narration":"Muito bem, chegamos ao final da nossa sétima aula. Hoje você conheceu quatro ferramentas centrais da análise estratégica: a análise SWOT, as cinco forças competitivas de Michael Porter, o conceito de cadeia de valor, e as estratégias competitivas genéricas. Para aprofundar ainda mais esse conteúdo, com exemplos adicionais e questões de revisão, não deixe de ler o Capítulo sete do material didático do curso. Na próxima aula, vamos encerrar a Unidade 2 do nosso curso, aprendendo a traduzir a estratégia definida ao longo destas últimas aulas em indicadores de desempenho mensuráveis, por meio de uma ferramenta muito utilizada pelas organizações: o Balanced Scorecard. Muito obrigada pela sua atenção e pela sua dedicação hoje. Eu sou a professora Francisca, e te espero na próxima aula, aqui no DeCastro, o Canal do Conhecimento.","bullets":["Leia o Capítulo 7 do material didático para aprofundar o conteúdo","Próxima aula: Indicadores de Desempenho e Balanced Scorecard (BSC)","Até a Aula 8!"]}];
   const capa = document.getElementById('capa');
   const introScroll = document.getElementById('introScroll');
   const stage = document.getElementById('stage');
   const btnStart = document.getElementById('btnStart');
-  const btnPrev = document.getElementById('btnPrev');
-  const btnNext = document.getElementById('btnNext');
   const dotsEl = document.getElementById('dots');
   const sceneCount = document.getElementById('sceneCount');
   const captionText = document.getElementById('captionText');
@@ -342,12 +335,7 @@
   const fullNarration = document.getElementById('fullNarration');
   const avatarWrap = document.getElementById('avatarWrap');
   const profPreview = document.getElementById('profPreview');
-  const btnNarrar = document.getElementById('btnNarrar');
-  const btnNarrarMobile = document.getElementById('btnNarrarMobile');
-  const chkAutoplay = document.getElementById('chkAutoplay');
-  const voiceSelect = document.getElementById('voiceSelect');
   const narrNote = document.getElementById('narrNote');
-  const narrControls = document.getElementById('narrControls');
 
   const KIND_LABEL = {
     abertura: 'Abertura', objetivos: 'Objetivos', conteudo: 'Conteúdo',
@@ -357,136 +345,270 @@
   let current = 0;
   let visited = new Set();
 
+  // Destaque da palavra sendo lida em voz alta, sincronizado com o evento
+  // "onboundary" da Web Speech API (disparado pela maioria das vozes, incluindo
+  // as vozes "Online (Natural)" do Chrome/Edge, a cada palavra falada).
+  let wordSpans = [];
+  let lastActiveWordIndex = -1;
+
   // ---------------- Narração por voz (Web Speech API) ----------------
+  // Mesmo critério de escolha de voz usado no material de matemática que já funciona
+  // bem para o autor: busca direta pela voz chamada "Francisca", sem seletor manual,
+  // sem heurísticas extras e sem trocar de voz no meio do caminho.
   const SUPPORTS_TTS = 'speechSynthesis' in window;
-  let ptVoices = [];
-  let allVoices = [];
-  let knownVoiceNames = []; // última lista de nomes de voz carregada (para detectar mudanças reais)
+  let franciscaVoice = null;
 
-  // Nomes comuns de vozes femininas/masculinas em pt-BR/pt-PT nos principais navegadores e sistemas
-  // (Chrome/Google, Microsoft Edge/Windows, Safari/macOS). A Web Speech API não expõe o "gênero"
-  // da voz de forma padronizada — por isso a escolha é feita por heurística de nome.
-  const FEMALE_HINTS = /maria|luciana|francisca|helena|camila|vit[oó]ria|joana|fernanda|raquel|google\s*português|female|feminin/i;
-  const MALE_HINTS = /daniel|ricardo|felipe|jorge|antonio|antônio|paulo|male(?!f)|masculin/i;
-  const PREFERRED_VOICE_NAME = null;
-
-  function pickBestVoice(list){
-    if (PREFERRED_VOICE_NAME) {
-      const exact = list.find(v => v.name === PREFERRED_VOICE_NAME);
-      if (exact) return exact;
-    }
-    let v = list.find(v => FEMALE_HINTS.test(v.name));
-    if (v) return v;
-    v = list.find(v => !MALE_HINTS.test(v.name));
-    if (v) return v;
-    return list[0] || null;
-  }
-
-  // Carrega/atualiza a lista de vozes do navegador SEM perder a escolha do usuário.
-  // O Chrome pode disparar "voiceschanged" mais de uma vez (inclusive durante a
-  // narração de uma cena) — se recalculássemos a "melhor voz" a cada vez, a voz
-  // escolhida para gravação podia trocar sozinha no meio das aulas. Por isso:
-  // 1) só reconstruímos a lista quando ela realmente mudou; e
-  // 2) se a voz já selecionada continuar disponível, ela é mantida (fixada).
   function loadVoices(){
     if (!SUPPORTS_TTS) return;
-    allVoices = window.speechSynthesis.getVoices() || [];
-    ptVoices = allVoices.filter(v => /^pt/i.test(v.lang));
-    const list = ptVoices.length ? ptVoices : allVoices;
-    if (!list.length) {
-      narrNote.textContent = 'Carregando vozes do navegador…';
-      return;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return;
+    franciscaVoice =
+      voices.find(v => v.name === 'Francisca') ||
+      voices.find(v => v.name.toLowerCase().includes('francisca')) ||
+      voices.find(v => v.lang === 'pt-BR') ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('pt')) ||
+      null;
+    if (narrNote) {
+      narrNote.textContent = franciscaVoice
+        ? 'Voz: ' + franciscaVoice.name
+        : 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível.';
     }
-
-    const namesNow = list.map(v => v.name).sort().join('|');
-    const namesBefore = knownVoiceNames.slice().sort().join('|');
-    const listUnchanged = namesNow === namesBefore && voiceSelect.options.length > 0;
-    if (listUnchanged) return; // nada mudou: não mexe na seleção atual do usuário
-
-    const previouslySelected = voiceSelect.value;
-    const stillAvailable = previouslySelected && list.some(v => v.name === previouslySelected);
-    const chosen = stillAvailable ? list.find(v => v.name === previouslySelected) : pickBestVoice(list);
-
-    knownVoiceNames = list.map(v => v.name);
-    voiceSelect.innerHTML = '';
-    list.forEach((v) => {
-      const opt = document.createElement('option');
-      opt.value = v.name;
-      opt.textContent = v.name + ' (' + v.lang + ')';
-      if (chosen && v.name === chosen.name) opt.selected = true;
-      voiceSelect.appendChild(opt);
-    });
-
-    if (!ptVoices.length) {
-      narrNote.textContent = 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível. Para melhor qualidade, tente abrir em um Chrome ou Edge atualizado, com uma voz em português instalada.';
-    } else if (stillAvailable) {
-      narrNote.textContent = 'Voz fixada: ' + chosen.name + '. Ela será usada em todas as cenas desta aula — para trocar, escolha outra na lista acima.';
-    } else {
-      narrNote.textContent = 'Voz em português selecionada automaticamente: ' + (chosen ? chosen.name : '—') + '. Essa escolha fica fixa em todas as cenas; se preferir outra, escolha na lista acima antes de gravar.';
-    }
-  }
-
-  function getSelectedVoice(){
-    const list = ptVoices.length ? ptVoices : allVoices;
-    return list.find(v => v.name === voiceSelect.value) || pickBestVoice(list);
   }
 
   function setSpeakingUI(on){
     avatarWrap.classList.toggle('speaking', on);
-    const label = on ? '⏹ Parar narração' : '🔊 Ouvir esta cena';
-    btnNarrar.textContent = label;
-    if (btnNarrarMobile) btnNarrarMobile.textContent = label;
+  }
+
+  // Fala uma frase de cada vez — nunca um parágrafo inteiro — igual ao material de
+  // matemática: isso evita chegar perto de qualquer limite de duração de fala contínua.
+  // Só quebramos uma frase sozinha se ela já for longa demais.
+  const TTS_CHUNK_MAX_LEN = 220;
+
+  // Cada pedaço guarda também COMO ele termina: uma frase de verdade (. ! ?) merece uma
+  // pausa perceptível, como uma leitura normal faria entre uma frase e outra. Já uma
+  // quebra técnica no meio de uma frase longa demais (feita numa vírgula, ponto e
+  // vírgula, dois-pontos ou travessão só para não estourar o tamanho do trecho) não é
+  // o fim de um pensamento — por isso leva uma pausa bem mais curta, quase imperceptível,
+  // em vez de soar como se fosse o fim do parágrafo.
+  function splitNarrationIntoChunks(text, maxLen){
+    const sentences = (text.match(/[^.!?]+[.!?]+(\s+|$)/g) || [text]).map(s => s.trim()).filter(Boolean);
+    const chunks = [];
+    for (const sentence of sentences) {
+      if (sentence.length <= maxLen) { chunks.push({ text: sentence, softBreak: false }); continue; }
+      // sentença sozinha já é longa demais: quebra em vírgulas/travessões/dois-pontos —
+      // essas quebras são só técnicas, não pausas reais de fim de frase.
+      const parts = sentence.split(/(?<=,|;|:|—)\s+/);
+      let sbuf = '';
+      for (const part of parts) {
+        if ((sbuf + ' ' + part).trim().length <= maxLen) {
+          sbuf = (sbuf ? sbuf + ' ' : '') + part;
+        } else {
+          if (sbuf) chunks.push({ text: sbuf, softBreak: true });
+          if (part.length > maxLen) {
+            const words = part.split(/\s+/);
+            let wbuf = '';
+            for (const w of words) {
+              if ((wbuf + ' ' + w).trim().length <= maxLen) {
+                wbuf = (wbuf ? wbuf + ' ' : '') + w;
+              } else {
+                if (wbuf) chunks.push({ text: wbuf, softBreak: true });
+                wbuf = w;
+              }
+            }
+            sbuf = wbuf;
+          } else {
+            sbuf = part;
+          }
+        }
+      }
+      // o último pedaço de uma sentença quebrada ainda carrega o ponto final dela
+      if (sbuf) chunks.push({ text: sbuf, softBreak: false });
+    }
+    return chunks.length ? chunks : [{ text, softBreak: false }];
+  }
+
+  let speakQueue = [];
+  let speakQueueIndex = 0;
+  let speakToken = 0; // invalida filas antigas quando uma nova narração começa
+
+  // Fala um único trecho e chama onDone quando ele termina (ou dá erro) — igual à
+  // função speak(text, onEnd) do material de matemática. A única rede de segurança
+  // é para o caso de a fala NUNCA começar (ex.: falha de rede da voz "Online"); uma
+  // vez que ela começa, é o próprio fim da frase (onend) que decide quando parar —
+  // sem nenhum limite de duração, mesmo para frases mais longas.
+  function speakOne(text, token, wordStart, onDone){
+    if (!SUPPORTS_TTS) { onDone(); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'pt-BR';
+    if (franciscaVoice) utter.voice = franciscaVoice;
+    utter.rate = 0.98;
+    utter.pitch = 1.1;
+    let started = false;
+    let settled = false;
+    let wordsSpoken = 0;
+    const finish = () => {
+      if (settled || token !== speakToken) return;
+      settled = true;
+      onDone();
+    };
+    utter.onstart = () => { started = true; setSpeakingUI(true); };
+    utter.onboundary = (e) => {
+      if (token !== speakToken) return;
+      // Algumas vozes disparam apenas eventos de palavra; outras também marcam
+      // frase/sentença — só nos interessa o limite de cada palavra.
+      if (e.name && e.name !== 'word') return;
+      highlightWord(wordStart + wordsSpoken);
+      wordsSpoken++;
+    };
+    utter.onend = finish;
+    utter.onerror = finish;
+    window.speechSynthesis.speak(utter);
+    setTimeout(() => {
+      if (settled || started || token !== speakToken) return; // só age se nunca começou
+      window.speechSynthesis.cancel();
+      finish();
+    }, 5000);
+  }
+
+  // Pausa como numa leitura normal: breve entre frases, quase nenhuma dentro de uma
+  // frase que só foi cortada por ser longa demais.
+  const PAUSE_AFTER_SENTENCE_MS = 220;
+  const PAUSE_AFTER_SOFT_BREAK_MS = 70;
+  // Pausa entre o fim da narração de uma cena e o início automático da próxima —
+  // esta versão não tem botões de navegação: a aula avança sozinha, cena após
+  // cena, até a última, para poder ser gravada em vídeo sem qualquer interação.
+  const PAUSE_BETWEEN_SCENES_MS = 900;
+
+  function speakNextChunk(token){
+    if (token !== speakToken) return; // uma narração mais nova já assumiu
+    if (speakQueueIndex >= speakQueue.length) {
+      setSpeakingUI(false);
+      clearWordHighlight();
+      if (current < SCENES.length - 1) {
+        setTimeout(() => { if (token === speakToken) goTo(current + 1); }, PAUSE_BETWEEN_SCENES_MS);
+      } else {
+        setTimeout(() => { if (token === speakToken) finalizarAula(); }, PAUSE_BETWEEN_SCENES_MS);
+      }
+      return;
+    }
+    const chunk = speakQueue[speakQueueIndex++];
+    speakOne(chunk.text, token, chunk.wordStart, () => {
+      if (token !== speakToken) return;
+      const pause = chunk.softBreak ? PAUSE_AFTER_SOFT_BREAK_MS : PAUSE_AFTER_SENTENCE_MS;
+      setTimeout(() => speakNextChunk(token), pause);
+    });
+  }
+
+  // Algumas palavras estrangeiras travam a síntese de voz em português — em especial
+  // nomes com letras raras na ortografia do português, como o "w". O texto exibido na
+  // tela continua com a grafia correta; só o que é enviado à voz é ajustado para uma
+  // grafia foneticamente parecida que o sintetizador consiga ler sem engasgar.
+  // "Kurt Lewin" foi confirmado como problema real (testado); os demais foram
+  // adicionados de forma preventiva, pelo mesmo padrão — avise se algum ainda travar
+  // ou se algum outro nome causar o mesmo problema, para eu ajustar a lista.
+  const TTS_PRONUNCIATION_FIXES = [
+    { pattern: /Kurt Lewin/g, replacement: 'Curt Levin' },
+    { pattern: /Weber/g, replacement: 'Véber' },
+    { pattern: /Hawthorne/g, replacement: 'Hautorn' },
+    { pattern: /Ishikawa/g, replacement: 'Ishicava' },
+    { pattern: /Maslow/g, replacement: 'Maslou' },
+    { pattern: /Osterwalder/g, replacement: 'Osterválder' },
+    { pattern: /Winslow/g, replacement: 'Uinslou' },
+  ];
+
+  function textForSpeech(text){
+    let out = text;
+    for (const fix of TTS_PRONUNCIATION_FIXES) out = out.replace(fix.pattern, fix.replacement);
+    return out;
   }
 
   function speakScene(text){
     if (!SUPPORTS_TTS) return;
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'pt-BR';
-    const v = getSelectedVoice();
-    if (v) utter.voice = v; // mesma voz fixada em getSelectedVoice() para todas as cenas
-    utter.rate = 0.98;
-    utter.pitch = 1.1;
-    utter.onstart = () => setSpeakingUI(true);
-    utter.onend = () => setSpeakingUI(false);
-    utter.onerror = () => setSpeakingUI(false);
-    window.speechSynthesis.speak(utter);
+    speakToken++;
+    const token = speakToken;
+    speakQueue = splitNarrationIntoChunks(textForSpeech(text), TTS_CHUNK_MAX_LEN);
+    // Cada trecho carrega também em qual palavra (do texto exibido na tela) ele
+    // começa, para o destaque de leitura avançar junto com a fala.
+    let wordCursor = 0;
+    for (const chunk of speakQueue) {
+      const n = chunk.text.trim().split(/\s+/).filter(Boolean).length;
+      chunk.wordStart = wordCursor;
+      wordCursor += n;
+    }
+    speakQueueIndex = 0;
+    clearWordHighlight();
+    setTimeout(() => speakNextChunk(token), 50);
   }
 
   function stopSpeaking(){
+    speakToken++; // invalida qualquer fila em andamento
+    speakQueue = [];
+    speakQueueIndex = 0;
     if (SUPPORTS_TTS) window.speechSynthesis.cancel();
     setSpeakingUI(false);
-  }
-
-  function toggleNarration(){
-    if (window.speechSynthesis.speaking) { stopSpeaking(); return; }
-    speakScene(SCENES[current].narration);
+    clearWordHighlight();
   }
 
   if (SUPPORTS_TTS) {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-    btnNarrar.addEventListener('click', toggleNarration);
-    if (btnNarrarMobile) btnNarrarMobile.addEventListener('click', toggleNarration);
-    voiceSelect.addEventListener('change', () => {
-      // troca manual: vira a nova voz fixada a partir de agora
-      if (window.speechSynthesis.speaking) speakScene(SCENES[current].narration);
-    });
   } else {
-    narrControls.style.display = 'none';
-    if (narrControlsMobileEl()) narrControlsMobileEl().style.display = 'none';
     avatarWrap.insertAdjacentHTML('afterend',
       '<div class="narr-note" style="margin-top:10px;">Este navegador não oferece leitura em voz automática (Web Speech API). Use o roteiro em DOCX para a gravação, ou abra esta aula em um navegador desktop atualizado, como Chrome ou Edge.</div>');
   }
-  function narrControlsMobileEl(){ return document.getElementById('narrControlsMobile'); }
+
+  function escapeHtml(str){
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // Reconstrói o texto da narração envolvendo cada palavra em um <span> numerado,
+  // preservando os espaços originais entre elas, para permitir destacar a palavra
+  // que está sendo lida no momento.
+  function renderNarrationWithWordSpans(text){
+    const tokens = text.split(/(\s+)/);
+    let html = '';
+    let widx = 0;
+    for (const tok of tokens) {
+      if (tok === '') continue;
+      if (/^\s+$/.test(tok)) { html += tok; continue; }
+      html += '<span class="tts-word" data-widx="' + widx + '">' + escapeHtml(tok) + '</span>';
+      widx++;
+    }
+    fullNarration.innerHTML = html;
+    wordSpans = Array.prototype.slice.call(fullNarration.querySelectorAll('.tts-word'));
+    lastActiveWordIndex = -1;
+  }
+
+  function highlightWord(idx){
+    if (idx === lastActiveWordIndex) return;
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    if (idx >= 0 && idx < wordSpans.length) {
+      wordSpans[idx].classList.add('active');
+      wordSpans[idx].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    lastActiveWordIndex = idx;
+  }
+
+  function clearWordHighlight(){
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    lastActiveWordIndex = -1;
+  }
 
   function renderDots(){
     dotsEl.innerHTML = '';
     SCENES.forEach((s, i) => {
-      const b = document.createElement('button');
+      const b = document.createElement('span');
       b.className = 'dot' + (i === current ? ' active' : '') + (visited.has(i) ? ' done' : '');
       b.title = 'Cena ' + (i+1) + ': ' + s.title;
-      b.addEventListener('click', () => goTo(i));
       dotsEl.appendChild(b);
     });
   }
@@ -499,10 +621,8 @@
     titleText.textContent = s.title;
     bulletsList.innerHTML = s.bullets.map(b => '<li>' + b + '</li>').join('');
     profPreview.textContent = s.narration;
-    fullNarration.textContent = s.narration;
+    renderNarrationWithWordSpans(s.narration);
     sceneCount.textContent = 'Cena ' + (current+1) + ' de ' + SCENES.length;
-    btnPrev.disabled = current === 0;
-    btnNext.textContent = current === SCENES.length - 1 ? 'Concluir aula ✔' : 'Próxima ▶';
     renderDots();
     // volta o scroll do conteúdo ao topo a cada nova cena
     const contentBox = document.querySelector('.content-box');
@@ -511,8 +631,11 @@
     if (stageBody) stageBody.scrollTop = 0;
 
     if (SUPPORTS_TTS) {
+      speakToken++; // invalida qualquer fila de fala pendente da cena anterior
+      speakQueue = [];
+      speakQueueIndex = 0;
       window.speechSynthesis.cancel();
-      if (chkAutoplay.checked) speakScene(s.narration);
+      speakScene(s.narration);
     }
   }
 
@@ -521,31 +644,16 @@
     render();
   }
 
-  btnStart.addEventListener('click', () => {
-    introScroll.style.display = 'none';
-    stage.classList.add('active');
-    current = 0;
-    render();
-  });
-
-  btnPrev.addEventListener('click', () => goTo(current - 1));
-  btnNext.addEventListener('click', () => {
-    if (current === SCENES.length - 1) {
-      if (SUPPORTS_TTS) window.speechSynthesis.cancel();
-      stage.classList.remove('active');
-      introScroll.style.display = '';
-      btnStart.textContent = 'Rever a aula ▶';
-      marcarComoConcluida();
-    } else {
-      goTo(current + 1);
-    }
-  });
-
-  // ---------------- Integração com o Painel (curso.js) ----------------
-  function marcarComoConcluida(){
+  // Chamada quando a narração da última cena termina — não há mais botão de
+  // "Concluir aula" nesta versão (feita para gravação em vídeo, sem cliques),
+  // então a conclusão é detectada automaticamente aqui.
+  function finalizarAula(){
     if (window.Curso) {
       Curso.marcarAulaConcluida(MODULE_NUMBER);
     }
+    stage.classList.remove('active');
+    introScroll.style.display = '';
+    btnStart.textContent = 'Rever a aula ▶';
     const banner = document.getElementById('concluidaBanner');
     const linkProxima = document.getElementById('linkProximaAula');
     if (linkProxima) {
@@ -561,17 +669,18 @@
     if (banner) banner.style.display = '';
   }
 
+  btnStart.addEventListener('click', () => {
+    introScroll.style.display = 'none';
+    stage.classList.add('active');
+    current = 0;
+    render();
+  });
+
   if (window.Curso) {
     Curso.renderAlunoTag(document.getElementById('alunoTag'));
   }
 
-  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) window.speechSynthesis.cancel(); });
-
-  document.addEventListener('keydown', (e) => {
-    if (!stage.classList.contains('active')) return;
-    if (e.key === 'ArrowRight') btnNext.click();
-    if (e.key === 'ArrowLeft') btnPrev.click();
-  });
+  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) stopSpeaking(); });
 </script>
 
 </body>

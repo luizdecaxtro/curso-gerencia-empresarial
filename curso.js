@@ -19,7 +19,7 @@
   // ---------------------------------------------------------------------
   const CONFIG = {
     // Cole aqui a URL do Web App publicado no Apps Script (termina em /exec)
-    APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxkRIWvjmNRej5riAbHfZ8-QkA_rWB2IobRYqbaxfwWBehAK63oMIkH7r4gAVxQiuiU/exec",
+    APPS_SCRIPT_URL: "COLE_AQUI_A_URL_DO_APPS_SCRIPT",
     // Dados de suporte (já preenchidos)
     WHATSAPP_NUMERO: "5598988804678", // (98) 98880-4678
     SUPORTE_EMAIL: "lojasdecastro@gmail.com",

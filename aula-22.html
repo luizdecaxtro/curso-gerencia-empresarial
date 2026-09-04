@@ -34,7 +34,7 @@
     /* mesma largura (e mesmo centro) do cartão central: calc() replica o
        padding lateral de 12px do <main>, e o max-width replica o do .wrap */
     width: calc(100% - 24px); max-width: 760px; margin: 8px auto 0; box-sizing:border-box;
-    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; row-gap:6px;
+    display:flex; align-items:center; justify-content:space-between;
     padding: 8px 20px;
     background: var(--teal-dark);
     color:#fff;
@@ -45,7 +45,6 @@
   header.top .brand small{ font-weight:400; opacity:.85; font-style:italic; font-size:.72rem;}
   header.top .course{ font-size:.74rem; opacity:.9; text-align:right;}
   header.top .header-actions{ display:flex; align-items:center; gap:10px; }
-  header.top .course{ flex:1 1 auto; }
   header.top .painel-link{ color:#fff; text-decoration:none; font-size:.68rem; font-weight:600; background:rgba(255,255,255,.16); padding:4px 11px; border-radius:999px; white-space:nowrap; }
   header.top .painel-link:hover{ background:rgba(255,255,255,.27); }
   header.top .aluno-tag{ font-size:.66rem; opacity:.92; white-space:nowrap; display:flex; align-items:center; gap:6px; }
@@ -188,6 +187,17 @@
   .content-box .narration-divider{ border:none; border-top:1px dashed #b9d3cb; margin:0; flex:0 0 auto; }
   .content-box .narration-text{
     font-size:.8rem; line-height:1.6; color:var(--ink); white-space:pre-line; flex:0 0 auto;
+    text-align:justify; text-justify:inter-word;
+  }
+  .tts-word{
+    transition: background-color .12s ease, color .12s ease;
+    border-radius:3px;
+  }
+  .tts-word.active{
+    background: var(--gold);
+    color:#fff;
+    padding:0 2px;
+    margin:0 -2px;
   }
 
   .stage-foot{
@@ -202,7 +212,7 @@
   .navbtn.secondary{ background:#fff; color:var(--teal-dark); border:1px solid var(--teal); }
   .navbtn:disabled{ opacity:.4; cursor:not-allowed; }
   .dots{ display:flex; gap:5px; flex-wrap:wrap; justify-content:center; max-width: 40%; }
-  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:pointer; border:none; padding:0; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:#cfe0da; cursor:default; border:none; padding:0; }
   .dot.active{ background:var(--teal); transform:scale(1.3); }
   .dot.done{ background:var(--gold); }
 
@@ -287,14 +297,6 @@
           <div class="prof-name">Profa. Francisca</div>
           <div class="prof-role">Narradora do curso</div>
           <div class="prof-preview" id="profPreview"></div>
-          <div class="narr-controls" id="narrControls">
-            <div class="narr-row">
-              <button class="narr-btn" id="btnNarrar">🔊 Ouvir esta cena</button>
-            </div>
-            <label class="narr-toggle"><input type="checkbox" id="chkAutoplay" checked> Narrar automaticamente ao trocar de cena</label>
-            <select class="narr-voice" id="voiceSelect"></select>
-            <div class="narr-note" id="narrNote"></div>
-          </div>
         </div>
         <div class="content-col">
           <div class="badge-kind" id="kindBadge"></div>
@@ -307,15 +309,8 @@
           </div>
         </div>
       </div>
-      <div class="narr-controls-mobile" id="narrControlsMobile">
-        <div class="narr-row">
-          <button class="narr-btn" id="btnNarrarMobile">🔊 Ouvir esta cena</button>
-        </div>
-      </div>
-      <div class="stage-foot">
-        <button class="navbtn secondary" id="btnPrev">◀ Anterior</button>
+      <div class="stage-foot" style="justify-content:center;">
         <div class="dots" id="dots"></div>
-        <button class="navbtn" id="btnNext">Próxima ▶</button>
       </div>
     </section>
 
@@ -324,15 +319,13 @@
 
 <script src="curso.js"></script>
 <script>
+  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos à nossa última aula!","caption":"Retomando a Aula 21 e chegando ao fim do curso","narration":"Olá, seja bem-vindo, seja bem-vinda a esta que é a nossa vigésima segunda e última aula do curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e foi uma grande satisfação caminhar com você ao longo de todas essas aulas. Na Aula 21, estudamos ética, responsabilidade social e os critérios ESG. Hoje, vamos fazer três coisas: primeiro, vamos conhecer algumas tendências contemporâneas em gestão empresarial, como people analytics, gestão remota e híbrida, e inteligência artificial aplicada à gestão; em seguida, vamos fazer uma revisão integrada dos principais temas estudados ao longo de todo o curso, unidade por unidade; e, por fim, vamos elaborar juntos a estrutura de um plano de ação final, para que você possa aplicar, na prática, tudo o que aprendeu. Vamos começar?","bullets":["Recapitulando a Aula 21: ética, responsabilidade social e ESG","Última aula: tendências, revisão integrada e plano de ação final","Encerramento do curso Gerenciamento Empresarial"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de conhecer tendências contemporâneas de gestão, como people analytics, gestão remota e híbrida, e inteligência artificial aplicada à gestão. Você vai revisar, de forma integrada, os principais temas estudados ao longo das seis unidades deste curso. Vai compreender a estrutura de um plano de ação final, que conecta os aprendizados do curso à sua realidade prática. Vai elaborar um esboço de plano de ação pessoal, com base no conteúdo estudado. E, por fim, vai reconhecer a gestão empresarial não como um destino final, mas como um processo contínuo de aprendizado e adaptação, que continua muito além do encerramento deste curso.","bullets":["Tendências: people analytics, gestão remota/híbrida e inteligência artificial","Revisão integrada das seis unidades do curso","Estrutura de um plano de ação final","Gestão como processo contínuo de aprendizado"]},{"id":3,"kind":"conteudo","title":"Tendência: people analytics","caption":"Decisões de pessoas orientadas por dados","narration":"People analytics é a aplicação de métodos de análise de dados à gestão de pessoas, tema que estudamos ao longo de toda a Unidade 3 deste curso. Em vez de basear decisões sobre recrutamento, desenvolvimento, avaliação de desempenho ou retenção de talentos exclusivamente na percepção subjetiva de gestores, o people analytics utiliza dados objetivos, como indicadores de desempenho, resultados de avaliações 360 graus, estudadas no Capítulo 11, ou padrões identificados em processos de recrutamento e seleção, discutidos no Capítulo 9, para embasar essas decisões de forma mais consistente. Entre as aplicações mais comuns do people analytics estão a identificação de fatores associados a maior rotatividade de colaboradores, permitindo ações preventivas antes que talentos importantes deixem a empresa; a análise de padrões em processos seletivos bem-sucedidos, ajudando a refinar critérios futuros de recrutamento; e o acompanhamento mais preciso de indicadores de clima e engajamento, retomando o tema estudado no Capítulo 4. É importante destacar que o people analytics deve ser utilizado com responsabilidade e transparência, respeitando a privacidade dos colaboradores e evitando decisões automatizadas que ignorem o julgamento humano em situações mais sensíveis ou complexas.","bullets":["People analytics: análise de dados aplicada à gestão de pessoas (Unidade 3)","Aplicações: rotatividade, refinamento de recrutamento, clima organizacional","Complementa, mas não substitui, o julgamento humano em decisões sensíveis","Exige responsabilidade e transparência quanto à privacidade dos colaboradores"]},{"id":4,"kind":"conteudo","title":"Tendência: gestão remota e híbrida","caption":"Novas formas de organizar o trabalho","narration":"A gestão remota e híbrida ganhou impulso significativo nos últimos anos, e se consolidou como uma tendência relevante e duradoura na gestão empresarial contemporânea. No modelo remoto, os colaboradores trabalham predominantemente fora das instalações físicas da empresa, enquanto no modelo híbrido combinam períodos de trabalho presencial e remoto, conforme a natureza de suas atividades e as políticas específicas de cada organização. Esses modelos trazem impactos diretos sobre diversos temas já estudados ao longo deste curso. No que se refere à comunicação organizacional, discutida no Capítulo 12, equipes remotas ou híbridas dependem ainda mais de canais formais bem estruturados, já que a comunicação informal espontânea, característica de ambientes presenciais, tende a ocorrer com menor frequência. No que se refere à liderança, tema do Capítulo 10, líderes de equipes remotas ou híbridas precisam desenvolver formas eficazes de acompanhar resultados e de manter o engajamento da equipe sem depender exclusivamente da supervisão presencial direta. E, no que se refere à cultura organizacional, discutida no Capítulo 4, manter uma cultura forte e coesa se torna um desafio adicional, exigindo esforço deliberado da liderança para sustentar conexões entre colaboradores que interagem presencialmente com menor frequência.","bullets":["Gestão remota e híbrida: consolidada como tendência duradoura","Exige comunicação organizacional mais formal e estruturada (Capítulo 12)","Desafia lideranças a acompanhar resultados sem supervisão presencial direta","Exige esforço deliberado para sustentar a cultura organizacional (Capítulo 4)"]},{"id":5,"kind":"conteudo","title":"Tendência: inteligência artificial aplicada à gestão","caption":"Novas ferramentas para decisões e processos","narration":"A inteligência artificial vem sendo cada vez mais incorporada a diferentes áreas da gestão empresarial, ampliando a capacidade de análise de dados e a automação de tarefas antes realizadas exclusivamente por pessoas. Na área de marketing e gestão comercial, discutida no Capítulo 16, ferramentas de inteligência artificial já apoiam a personalização de conteúdo e a análise de grandes volumes de dados de clientes. Na área de processos e operações, discutida no Capítulo 17, algoritmos auxiliam na previsão de demanda e na otimização de rotas logísticas dentro da cadeia de suprimentos. Na área financeira, discutida na Unidade 4 deste curso, ferramentas de inteligência artificial apoiam a identificação de padrões incomuns em transações, relevantes para o controle orçamentário estudado no Capítulo 15. E, de forma mais ampla, ferramentas de inteligência artificial generativa vêm sendo utilizadas para apoiar tarefas de análise, redação e organização de informações no dia a dia da gestão. Apesar desse avanço, é importante que o gestor compreenda a inteligência artificial como uma ferramenta de apoio à decisão, e não como substituta do julgamento humano em decisões estratégicas mais complexas, retomando, inclusive, o cuidado com decisões automatizadas discutido a respeito do people analytics, no início desta aula.","bullets":["IA apoia personalização em marketing e análise de dados de clientes","IA auxilia previsão de demanda e otimização logística (Capítulo 17)","IA apoia identificação de padrões financeiros incomuns (Capítulo 15)","IA como ferramenta de apoio à decisão, não substituta do julgamento humano"]},{"id":6,"kind":"conteudo","title":"Revisão integrada: Unidades 1 a 3","caption":"Fundamentos, planejamento estratégico e gestão de pessoas","narration":"Antes de elaborarmos nosso plano de ação final, vamos fazer uma breve revisão integrada de todo o curso. Na Unidade 1, estudamos os fundamentos da gestão empresarial: a evolução histórica da administração, as funções administrativas de planejar, organizar, dirigir e controlar, e a cultura, o clima e o ambiente organizacional, que sustentam todo o funcionamento de uma empresa. Na Unidade 2, avançamos para o planejamento estratégico: os níveis estratégico, tático e operacional, a definição de missão, visão, valores e modelo de negócios por meio do Business Model Canvas, a análise de ambiente com a ferramenta SWOT e as cinco forças de Porter, e os indicadores de desempenho organizados pelo Balanced Scorecard. Na Unidade 3, dedicada à gestão de pessoas, estudamos recrutamento, seleção e integração de colaboradores, liderança e motivação, desenvolvimento de equipes e avaliação de desempenho, e encerramos com comunicação organizacional e gestão de conflitos — todos esses temas retomados hoje, ao falarmos de people analytics e de gestão remota e híbrida.","bullets":["Unidade 1: fundamentos, funções administrativas, cultura e clima organizacional","Unidade 2: planejamento estratégico, BMC, SWOT, Porter e Balanced Scorecard","Unidade 3: recrutamento, liderança, desenvolvimento de equipes e comunicação","Temas retomados hoje ao discutirmos people analytics e trabalho remoto"]},{"id":7,"kind":"conteudo","title":"Revisão integrada: Unidades 4 a 6","caption":"Finanças, marketing e operações, e temas avançados","narration":"Na Unidade 4, estudamos a gestão financeira e de custos: os principais demonstrativos financeiros, fluxo de caixa, DRE e Balanço Patrimonial, a gestão de custos e a formação de preços, e o planejamento orçamentário e indicadores financeiros como o ROI e o EBITDA. Na Unidade 5, estudamos marketing, processos e qualidade: os fundamentos de marketing e gestão comercial, com o composto de marketing e o funil de vendas, a gestão de processos, operações e cadeia de suprimentos, incluindo a metodologia Lean, e a gestão da qualidade e produtividade, com o ciclo PDCA e ferramentas como o Diagrama de Ishikawa. E, nesta Unidade 6, nossa última unidade, estudamos temas avançados: os fundamentos da gestão de projetos, com o PMBOK e métodos ágeis como Scrum e Kanban, inovação, empreendedorismo corporativo e transformação digital, ética, responsabilidade social e critérios ESG, e, agora, para fechar, as tendências contemporâneas que acabamos de discutir. Seis unidades, vinte e uma aulas anteriores, e um único fio condutor: transformar conhecimento de gestão em capacidade real de decisão e de ação.","bullets":["Unidade 4: fluxo de caixa, DRE, Balanço Patrimonial, custos e orçamento","Unidade 5: marketing, funil de vendas, processos, Lean, PDCA e qualidade","Unidade 6: gestão de projetos, inovação, ESG e tendências contemporâneas","Um fio condutor: transformar conhecimento em capacidade real de decisão"]},{"id":8,"kind":"conteudo","title":"A estrutura do plano de ação final","caption":"Da teoria à prática, com método","narration":"Para transformar todo esse conteúdo em resultados concretos, vamos estruturar um plano de ação final, utilizando uma lógica que já é familiar a você: a ferramenta 5W2H, estudada nos Capítulos 5 e 18 deste curso. O primeiro passo é escolher, entre todos os temas estudados ao longo do curso, uma ou duas prioridades reais para sua realidade profissional atual: pode ser aprimorar o planejamento estratégico da sua área, estruturar melhor os indicadores financeiros que você acompanha, revisar um processo específico utilizando a metodologia Lean, ou fortalecer práticas de liderança e de gestão de pessoas em sua equipe. O segundo passo é aplicar o 5W2H a cada prioridade escolhida, definindo o que será feito, por que será feito, onde, quando, quem será responsável, como será feito, e quanto custará, se houver custos envolvidos. O terceiro passo é definir uma forma simples de acompanhamento desse plano ao longo do tempo, retomando a lógica do ciclo PDCA, estudado no Capítulo 18: planejar a ação, executá-la, verificar seus resultados após um período razoável, e agir, ajustando o que for necessário, ou consolidando o que funcionou bem como uma nova prática permanente.","bullets":["Passo 1: escolher uma ou duas prioridades reais da sua realidade profissional","Passo 2: aplicar o 5W2H a cada prioridade escolhida","Passo 3: definir forma de acompanhamento, na lógica do ciclo PDCA","Da teoria à prática: transformar aprendizado em ação concreta"]},{"id":9,"kind":"caso","title":"Estudo de caso: o plano de ação final da Metalúrgica Vitória","caption":"Encerrando a trajetória do nosso caso fictício","narration":"Para encerrar nossa jornada, vamos revisitar, pela última vez, a trajetória da Metalúrgica Vitória, nosso caso fictício, criado exclusivamente para fins didáticos, que acompanhamos ao longo de praticamente todo o curso. Ao longo dessas vinte e duas aulas, vimos a empresa reestruturar sua divisão organizacional, definir missão, visão e valores, enfrentar e superar conflitos entre divisões, estruturar seus indicadores financeiros, revisar processos com a metodologia Lean, reposicionar-se estrategicamente com foco em agilidade, adotar métodos ágeis em projetos internos, criar um laboratório de intraempreendedorismo diante de um risco de disrupção digital, e formalizar seu compromisso com ética e critérios ESG. Ao final desse percurso, a diretoria da empresa se reuniu para consolidar um plano de ação final, integrando as principais iniciativas em andamento: acompanhar, trimestralmente, os indicadores do Balanced Scorecard construído ao longo do curso; consolidar a cultura de melhoria contínua iniciada com o ciclo PDCA; e ampliar, gradualmente, o uso de dados e de tecnologia em suas decisões, inspirando-se nas tendências de people analytics e inteligência artificial que estudamos nesta última aula. A trajetória da Metalúrgica Vitória, assim como a sua própria trajetória de aprendizado neste curso, não termina aqui: ela apenas ganha uma base mais sólida para os próximos passos.","bullets":["Trajetória da empresa ao longo de todo o curso: da estrutura à cultura de inovação","Plano de ação final integra as principais iniciativas em andamento","Acompanhamento trimestral do Balanced Scorecard e do ciclo de melhoria contínua","Uso crescente de dados e tecnologia nas decisões, inspirado nas tendências estudadas"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. People analytics aplica análise de dados à gestão de pessoas, apoiando decisões mais consistentes, sem substituir o julgamento humano. A gestão remota e híbrida exige comunicação mais estruturada, novas formas de liderança e esforço deliberado para sustentar a cultura organizacional. A inteligência artificial amplia a capacidade de análise e automação em marketing, operações e finanças, mas deve ser utilizada como apoio, e não como substituta da decisão humana. Revisamos, de forma integrada, as seis unidades do curso, dos fundamentos da gestão até os temas avançados de projetos, inovação e ESG. E, por fim, estruturamos um plano de ação final, utilizando a ferramenta 5W2H e a lógica do ciclo PDCA, para transformar o conteúdo deste curso em ações concretas na sua realidade profissional.","bullets":["People analytics, gestão remota/híbrida e inteligência artificial aplicada à gestão","Revisão integrada das seis unidades do curso Gerenciamento Empresarial","Plano de ação final: 5W2H aplicado a prioridades reais","Acompanhamento contínuo por meio do ciclo PDCA"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez: seu plano de ação final","caption":"Atividade de encerramento do curso","narration":"Chegou o momento da nossa atividade final, e ela é especial: você vai elaborar o seu próprio plano de ação, com base em tudo o que estudou ao longo deste curso. Primeiro, escolha uma ou duas prioridades reais da sua vida profissional, relacionadas a qualquer um dos temas que estudamos, desde planejamento estratégico até gestão de pessoas, finanças, marketing, processos, ou os temas avançados desta última unidade. Em seguida, para cada prioridade escolhida, estruture um plano de ação no formato 5W2H: o que será feito, por que, onde, quando, quem será responsável, como será feito, e quanto custará. Por fim, defina como você vai verificar, dentro de alguns meses, se esse plano gerou os resultados esperados, aplicando a lógica do ciclo PDCA que estudamos ao longo do curso. Você pode registrar esse plano de ação no Capítulo vinte e dois do material didático, que reúne, também, um resumo de todo o conteúdo estudado ao longo das seis unidades deste curso.","bullets":["Escolha uma ou duas prioridades reais da sua vida profissional","Estruture um plano de ação no formato 5W2H para cada prioridade","Defina como verificar os resultados, aplicando a lógica do ciclo PDCA"]},{"id":12,"kind":"encerramento","title":"Muito obrigada, e até breve!","caption":"Encerramento do curso Gerenciamento Empresarial","narration":"Chegamos ao final da nossa vigésima segunda e última aula, e também ao final do curso Gerenciamento Empresarial. Ao longo dessas vinte e duas aulas, percorremos os fundamentos da administração, o planejamento estratégico, a gestão de pessoas, a gestão financeira e de custos, marketing, processos e qualidade, e, nesta última unidade, temas avançados como gestão de projetos, inovação, ética e as tendências contemporâneas que estudamos hoje. Gostaria de deixar um convite final: releia o Capítulo vinte e dois do material didático, que traz uma síntese de todo o curso, e não deixe seu plano de ação apenas no papel — releia-o daqui a alguns meses, e verifique, na prática, se ele gerou os resultados que você esperava. A gestão empresarial não é um destino, mas um processo contínuo de aprendizado, de planejamento e de ajuste, muito parecido com o próprio ciclo PDCA que estudamos ao longo deste curso. Muito obrigada pela sua dedicação e pela sua companhia ao longo de toda essa jornada. Eu sou a professora Francisca, e foi um enorme prazer ensinar você. Continue estudando, continue praticando, e continue crescendo. Até uma próxima oportunidade, aqui no DeCastro, o Canal do Conhecimento!","bullets":["Leia o Capítulo 22, com a síntese de todo o curso, e registre seu plano de ação","Revise seu plano de ação daqui a alguns meses, aplicando o ciclo PDCA","Fim do curso Gerenciamento Empresarial — obrigada pela sua dedicação!"]}];
   const MODULE_NUMBER = 22;
   const TOTAL_MODULES = 22;
-  const SCENES = [{"id":1,"kind":"abertura","title":"Bem-vindos à nossa última aula!","caption":"Retomando a Aula 21 e chegando ao fim do curso","narration":"Olá, seja bem-vindo, seja bem-vinda a esta que é a nossa vigésima segunda e última aula do curso Gerenciamento Empresarial, do DeCastro, o Canal do Conhecimento. Eu sou a professora Francisca, e foi uma grande satisfação caminhar com você ao longo de todas essas aulas. Na Aula 21, estudamos ética, responsabilidade social e os critérios ESG. Hoje, vamos fazer três coisas: primeiro, vamos conhecer algumas tendências contemporâneas em gestão empresarial, como people analytics, gestão remota e híbrida, e inteligência artificial aplicada à gestão; em seguida, vamos fazer uma revisão integrada dos principais temas estudados ao longo de todo o curso, unidade por unidade; e, por fim, vamos elaborar juntos a estrutura de um plano de ação final, para que você possa aplicar, na prática, tudo o que aprendeu. Vamos começar?","bullets":["Recapitulando a Aula 21: ética, responsabilidade social e ESG","Última aula: tendências, revisão integrada e plano de ação final","Encerramento do curso Gerenciamento Empresarial"]},{"id":2,"kind":"objetivos","title":"O que você vai aprender nesta aula","caption":"Objetivos de aprendizagem","narration":"Ao final desta aula, você será capaz de conhecer tendências contemporâneas de gestão, como people analytics, gestão remota e híbrida, e inteligência artificial aplicada à gestão. Você vai revisar, de forma integrada, os principais temas estudados ao longo das seis unidades deste curso. Vai compreender a estrutura de um plano de ação final, que conecta os aprendizados do curso à sua realidade prática. Vai elaborar um esboço de plano de ação pessoal, com base no conteúdo estudado. E, por fim, vai reconhecer a gestão empresarial não como um destino final, mas como um processo contínuo de aprendizado e adaptação, que continua muito além do encerramento deste curso.","bullets":["Tendências: people analytics, gestão remota/híbrida e inteligência artificial","Revisão integrada das seis unidades do curso","Estrutura de um plano de ação final","Gestão como processo contínuo de aprendizado"]},{"id":3,"kind":"conteudo","title":"Tendência: people analytics","caption":"Decisões de pessoas orientadas por dados","narration":"People analytics é a aplicação de métodos de análise de dados à gestão de pessoas, tema que estudamos ao longo de toda a Unidade 3 deste curso. Em vez de basear decisões sobre recrutamento, desenvolvimento, avaliação de desempenho ou retenção de talentos exclusivamente na percepção subjetiva de gestores, o people analytics utiliza dados objetivos, como indicadores de desempenho, resultados de avaliações 360 graus, estudadas no Capítulo 11, ou padrões identificados em processos de recrutamento e seleção, discutidos no Capítulo 9, para embasar essas decisões de forma mais consistente. Entre as aplicações mais comuns do people analytics estão a identificação de fatores associados a maior rotatividade de colaboradores, permitindo ações preventivas antes que talentos importantes deixem a empresa; a análise de padrões em processos seletivos bem-sucedidos, ajudando a refinar critérios futuros de recrutamento; e o acompanhamento mais preciso de indicadores de clima e engajamento, retomando o tema estudado no Capítulo 4. É importante destacar que o people analytics deve ser utilizado com responsabilidade e transparência, respeitando a privacidade dos colaboradores e evitando decisões automatizadas que ignorem o julgamento humano em situações mais sensíveis ou complexas.","bullets":["People analytics: análise de dados aplicada à gestão de pessoas (Unidade 3)","Aplicações: rotatividade, refinamento de recrutamento, clima organizacional","Complementa, mas não substitui, o julgamento humano em decisões sensíveis","Exige responsabilidade e transparência quanto à privacidade dos colaboradores"]},{"id":4,"kind":"conteudo","title":"Tendência: gestão remota e híbrida","caption":"Novas formas de organizar o trabalho","narration":"A gestão remota e híbrida ganhou impulso significativo nos últimos anos, e se consolidou como uma tendência relevante e duradoura na gestão empresarial contemporânea. No modelo remoto, os colaboradores trabalham predominantemente fora das instalações físicas da empresa, enquanto no modelo híbrido combinam períodos de trabalho presencial e remoto, conforme a natureza de suas atividades e as políticas específicas de cada organização. Esses modelos trazem impactos diretos sobre diversos temas já estudados ao longo deste curso. No que se refere à comunicação organizacional, discutida no Capítulo 12, equipes remotas ou híbridas dependem ainda mais de canais formais bem estruturados, já que a comunicação informal espontânea, característica de ambientes presenciais, tende a ocorrer com menor frequência. No que se refere à liderança, tema do Capítulo 10, líderes de equipes remotas ou híbridas precisam desenvolver formas eficazes de acompanhar resultados e de manter o engajamento da equipe sem depender exclusivamente da supervisão presencial direta. E, no que se refere à cultura organizacional, discutida no Capítulo 4, manter uma cultura forte e coesa se torna um desafio adicional, exigindo esforço deliberado da liderança para sustentar conexões entre colaboradores que interagem presencialmente com menor frequência.","bullets":["Gestão remota e híbrida: consolidada como tendência duradoura","Exige comunicação organizacional mais formal e estruturada (Capítulo 12)","Desafia lideranças a acompanhar resultados sem supervisão presencial direta","Exige esforço deliberado para sustentar a cultura organizacional (Capítulo 4)"]},{"id":5,"kind":"conteudo","title":"Tendência: inteligência artificial aplicada à gestão","caption":"Novas ferramentas para decisões e processos","narration":"A inteligência artificial vem sendo cada vez mais incorporada a diferentes áreas da gestão empresarial, ampliando a capacidade de análise de dados e a automação de tarefas antes realizadas exclusivamente por pessoas. Na área de marketing e gestão comercial, discutida no Capítulo 16, ferramentas de inteligência artificial já apoiam a personalização de conteúdo e a análise de grandes volumes de dados de clientes. Na área de processos e operações, discutida no Capítulo 17, algoritmos auxiliam na previsão de demanda e na otimização de rotas logísticas dentro da cadeia de suprimentos. Na área financeira, discutida na Unidade 4 deste curso, ferramentas de inteligência artificial apoiam a identificação de padrões incomuns em transações, relevantes para o controle orçamentário estudado no Capítulo 15. E, de forma mais ampla, ferramentas de inteligência artificial generativa vêm sendo utilizadas para apoiar tarefas de análise, redação e organização de informações no dia a dia da gestão. Apesar desse avanço, é importante que o gestor compreenda a inteligência artificial como uma ferramenta de apoio à decisão, e não como substituta do julgamento humano em decisões estratégicas mais complexas, retomando, inclusive, o cuidado com decisões automatizadas discutido a respeito do people analytics, no início desta aula.","bullets":["IA apoia personalização em marketing e análise de dados de clientes","IA auxilia previsão de demanda e otimização logística (Capítulo 17)","IA apoia identificação de padrões financeiros incomuns (Capítulo 15)","IA como ferramenta de apoio à decisão, não substituta do julgamento humano"]},{"id":6,"kind":"conteudo","title":"Revisão integrada: Unidades 1 a 3","caption":"Fundamentos, planejamento estratégico e gestão de pessoas","narration":"Antes de elaborarmos nosso plano de ação final, vamos fazer uma breve revisão integrada de todo o curso. Na Unidade 1, estudamos os fundamentos da gestão empresarial: a evolução histórica da administração, as funções administrativas de planejar, organizar, dirigir e controlar, e a cultura, o clima e o ambiente organizacional, que sustentam todo o funcionamento de uma empresa. Na Unidade 2, avançamos para o planejamento estratégico: os níveis estratégico, tático e operacional, a definição de missão, visão, valores e modelo de negócios por meio do Business Model Canvas, a análise de ambiente com a ferramenta SWOT e as cinco forças de Porter, e os indicadores de desempenho organizados pelo Balanced Scorecard. Na Unidade 3, dedicada à gestão de pessoas, estudamos recrutamento, seleção e integração de colaboradores, liderança e motivação, desenvolvimento de equipes e avaliação de desempenho, e encerramos com comunicação organizacional e gestão de conflitos — todos esses temas retomados hoje, ao falarmos de people analytics e de gestão remota e híbrida.","bullets":["Unidade 1: fundamentos, funções administrativas, cultura e clima organizacional","Unidade 2: planejamento estratégico, BMC, SWOT, Porter e Balanced Scorecard","Unidade 3: recrutamento, liderança, desenvolvimento de equipes e comunicação","Temas retomados hoje ao discutirmos people analytics e trabalho remoto"]},{"id":7,"kind":"conteudo","title":"Revisão integrada: Unidades 4 a 6","caption":"Finanças, marketing e operações, e temas avançados","narration":"Na Unidade 4, estudamos a gestão financeira e de custos: os principais demonstrativos financeiros, fluxo de caixa, DRE e Balanço Patrimonial, a gestão de custos e a formação de preços, e o planejamento orçamentário e indicadores financeiros como o ROI e o EBITDA. Na Unidade 5, estudamos marketing, processos e qualidade: os fundamentos de marketing e gestão comercial, com o composto de marketing e o funil de vendas, a gestão de processos, operações e cadeia de suprimentos, incluindo a metodologia Lean, e a gestão da qualidade e produtividade, com o ciclo PDCA e ferramentas como o Diagrama de Ishikawa. E, nesta Unidade 6, nossa última unidade, estudamos temas avançados: os fundamentos da gestão de projetos, com o PMBOK e métodos ágeis como Scrum e Kanban, inovação, empreendedorismo corporativo e transformação digital, ética, responsabilidade social e critérios ESG, e, agora, para fechar, as tendências contemporâneas que acabamos de discutir. Seis unidades, vinte e uma aulas anteriores, e um único fio condutor: transformar conhecimento de gestão em capacidade real de decisão e de ação.","bullets":["Unidade 4: fluxo de caixa, DRE, Balanço Patrimonial, custos e orçamento","Unidade 5: marketing, funil de vendas, processos, Lean, PDCA e qualidade","Unidade 6: gestão de projetos, inovação, ESG e tendências contemporâneas","Um fio condutor: transformar conhecimento em capacidade real de decisão"]},{"id":8,"kind":"conteudo","title":"A estrutura do plano de ação final","caption":"Da teoria à prática, com método","narration":"Para transformar todo esse conteúdo em resultados concretos, vamos estruturar um plano de ação final, utilizando uma lógica que já é familiar a você: a ferramenta 5W2H, estudada nos Capítulos 5 e 18 deste curso. O primeiro passo é escolher, entre todos os temas estudados ao longo do curso, uma ou duas prioridades reais para sua realidade profissional atual: pode ser aprimorar o planejamento estratégico da sua área, estruturar melhor os indicadores financeiros que você acompanha, revisar um processo específico utilizando a metodologia Lean, ou fortalecer práticas de liderança e de gestão de pessoas em sua equipe. O segundo passo é aplicar o 5W2H a cada prioridade escolhida, definindo o que será feito, por que será feito, onde, quando, quem será responsável, como será feito, e quanto custará, se houver custos envolvidos. O terceiro passo é definir uma forma simples de acompanhamento desse plano ao longo do tempo, retomando a lógica do ciclo PDCA, estudado no Capítulo 18: planejar a ação, executá-la, verificar seus resultados após um período razoável, e agir, ajustando o que for necessário, ou consolidando o que funcionou bem como uma nova prática permanente.","bullets":["Passo 1: escolher uma ou duas prioridades reais da sua realidade profissional","Passo 2: aplicar o 5W2H a cada prioridade escolhida","Passo 3: definir forma de acompanhamento, na lógica do ciclo PDCA","Da teoria à prática: transformar aprendizado em ação concreta"]},{"id":9,"kind":"caso","title":"Estudo de caso: o plano de ação final da Metalúrgica Vitória","caption":"Encerrando a trajetória do nosso caso fictício","narration":"Para encerrar nossa jornada, vamos revisitar, pela última vez, a trajetória da Metalúrgica Vitória, nosso caso fictício, criado exclusivamente para fins didáticos, que acompanhamos ao longo de praticamente todo o curso. Ao longo dessas vinte e duas aulas, vimos a empresa reestruturar sua divisão organizacional, definir missão, visão e valores, enfrentar e superar conflitos entre divisões, estruturar seus indicadores financeiros, revisar processos com a metodologia Lean, reposicionar-se estrategicamente com foco em agilidade, adotar métodos ágeis em projetos internos, criar um laboratório de intraempreendedorismo diante de um risco de disrupção digital, e formalizar seu compromisso com ética e critérios ESG. Ao final desse percurso, a diretoria da empresa se reuniu para consolidar um plano de ação final, integrando as principais iniciativas em andamento: acompanhar, trimestralmente, os indicadores do Balanced Scorecard construído ao longo do curso; consolidar a cultura de melhoria contínua iniciada com o ciclo PDCA; e ampliar, gradualmente, o uso de dados e de tecnologia em suas decisões, inspirando-se nas tendências de people analytics e inteligência artificial que estudamos nesta última aula. A trajetória da Metalúrgica Vitória, assim como a sua própria trajetória de aprendizado neste curso, não termina aqui: ela apenas ganha uma base mais sólida para os próximos passos.","bullets":["Trajetória da empresa ao longo de todo o curso: da estrutura à cultura de inovação","Plano de ação final integra as principais iniciativas em andamento","Acompanhamento trimestral do Balanced Scorecard e do ciclo de melhoria contínua","Uso crescente de dados e tecnologia nas decisões, inspirado nas tendências estudadas"]},{"id":10,"kind":"resumo","title":"Pontos-chave da aula","caption":"O que não pode faltar na sua memória","narration":"Vamos recapitular o que vimos hoje. People analytics aplica análise de dados à gestão de pessoas, apoiando decisões mais consistentes, sem substituir o julgamento humano. A gestão remota e híbrida exige comunicação mais estruturada, novas formas de liderança e esforço deliberado para sustentar a cultura organizacional. A inteligência artificial amplia a capacidade de análise e automação em marketing, operações e finanças, mas deve ser utilizada como apoio, e não como substituta da decisão humana. Revisamos, de forma integrada, as seis unidades do curso, dos fundamentos da gestão até os temas avançados de projetos, inovação e ESG. E, por fim, estruturamos um plano de ação final, utilizando a ferramenta 5W2H e a lógica do ciclo PDCA, para transformar o conteúdo deste curso em ações concretas na sua realidade profissional.","bullets":["People analytics, gestão remota/híbrida e inteligência artificial aplicada à gestão","Revisão integrada das seis unidades do curso Gerenciamento Empresarial","Plano de ação final: 5W2H aplicado a prioridades reais","Acompanhamento contínuo por meio do ciclo PDCA"]},{"id":11,"kind":"atividade","title":"Agora é a sua vez: seu plano de ação final","caption":"Atividade de encerramento do curso","narration":"Chegou o momento da nossa atividade final, e ela é especial: você vai elaborar o seu próprio plano de ação, com base em tudo o que estudou ao longo deste curso. Primeiro, escolha uma ou duas prioridades reais da sua vida profissional, relacionadas a qualquer um dos temas que estudamos, desde planejamento estratégico até gestão de pessoas, finanças, marketing, processos, ou os temas avançados desta última unidade. Em seguida, para cada prioridade escolhida, estruture um plano de ação no formato 5W2H: o que será feito, por que, onde, quando, quem será responsável, como será feito, e quanto custará. Por fim, defina como você vai verificar, dentro de alguns meses, se esse plano gerou os resultados esperados, aplicando a lógica do ciclo PDCA que estudamos ao longo do curso. Você pode registrar esse plano de ação no Capítulo vinte e dois do material didático, que reúne, também, um resumo de todo o conteúdo estudado ao longo das seis unidades deste curso.","bullets":["Escolha uma ou duas prioridades reais da sua vida profissional","Estruture um plano de ação no formato 5W2H para cada prioridade","Defina como verificar os resultados, aplicando a lógica do ciclo PDCA"]},{"id":12,"kind":"encerramento","title":"Muito obrigada, e até breve!","caption":"Encerramento do curso Gerenciamento Empresarial","narration":"Chegamos ao final da nossa vigésima segunda e última aula, e também ao final do curso Gerenciamento Empresarial. Ao longo dessas vinte e duas aulas, percorremos os fundamentos da administração, o planejamento estratégico, a gestão de pessoas, a gestão financeira e de custos, marketing, processos e qualidade, e, nesta última unidade, temas avançados como gestão de projetos, inovação, ética e as tendências contemporâneas que estudamos hoje. Gostaria de deixar um convite final: releia o Capítulo vinte e dois do material didático, que traz uma síntese de todo o curso, e não deixe seu plano de ação apenas no papel — releia-o daqui a alguns meses, e verifique, na prática, se ele gerou os resultados que você esperava. A gestão empresarial não é um destino, mas um processo contínuo de aprendizado, de planejamento e de ajuste, muito parecido com o próprio ciclo PDCA que estudamos ao longo deste curso. Muito obrigada pela sua dedicação e pela sua companhia ao longo de toda essa jornada. Eu sou a professora Francisca, e foi um enorme prazer ensinar você. Continue estudando, continue praticando, e continue crescendo. Até uma próxima oportunidade, aqui no DeCastro, o Canal do Conhecimento!","bullets":["Leia o Capítulo 22, com a síntese de todo o curso, e registre seu plano de ação","Revise seu plano de ação daqui a alguns meses, aplicando o ciclo PDCA","Fim do curso Gerenciamento Empresarial — obrigada pela sua dedicação!"]}];
   const capa = document.getElementById('capa');
   const introScroll = document.getElementById('introScroll');
   const stage = document.getElementById('stage');
   const btnStart = document.getElementById('btnStart');
-  const btnPrev = document.getElementById('btnPrev');
-  const btnNext = document.getElementById('btnNext');
   const dotsEl = document.getElementById('dots');
   const sceneCount = document.getElementById('sceneCount');
   const captionText = document.getElementById('captionText');
@@ -342,12 +335,7 @@
   const fullNarration = document.getElementById('fullNarration');
   const avatarWrap = document.getElementById('avatarWrap');
   const profPreview = document.getElementById('profPreview');
-  const btnNarrar = document.getElementById('btnNarrar');
-  const btnNarrarMobile = document.getElementById('btnNarrarMobile');
-  const chkAutoplay = document.getElementById('chkAutoplay');
-  const voiceSelect = document.getElementById('voiceSelect');
   const narrNote = document.getElementById('narrNote');
-  const narrControls = document.getElementById('narrControls');
 
   const KIND_LABEL = {
     abertura: 'Abertura', objetivos: 'Objetivos', conteudo: 'Conteúdo',
@@ -357,136 +345,270 @@
   let current = 0;
   let visited = new Set();
 
+  // Destaque da palavra sendo lida em voz alta, sincronizado com o evento
+  // "onboundary" da Web Speech API (disparado pela maioria das vozes, incluindo
+  // as vozes "Online (Natural)" do Chrome/Edge, a cada palavra falada).
+  let wordSpans = [];
+  let lastActiveWordIndex = -1;
+
   // ---------------- Narração por voz (Web Speech API) ----------------
+  // Mesmo critério de escolha de voz usado no material de matemática que já funciona
+  // bem para o autor: busca direta pela voz chamada "Francisca", sem seletor manual,
+  // sem heurísticas extras e sem trocar de voz no meio do caminho.
   const SUPPORTS_TTS = 'speechSynthesis' in window;
-  let ptVoices = [];
-  let allVoices = [];
-  let knownVoiceNames = []; // última lista de nomes de voz carregada (para detectar mudanças reais)
+  let franciscaVoice = null;
 
-  // Nomes comuns de vozes femininas/masculinas em pt-BR/pt-PT nos principais navegadores e sistemas
-  // (Chrome/Google, Microsoft Edge/Windows, Safari/macOS). A Web Speech API não expõe o "gênero"
-  // da voz de forma padronizada — por isso a escolha é feita por heurística de nome.
-  const FEMALE_HINTS = /maria|luciana|francisca|helena|camila|vit[oó]ria|joana|fernanda|raquel|google\s*português|female|feminin/i;
-  const MALE_HINTS = /daniel|ricardo|felipe|jorge|antonio|antônio|paulo|male(?!f)|masculin/i;
-  const PREFERRED_VOICE_NAME = null;
-
-  function pickBestVoice(list){
-    if (PREFERRED_VOICE_NAME) {
-      const exact = list.find(v => v.name === PREFERRED_VOICE_NAME);
-      if (exact) return exact;
-    }
-    let v = list.find(v => FEMALE_HINTS.test(v.name));
-    if (v) return v;
-    v = list.find(v => !MALE_HINTS.test(v.name));
-    if (v) return v;
-    return list[0] || null;
-  }
-
-  // Carrega/atualiza a lista de vozes do navegador SEM perder a escolha do usuário.
-  // O Chrome pode disparar "voiceschanged" mais de uma vez (inclusive durante a
-  // narração de uma cena) — se recalculássemos a "melhor voz" a cada vez, a voz
-  // escolhida para gravação podia trocar sozinha no meio das aulas. Por isso:
-  // 1) só reconstruímos a lista quando ela realmente mudou; e
-  // 2) se a voz já selecionada continuar disponível, ela é mantida (fixada).
   function loadVoices(){
     if (!SUPPORTS_TTS) return;
-    allVoices = window.speechSynthesis.getVoices() || [];
-    ptVoices = allVoices.filter(v => /^pt/i.test(v.lang));
-    const list = ptVoices.length ? ptVoices : allVoices;
-    if (!list.length) {
-      narrNote.textContent = 'Carregando vozes do navegador…';
-      return;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return;
+    franciscaVoice =
+      voices.find(v => v.name === 'Francisca') ||
+      voices.find(v => v.name.toLowerCase().includes('francisca')) ||
+      voices.find(v => v.lang === 'pt-BR') ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith('pt')) ||
+      null;
+    if (narrNote) {
+      narrNote.textContent = franciscaVoice
+        ? 'Voz: ' + franciscaVoice.name
+        : 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível.';
     }
-
-    const namesNow = list.map(v => v.name).sort().join('|');
-    const namesBefore = knownVoiceNames.slice().sort().join('|');
-    const listUnchanged = namesNow === namesBefore && voiceSelect.options.length > 0;
-    if (listUnchanged) return; // nada mudou: não mexe na seleção atual do usuário
-
-    const previouslySelected = voiceSelect.value;
-    const stillAvailable = previouslySelected && list.some(v => v.name === previouslySelected);
-    const chosen = stillAvailable ? list.find(v => v.name === previouslySelected) : pickBestVoice(list);
-
-    knownVoiceNames = list.map(v => v.name);
-    voiceSelect.innerHTML = '';
-    list.forEach((v) => {
-      const opt = document.createElement('option');
-      opt.value = v.name;
-      opt.textContent = v.name + ' (' + v.lang + ')';
-      if (chosen && v.name === chosen.name) opt.selected = true;
-      voiceSelect.appendChild(opt);
-    });
-
-    if (!ptVoices.length) {
-      narrNote.textContent = 'Nenhuma voz em português foi encontrada neste navegador — usando a voz padrão disponível. Para melhor qualidade, tente abrir em um Chrome ou Edge atualizado, com uma voz em português instalada.';
-    } else if (stillAvailable) {
-      narrNote.textContent = 'Voz fixada: ' + chosen.name + '. Ela será usada em todas as cenas desta aula — para trocar, escolha outra na lista acima.';
-    } else {
-      narrNote.textContent = 'Voz em português selecionada automaticamente: ' + (chosen ? chosen.name : '—') + '. Essa escolha fica fixa em todas as cenas; se preferir outra, escolha na lista acima antes de gravar.';
-    }
-  }
-
-  function getSelectedVoice(){
-    const list = ptVoices.length ? ptVoices : allVoices;
-    return list.find(v => v.name === voiceSelect.value) || pickBestVoice(list);
   }
 
   function setSpeakingUI(on){
     avatarWrap.classList.toggle('speaking', on);
-    const label = on ? '⏹ Parar narração' : '🔊 Ouvir esta cena';
-    btnNarrar.textContent = label;
-    if (btnNarrarMobile) btnNarrarMobile.textContent = label;
+  }
+
+  // Fala uma frase de cada vez — nunca um parágrafo inteiro — igual ao material de
+  // matemática: isso evita chegar perto de qualquer limite de duração de fala contínua.
+  // Só quebramos uma frase sozinha se ela já for longa demais.
+  const TTS_CHUNK_MAX_LEN = 220;
+
+  // Cada pedaço guarda também COMO ele termina: uma frase de verdade (. ! ?) merece uma
+  // pausa perceptível, como uma leitura normal faria entre uma frase e outra. Já uma
+  // quebra técnica no meio de uma frase longa demais (feita numa vírgula, ponto e
+  // vírgula, dois-pontos ou travessão só para não estourar o tamanho do trecho) não é
+  // o fim de um pensamento — por isso leva uma pausa bem mais curta, quase imperceptível,
+  // em vez de soar como se fosse o fim do parágrafo.
+  function splitNarrationIntoChunks(text, maxLen){
+    const sentences = (text.match(/[^.!?]+[.!?]+(\s+|$)/g) || [text]).map(s => s.trim()).filter(Boolean);
+    const chunks = [];
+    for (const sentence of sentences) {
+      if (sentence.length <= maxLen) { chunks.push({ text: sentence, softBreak: false }); continue; }
+      // sentença sozinha já é longa demais: quebra em vírgulas/travessões/dois-pontos —
+      // essas quebras são só técnicas, não pausas reais de fim de frase.
+      const parts = sentence.split(/(?<=,|;|:|—)\s+/);
+      let sbuf = '';
+      for (const part of parts) {
+        if ((sbuf + ' ' + part).trim().length <= maxLen) {
+          sbuf = (sbuf ? sbuf + ' ' : '') + part;
+        } else {
+          if (sbuf) chunks.push({ text: sbuf, softBreak: true });
+          if (part.length > maxLen) {
+            const words = part.split(/\s+/);
+            let wbuf = '';
+            for (const w of words) {
+              if ((wbuf + ' ' + w).trim().length <= maxLen) {
+                wbuf = (wbuf ? wbuf + ' ' : '') + w;
+              } else {
+                if (wbuf) chunks.push({ text: wbuf, softBreak: true });
+                wbuf = w;
+              }
+            }
+            sbuf = wbuf;
+          } else {
+            sbuf = part;
+          }
+        }
+      }
+      // o último pedaço de uma sentença quebrada ainda carrega o ponto final dela
+      if (sbuf) chunks.push({ text: sbuf, softBreak: false });
+    }
+    return chunks.length ? chunks : [{ text, softBreak: false }];
+  }
+
+  let speakQueue = [];
+  let speakQueueIndex = 0;
+  let speakToken = 0; // invalida filas antigas quando uma nova narração começa
+
+  // Fala um único trecho e chama onDone quando ele termina (ou dá erro) — igual à
+  // função speak(text, onEnd) do material de matemática. A única rede de segurança
+  // é para o caso de a fala NUNCA começar (ex.: falha de rede da voz "Online"); uma
+  // vez que ela começa, é o próprio fim da frase (onend) que decide quando parar —
+  // sem nenhum limite de duração, mesmo para frases mais longas.
+  function speakOne(text, token, wordStart, onDone){
+    if (!SUPPORTS_TTS) { onDone(); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'pt-BR';
+    if (franciscaVoice) utter.voice = franciscaVoice;
+    utter.rate = 0.98;
+    utter.pitch = 1.1;
+    let started = false;
+    let settled = false;
+    let wordsSpoken = 0;
+    const finish = () => {
+      if (settled || token !== speakToken) return;
+      settled = true;
+      onDone();
+    };
+    utter.onstart = () => { started = true; setSpeakingUI(true); };
+    utter.onboundary = (e) => {
+      if (token !== speakToken) return;
+      // Algumas vozes disparam apenas eventos de palavra; outras também marcam
+      // frase/sentença — só nos interessa o limite de cada palavra.
+      if (e.name && e.name !== 'word') return;
+      highlightWord(wordStart + wordsSpoken);
+      wordsSpoken++;
+    };
+    utter.onend = finish;
+    utter.onerror = finish;
+    window.speechSynthesis.speak(utter);
+    setTimeout(() => {
+      if (settled || started || token !== speakToken) return; // só age se nunca começou
+      window.speechSynthesis.cancel();
+      finish();
+    }, 5000);
+  }
+
+  // Pausa como numa leitura normal: breve entre frases, quase nenhuma dentro de uma
+  // frase que só foi cortada por ser longa demais.
+  const PAUSE_AFTER_SENTENCE_MS = 220;
+  const PAUSE_AFTER_SOFT_BREAK_MS = 70;
+  // Pausa entre o fim da narração de uma cena e o início automático da próxima —
+  // esta versão não tem botões de navegação: a aula avança sozinha, cena após
+  // cena, até a última, para poder ser gravada em vídeo sem qualquer interação.
+  const PAUSE_BETWEEN_SCENES_MS = 900;
+
+  function speakNextChunk(token){
+    if (token !== speakToken) return; // uma narração mais nova já assumiu
+    if (speakQueueIndex >= speakQueue.length) {
+      setSpeakingUI(false);
+      clearWordHighlight();
+      if (current < SCENES.length - 1) {
+        setTimeout(() => { if (token === speakToken) goTo(current + 1); }, PAUSE_BETWEEN_SCENES_MS);
+      } else {
+        setTimeout(() => { if (token === speakToken) finalizarAula(); }, PAUSE_BETWEEN_SCENES_MS);
+      }
+      return;
+    }
+    const chunk = speakQueue[speakQueueIndex++];
+    speakOne(chunk.text, token, chunk.wordStart, () => {
+      if (token !== speakToken) return;
+      const pause = chunk.softBreak ? PAUSE_AFTER_SOFT_BREAK_MS : PAUSE_AFTER_SENTENCE_MS;
+      setTimeout(() => speakNextChunk(token), pause);
+    });
+  }
+
+  // Algumas palavras estrangeiras travam a síntese de voz em português — em especial
+  // nomes com letras raras na ortografia do português, como o "w". O texto exibido na
+  // tela continua com a grafia correta; só o que é enviado à voz é ajustado para uma
+  // grafia foneticamente parecida que o sintetizador consiga ler sem engasgar.
+  // "Kurt Lewin" foi confirmado como problema real (testado); os demais foram
+  // adicionados de forma preventiva, pelo mesmo padrão — avise se algum ainda travar
+  // ou se algum outro nome causar o mesmo problema, para eu ajustar a lista.
+  const TTS_PRONUNCIATION_FIXES = [
+    { pattern: /Kurt Lewin/g, replacement: 'Curt Levin' },
+    { pattern: /Weber/g, replacement: 'Véber' },
+    { pattern: /Hawthorne/g, replacement: 'Hautorn' },
+    { pattern: /Ishikawa/g, replacement: 'Ishicava' },
+    { pattern: /Maslow/g, replacement: 'Maslou' },
+    { pattern: /Osterwalder/g, replacement: 'Osterválder' },
+    { pattern: /Winslow/g, replacement: 'Uinslou' },
+  ];
+
+  function textForSpeech(text){
+    let out = text;
+    for (const fix of TTS_PRONUNCIATION_FIXES) out = out.replace(fix.pattern, fix.replacement);
+    return out;
   }
 
   function speakScene(text){
     if (!SUPPORTS_TTS) return;
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'pt-BR';
-    const v = getSelectedVoice();
-    if (v) utter.voice = v; // mesma voz fixada em getSelectedVoice() para todas as cenas
-    utter.rate = 0.98;
-    utter.pitch = 1.1;
-    utter.onstart = () => setSpeakingUI(true);
-    utter.onend = () => setSpeakingUI(false);
-    utter.onerror = () => setSpeakingUI(false);
-    window.speechSynthesis.speak(utter);
+    speakToken++;
+    const token = speakToken;
+    speakQueue = splitNarrationIntoChunks(textForSpeech(text), TTS_CHUNK_MAX_LEN);
+    // Cada trecho carrega também em qual palavra (do texto exibido na tela) ele
+    // começa, para o destaque de leitura avançar junto com a fala.
+    let wordCursor = 0;
+    for (const chunk of speakQueue) {
+      const n = chunk.text.trim().split(/\s+/).filter(Boolean).length;
+      chunk.wordStart = wordCursor;
+      wordCursor += n;
+    }
+    speakQueueIndex = 0;
+    clearWordHighlight();
+    setTimeout(() => speakNextChunk(token), 50);
   }
 
   function stopSpeaking(){
+    speakToken++; // invalida qualquer fila em andamento
+    speakQueue = [];
+    speakQueueIndex = 0;
     if (SUPPORTS_TTS) window.speechSynthesis.cancel();
     setSpeakingUI(false);
-  }
-
-  function toggleNarration(){
-    if (window.speechSynthesis.speaking) { stopSpeaking(); return; }
-    speakScene(SCENES[current].narration);
+    clearWordHighlight();
   }
 
   if (SUPPORTS_TTS) {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-    btnNarrar.addEventListener('click', toggleNarration);
-    if (btnNarrarMobile) btnNarrarMobile.addEventListener('click', toggleNarration);
-    voiceSelect.addEventListener('change', () => {
-      // troca manual: vira a nova voz fixada a partir de agora
-      if (window.speechSynthesis.speaking) speakScene(SCENES[current].narration);
-    });
   } else {
-    narrControls.style.display = 'none';
-    if (narrControlsMobileEl()) narrControlsMobileEl().style.display = 'none';
     avatarWrap.insertAdjacentHTML('afterend',
       '<div class="narr-note" style="margin-top:10px;">Este navegador não oferece leitura em voz automática (Web Speech API). Use o roteiro em DOCX para a gravação, ou abra esta aula em um navegador desktop atualizado, como Chrome ou Edge.</div>');
   }
-  function narrControlsMobileEl(){ return document.getElementById('narrControlsMobile'); }
+
+  function escapeHtml(str){
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // Reconstrói o texto da narração envolvendo cada palavra em um <span> numerado,
+  // preservando os espaços originais entre elas, para permitir destacar a palavra
+  // que está sendo lida no momento.
+  function renderNarrationWithWordSpans(text){
+    const tokens = text.split(/(\s+)/);
+    let html = '';
+    let widx = 0;
+    for (const tok of tokens) {
+      if (tok === '') continue;
+      if (/^\s+$/.test(tok)) { html += tok; continue; }
+      html += '<span class="tts-word" data-widx="' + widx + '">' + escapeHtml(tok) + '</span>';
+      widx++;
+    }
+    fullNarration.innerHTML = html;
+    wordSpans = Array.prototype.slice.call(fullNarration.querySelectorAll('.tts-word'));
+    lastActiveWordIndex = -1;
+  }
+
+  function highlightWord(idx){
+    if (idx === lastActiveWordIndex) return;
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    if (idx >= 0 && idx < wordSpans.length) {
+      wordSpans[idx].classList.add('active');
+      wordSpans[idx].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+    lastActiveWordIndex = idx;
+  }
+
+  function clearWordHighlight(){
+    if (lastActiveWordIndex >= 0 && wordSpans[lastActiveWordIndex]) {
+      wordSpans[lastActiveWordIndex].classList.remove('active');
+    }
+    lastActiveWordIndex = -1;
+  }
 
   function renderDots(){
     dotsEl.innerHTML = '';
     SCENES.forEach((s, i) => {
-      const b = document.createElement('button');
+      const b = document.createElement('span');
       b.className = 'dot' + (i === current ? ' active' : '') + (visited.has(i) ? ' done' : '');
       b.title = 'Cena ' + (i+1) + ': ' + s.title;
-      b.addEventListener('click', () => goTo(i));
       dotsEl.appendChild(b);
     });
   }
@@ -499,10 +621,8 @@
     titleText.textContent = s.title;
     bulletsList.innerHTML = s.bullets.map(b => '<li>' + b + '</li>').join('');
     profPreview.textContent = s.narration;
-    fullNarration.textContent = s.narration;
+    renderNarrationWithWordSpans(s.narration);
     sceneCount.textContent = 'Cena ' + (current+1) + ' de ' + SCENES.length;
-    btnPrev.disabled = current === 0;
-    btnNext.textContent = current === SCENES.length - 1 ? 'Concluir aula ✔' : 'Próxima ▶';
     renderDots();
     // volta o scroll do conteúdo ao topo a cada nova cena
     const contentBox = document.querySelector('.content-box');
@@ -511,8 +631,11 @@
     if (stageBody) stageBody.scrollTop = 0;
 
     if (SUPPORTS_TTS) {
+      speakToken++; // invalida qualquer fila de fala pendente da cena anterior
+      speakQueue = [];
+      speakQueueIndex = 0;
       window.speechSynthesis.cancel();
-      if (chkAutoplay.checked) speakScene(s.narration);
+      speakScene(s.narration);
     }
   }
 
@@ -521,31 +644,16 @@
     render();
   }
 
-  btnStart.addEventListener('click', () => {
-    introScroll.style.display = 'none';
-    stage.classList.add('active');
-    current = 0;
-    render();
-  });
-
-  btnPrev.addEventListener('click', () => goTo(current - 1));
-  btnNext.addEventListener('click', () => {
-    if (current === SCENES.length - 1) {
-      if (SUPPORTS_TTS) window.speechSynthesis.cancel();
-      stage.classList.remove('active');
-      introScroll.style.display = '';
-      btnStart.textContent = 'Rever a aula ▶';
-      marcarComoConcluida();
-    } else {
-      goTo(current + 1);
-    }
-  });
-
-  // ---------------- Integração com o Painel (curso.js) ----------------
-  function marcarComoConcluida(){
+  // Chamada quando a narração da última cena termina — não há mais botão de
+  // "Concluir aula" nesta versão (feita para gravação em vídeo, sem cliques),
+  // então a conclusão é detectada automaticamente aqui.
+  function finalizarAula(){
     if (window.Curso) {
       Curso.marcarAulaConcluida(MODULE_NUMBER);
     }
+    stage.classList.remove('active');
+    introScroll.style.display = '';
+    btnStart.textContent = 'Rever a aula ▶';
     const banner = document.getElementById('concluidaBanner');
     const linkProxima = document.getElementById('linkProximaAula');
     if (linkProxima) {
@@ -561,17 +669,18 @@
     if (banner) banner.style.display = '';
   }
 
+  btnStart.addEventListener('click', () => {
+    introScroll.style.display = 'none';
+    stage.classList.add('active');
+    current = 0;
+    render();
+  });
+
   if (window.Curso) {
     Curso.renderAlunoTag(document.getElementById('alunoTag'));
   }
 
-  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) window.speechSynthesis.cancel(); });
-
-  document.addEventListener('keydown', (e) => {
-    if (!stage.classList.contains('active')) return;
-    if (e.key === 'ArrowRight') btnNext.click();
-    if (e.key === 'ArrowLeft') btnPrev.click();
-  });
+  window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) stopSpeaking(); });
 </script>
 
 </body>
