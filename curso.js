@@ -75,6 +75,37 @@
   }
 
   // ---------------------------------------------------------------------
+  // Material didático (capítulos em PDF, um por aula) — hospedados no
+  // Google Drive do professor. Usado no Painel (link "📄 PDF" por aula) e
+  // em cada página de aula (link "Baixar o capítulo em PDF").
+  // ---------------------------------------------------------------------
+  const MATERIAIS = {
+    0: "https://drive.google.com/file/d/1NWCegOKDzSwwyi424EqcoO4jbIA6pBjT/view?usp=sharing",
+    1: "https://drive.google.com/file/d/1RVgnoJw1ymlHuw_O5qcG1Dv3yAnRfw-x/view?usp=sharing",
+    2: "https://drive.google.com/file/d/1Ws6XFHRL1fiWXbnrz_Ims1XJ9GuMjBJG/view?usp=sharing",
+    3: "https://drive.google.com/file/d/1IIHxn3rcuakcaUBaWFUoQD7z2uGg8XLw/view?usp=sharing",
+    4: "https://drive.google.com/file/d/1i5IZYVUT7380MbHnTeq9OM1dNY3On3-F/view?usp=sharing",
+    5: "https://drive.google.com/file/d/1GdksjOQucqVpcscsxqU2a7sXkpuXA0e4/view?usp=sharing",
+    6: "https://drive.google.com/file/d/1jafBWfHFTGnjstB-mk_xPuUEQUx3Ko_A/view?usp=sharing",
+    7: "https://drive.google.com/file/d/1y0ggxb99k40DQIGp9jCoL0-wum-5HzXf/view?usp=sharing",
+    8: "https://drive.google.com/file/d/1ywYauBrHDLXz1LTPatTFTovNsRHjBZKx/view?usp=sharing",
+    9: "https://drive.google.com/file/d/1CQ2tT0Ne6mAgDEWDiJb7nN360-GTz5w2/view?usp=sharing",
+    10: "https://drive.google.com/file/d/1gyZgxxGwFX8pwflgH-kz4-h9wQdkSenv/view?usp=sharing",
+    11: "https://drive.google.com/file/d/12dKlL195eXwX6JYry0zcaQy1QGAfQtJU/view?usp=sharing",
+    12: "https://drive.google.com/file/d/1Ilc6vdaMfFUtaMerDjZjE0aS_c7mMUST/view?usp=sharing",
+    13: "https://drive.google.com/file/d/1cE8GV8N8xtEbLnhsYH38UP9oupbqciAu/view?usp=sharing",
+    14: "https://drive.google.com/file/d/10mFn8D_9_CKcGpaUTmGN7BP6hL7vqM3i/view?usp=sharing",
+    15: "https://drive.google.com/file/d/1IQvD719JRiBZudzwOWG-zVSFcWxs3jge/view?usp=sharing",
+    16: "https://drive.google.com/file/d/1Fq5UFdRB-JfmSqCokuUhlxtqw4fysFCk/view?usp=sharing",
+    17: "https://drive.google.com/file/d/1nedUFyHMsnNNOXesNxkMr7lBfD2if0ue/view?usp=sharing",
+    18: "https://drive.google.com/file/d/1QXRiS1iccaZh6zFEGt0011TOezuJodws/view?usp=sharing",
+    19: "https://drive.google.com/file/d/1U7nTdO-GnFjvxDcHlYDkHJijSIPW_req/view?usp=sharing",
+    20: "https://drive.google.com/file/d/1faBLKPkgvO2fxT4IE7XLJApJdgffp5_E/view?usp=sharing",
+    21: "https://drive.google.com/file/d/1lFTB1blAS7JJ7UXLarndG2PL57ONI6z8/view?usp=sharing",
+    22: "https://drive.google.com/file/d/1oUHVEEaN5Ri1Cpk5Eoxz141tZcEf5Ume/view?usp=sharing",
+  };
+
+  // ---------------------------------------------------------------------
   // 3) IDENTIDADE DO ALUNO (localStorage) — cache local, a planilha é a fonte oficial
   // ---------------------------------------------------------------------
   const LS_ALUNO = "decastro_aluno_v1";
@@ -358,6 +389,7 @@
     isConfigured: isConfigured,
     LESSONS: LESSONS,
     UNIDADES: UNIDADES,
+    MATERIAIS: MATERIAIS,
     aulaFile: aulaFile,
     getAluno: getAluno,
     setAluno: setAluno,

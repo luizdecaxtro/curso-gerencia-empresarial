@@ -91,6 +91,13 @@
   .concluida-btn:hover{ filter:brightness(1.06); }
   .concluida-btn.secondary{ background:rgba(255,255,255,.18); color:#fff; border:1px solid rgba(255,255,255,.5); }
 
+  /* ---- link para baixar o capítulo em PDF (material didático) ---- */
+  .material-download{
+    display:inline-flex; align-items:center; gap:6px; margin-top:.8em; text-decoration:none; font-weight:700; font-size:.72rem;
+    padding:7px 16px; border-radius:999px; background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.4);
+  }
+  .material-download:hover{ background:rgba(255,255,255,.27); }
+
   /* ---- stage ---- */
   .stage{ display:none; flex-direction:column; min-height:0; background:var(--card); border-radius:16px; box-shadow: var(--shadow); overflow:hidden; }
   .stage.active{ display:flex; flex:1 1 auto; }
@@ -261,6 +268,8 @@
         <div class="credits">
           Professor responsável: Luiz de Castro · Narração: Profa. Francisca (personagem)<br>
           Material de apoio: Capítulo 14 do livro do curso "Gerenciamento Empresarial".
+          <br>
+          <a href="#" id="linkMaterial" target="_blank" rel="noopener" class="material-download" style="display:none;">📄 Baixar o Capítulo em PDF</a>
         </div>
         <div class="concluida-banner" id="concluidaBanner" style="display:none;">
           ✔ Aula concluída! Seu progresso foi registrado.
@@ -309,8 +318,10 @@
           </div>
         </div>
       </div>
-      <div class="stage-foot" style="justify-content:center;">
+      <div class="stage-foot">
+        <button type="button" class="navbtn secondary" id="btnPrev">◀ Voltar</button>
         <div class="dots" id="dots"></div>
+        <button type="button" class="navbtn" id="btnNext">Avançar ▶</button>
       </div>
     </section>
 
@@ -336,6 +347,8 @@
   const avatarWrap = document.getElementById('avatarWrap');
   const profPreview = document.getElementById('profPreview');
   const narrNote = document.getElementById('narrNote');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
 
   const KIND_LABEL = {
     abertura: 'Abertura', objetivos: 'Objetivos', conteudo: 'Conteúdo',
@@ -624,6 +637,8 @@
     renderNarrationWithWordSpans(s.narration);
     sceneCount.textContent = 'Cena ' + (current+1) + ' de ' + SCENES.length;
     renderDots();
+    if (btnPrev) btnPrev.disabled = (current === 0);
+    if (btnNext) btnNext.textContent = (current < SCENES.length - 1) ? 'Avançar ▶' : 'Concluir aula ▶';
     // volta o scroll do conteúdo ao topo a cada nova cena
     const contentBox = document.querySelector('.content-box');
     if (contentBox) contentBox.scrollTop = 0;
@@ -669,6 +684,11 @@
     if (banner) banner.style.display = '';
   }
 
+  btnPrev.addEventListener('click', () => { goTo(current - 1); });
+  btnNext.addEventListener('click', () => {
+    if (current < SCENES.length - 1) { goTo(current + 1); } else { finalizarAula(); }
+  });
+
   btnStart.addEventListener('click', () => {
     introScroll.style.display = 'none';
     stage.classList.add('active');
@@ -678,6 +698,13 @@
 
   if (window.Curso) {
     Curso.renderAlunoTag(document.getElementById('alunoTag'));
+    if (Curso.MATERIAIS && Curso.MATERIAIS[MODULE_NUMBER]) {
+      const linkMaterial = document.getElementById('linkMaterial');
+      if (linkMaterial) {
+        linkMaterial.href = Curso.MATERIAIS[MODULE_NUMBER];
+        linkMaterial.style.display = '';
+      }
+    }
   }
 
   window.addEventListener('beforeunload', () => { if (SUPPORTS_TTS) stopSpeaking(); });

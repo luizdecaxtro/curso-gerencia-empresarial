@@ -59,9 +59,12 @@
   .unidade-group{ margin-bottom:14px; }
   .unidade-group h3{ font-size:.78rem; text-transform:uppercase; letter-spacing:.4px; color:var(--ink-soft); margin:0 0 8px; padding-bottom:6px; border-bottom:1px solid var(--line); }
   .aula-row{
-    display:flex; align-items:center; gap:12px; padding:9px 10px; border-radius:10px; text-decoration:none; color:var(--ink);
+    display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:10px;
   }
   .aula-row:hover{ background:var(--teal-light); }
+  .aula-row-link{
+    display:flex; align-items:center; gap:12px; flex:1 1 auto; min-width:0; text-decoration:none; color:var(--ink);
+  }
   .aula-row .num{
     flex:0 0 auto; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
     font-size:.72rem; font-weight:700; background:var(--teal-light); color:var(--teal-dark);
@@ -71,6 +74,11 @@
   .aula-row .status{ flex:0 0 auto; font-size:.68rem; font-weight:700; white-space:nowrap; }
   .aula-row.done .status{ color:var(--teal-dark); }
   .aula-row:not(.done) .status{ color:var(--ink-soft); }
+  .material-link{
+    flex:0 0 auto; font-size:.66rem; font-weight:600; color:var(--teal-dark); background:var(--teal-light);
+    border:1px solid var(--line); border-radius:999px; padding:4px 10px; text-decoration:none; white-space:nowrap;
+  }
+  .material-link:hover{ background:#fff; border-color:var(--teal); }
 
   /* ---- avaliação final ---- */
   #avalCard.locked{ opacity:.7; }
@@ -248,14 +256,28 @@
       groupEl.appendChild(h3);
       aulas.forEach(function(l){
         const done = aulasConcluidas.indexOf(l.n) !== -1;
+        const row = document.createElement('div');
+        row.className = 'aula-row' + (done ? ' done' : '');
         const a = document.createElement('a');
         a.href = Curso.aulaFile(l.n);
-        a.className = 'aula-row' + (done ? ' done' : '');
+        a.className = 'aula-row-link';
         a.innerHTML =
           '<span class="num">' + (done ? '✔' : l.n) + '</span>' +
           '<span class="titulo">Aula ' + l.n + ' — ' + l.titulo + '</span>' +
           '<span class="status">' + (done ? 'Concluída' : 'Assistir ▶') + '</span>';
-        groupEl.appendChild(a);
+        row.appendChild(a);
+        const materialUrl = Curso.MATERIAIS && Curso.MATERIAIS[l.n];
+        if (materialUrl) {
+          const m = document.createElement('a');
+          m.href = materialUrl;
+          m.target = '_blank';
+          m.rel = 'noopener';
+          m.className = 'material-link';
+          m.title = 'Baixar o capítulo ' + l.n + ' em PDF';
+          m.textContent = '📄 PDF';
+          row.appendChild(m);
+        }
+        groupEl.appendChild(row);
       });
       listaEl.appendChild(groupEl);
     });
