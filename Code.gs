@@ -2,13 +2,14 @@
  * Code.gs — backend do curso "Gerenciamento Empresarial" (DeCastro | O Canal do Conhecimento)
  *
  * O QUE ESTE SCRIPT FAZ
+ *  - Identifica o aluno por nome + e-mail, confirmados por um código de 6 dígitos
+ *    enviado por e-mail (sem precisar de conta Google nem de nenhuma configuração
+ *    no Google Cloud — só o Apps Script, a planilha e o Drive, todos gratuitos).
  *  - Guarda o progresso de cada aluno (quais aulas já assistiu) numa planilha Google Sheets.
  *  - Corrige a Avaliação Final (30 questões) no servidor — o gabarito nunca fica exposto
  *    no site, só aqui.
  *  - Aplica a regra de aprovação (nota >= 7) e o prazo de espera de 10 dias para nova tentativa.
  *  - Salva uma cópia em PDF do certificado aprovado numa pasta do Google Drive.
- *  - Confirma a identidade do aluno verificando o token de login do Google a cada chamada
- *    (não confia apenas no e-mail que o navegador envia).
  *
  * COMO PUBLICAR: siga o "Guia de Configuração e Implantação" que acompanha este arquivo.
  * Depois de colar este código no editor do Apps Script, rode a função configurar() uma
@@ -22,13 +23,19 @@
 const NOTA_MINIMA_APROVACAO = 7;
 const DIAS_ESPERA_NOVA_TENTATIVA = 10;
 const TOTAL_AULAS = 23; // aula00 (inaugural) até aula22
-
-// Cole aqui o MESMO Client ID que você colocou em curso.js (CONFIG.GOOGLE_CLIENT_ID).
-// É usado para confirmar que o login realmente veio do Google e foi feito para o seu site.
-const GOOGLE_CLIENT_ID = "COLE_AQUI_O_GOOGLE_CLIENT_ID";
+const MINUTOS_VALIDADE_CODIGO = 10;
+const DIAS_VALIDADE_SESSAO = 30;
 
 const NOME_PLANILHA = "Gerenciamento Empresarial — Dados dos Alunos";
 const NOME_PASTA_CERTIFICADOS = "Certificados — Gerenciamento Empresarial";
+
+// Colunas da aba "Alunos" (nesta ordem). Usar os nomes evita erros de "coluna errada"
+// se um dia você adicionar ou reordenar colunas na planilha.
+const COLUNAS_ALUNOS = [
+  "email", "nome", "aulasConcluidas", "ultimaNota", "aprovado",
+  "tentativasTotais", "podeTentarEm", "certificadoUrl", "certificadoData", "atualizadoEm",
+  "codigoAtual", "codigoExpiraEm", "sessionToken", "sessionExpiraEm",
+];
 
 // =====================================================================
 // 2) GABARITO (30 questões) — fonte única de verdade da correção.
@@ -267,11 +274,17 @@ function configurar() {
   let alunos = ss.getSheetByName("Alunos");
   if (!alunos) {
     alunos = ss.getSheets()[0].setName("Alunos");
-    alunos.appendRow([
-      "email", "nome", "aulasConcluidas", "ultimaNota", "aprovado",
-      "tentativasTotais", "podeTentarEm", "certificadoUrl", "certificadoData", "atualizadoEm",
-    ]);
+    alunos.appendRow(COLUNAS_ALUNOS);
     alunos.setFrozenRows(1);
+  } else {
+    // Garante que colunas novas (de uma atualização deste script) existam também
+    // em planilhas criadas por uma versão anterior.
+    const headerAtual = alunos.getRange(1, 1, 1, alunos.getLastColumn()).getValues()[0];
+    COLUNAS_ALUNOS.forEach(function (nomeColuna, i) {
+      if (headerAtual[i] !== nomeColuna) {
+        alunos.getRange(1, i + 1).setValue(nomeColuna);
+      }
+    });
   }
 
   let tentativas = ss.getSheetByName("Tentativas");
@@ -312,8 +325,10 @@ function doPost(e) {
   const acao = dados.action;
   try {
     switch (acao) {
-      case "login":
-        return jsonResponse(acaoLogin(dados));
+      case "solicitarCodigo":
+        return jsonResponse(acaoSolicitarCodigo(dados));
+      case "confirmarCodigo":
+        return jsonResponse(acaoConfirmarCodigo(dados));
       case "marcarAula":
         return jsonResponse(acaoMarcarAula(dados));
       case "status":
@@ -336,30 +351,7 @@ function jsonResponse(obj) {
 }
 
 // =====================================================================
-// 5) VERIFICAÇÃO DE IDENTIDADE (token do Google)
-// =====================================================================
-// Confirma que o idToken é um login real do Google, feito para o Client ID deste
-// curso e ainda não expirado (dura ~1 hora). Retorna o e-mail confirmado pelo
-// Google, ou null se a verificação falhar.
-function verificarToken(idToken) {
-  if (!idToken) return null;
-  try {
-    const resp = UrlFetchApp.fetch("https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(idToken), {
-      muteHttpExceptions: true,
-    });
-    if (resp.getResponseCode() !== 200) return null;
-    const payload = JSON.parse(resp.getContentText());
-    if (GOOGLE_CLIENT_ID && !GOOGLE_CLIENT_ID.startsWith("COLE_AQUI") && payload.aud !== GOOGLE_CLIENT_ID) return null;
-    if (!payload.email) return null;
-    return payload.email;
-  } catch (err) {
-    Logger.log("Falha ao verificar token: " + err);
-    return null;
-  }
-}
-
-// =====================================================================
-// 6) PLANILHA — helpers
+// 5) PLANILHA — helpers (colunas acessadas pelo nome, não por número)
 // =====================================================================
 function getSheets() {
   const props = PropertiesService.getScriptProperties();
@@ -371,11 +363,19 @@ function getSheets() {
   return { alunos: ss.getSheetByName("Alunos"), tentativas: ss.getSheetByName("Tentativas") };
 }
 
+function mapaColunas(sheet) {
+  const header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const mapa = {};
+  header.forEach(function (nome, i) { mapa[nome] = i; }); // índice baseado em 0
+  return mapa;
+}
+
 function encontrarLinhaAluno(sheet, email) {
   const dados = sheet.getDataRange().getValues();
+  const col = mapaColunas(sheet);
   for (let i = 1; i < dados.length; i++) {
-    if (String(dados[i][0]).toLowerCase() === String(email).toLowerCase()) {
-      return { linha: i + 1, valores: dados[i] };
+    if (String(dados[i][col.email]).toLowerCase() === String(email).toLowerCase()) {
+      return { linha: i + 1, valores: dados[i], col: col };
     }
   }
   return null;
@@ -393,65 +393,150 @@ function lerAulasConcluidas(valor) {
 function nowIso() {
   return new Date().toISOString();
 }
+function addMinutosIso(minutos) {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() + minutos);
+  return d.toISOString();
+}
 function addDiasIso(dias) {
   const d = new Date();
   d.setDate(d.getDate() + dias);
   return d.toISOString();
 }
+function ehBooleano(valor) {
+  return valor === true || valor === "TRUE" || valor === "true";
+}
 
-// Garante que existe uma linha para este aluno; devolve {linha, valores}
+// Garante que existe uma linha para este aluno; devolve {linha, valores, col}
 function garantirAluno(sheet, email, nome) {
   const existente = encontrarLinhaAluno(sheet, email);
   if (existente) {
-    if (nome && existente.valores[1] !== nome) {
-      sheet.getRange(existente.linha, 2).setValue(nome);
+    if (nome && existente.valores[existente.col.nome] !== nome) {
+      sheet.getRange(existente.linha, existente.col.nome + 1).setValue(nome);
     }
     return existente;
   }
-  const novaLinha = [email, nome || "", "", "", false, 0, "", "", "", nowIso()];
+  const col = mapaColunas(sheet);
+  const novaLinha = COLUNAS_ALUNOS.map(function (nomeColuna) {
+    if (nomeColuna === "email") return email;
+    if (nomeColuna === "nome") return nome || "";
+    if (nomeColuna === "aprovado") return false;
+    if (nomeColuna === "tentativasTotais") return 0;
+    if (nomeColuna === "atualizadoEm") return nowIso();
+    return "";
+  });
   sheet.appendRow(novaLinha);
-  return { linha: sheet.getLastRow(), valores: novaLinha };
+  return { linha: sheet.getLastRow(), valores: novaLinha, col: col };
+}
+
+function setCampo(sheet, registro, nomeColuna, valor) {
+  sheet.getRange(registro.linha, registro.col[nomeColuna] + 1).setValue(valor);
+}
+function getCampo(registro, nomeColuna) {
+  return registro.valores[registro.col[nomeColuna]];
+}
+
+// Confirma que o aluno está numa sessão válida (fez login com código de e-mail
+// há menos de DIAS_VALIDADE_SESSAO dias). Retorna o registro do aluno, ou null.
+function verificarSessao(dados) {
+  if (!dados.email || !dados.sessionToken) return null;
+  const { alunos } = getSheets();
+  const registro = encontrarLinhaAluno(alunos, dados.email);
+  if (!registro) return null;
+  const token = getCampo(registro, "sessionToken");
+  const expira = getCampo(registro, "sessionExpiraEm");
+  if (!token || token !== dados.sessionToken) return null;
+  if (!expira || new Date(expira) < new Date()) return null;
+  return registro;
 }
 
 // =====================================================================
-// 7) AÇÕES
+// 6) AÇÕES — login por código de e-mail
 // =====================================================================
-function acaoLogin(dados) {
-  const emailVerificado = verificarToken(dados.idToken);
-  const email = emailVerificado || dados.email; // aceita sem verificação só no 1º login (compatibilidade)
-  if (!email) return { erro: "EMAIL_AUSENTE" };
+function gerarCodigo6Digitos() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function acaoSolicitarCodigo(dados) {
+  const email = String(dados.email || "").trim().toLowerCase();
+  const nome = String(dados.nome || "").trim();
+  if (!email || email.indexOf("@") === -1) return { erro: "EMAIL_INVALIDO" };
+  if (!nome) return { erro: "NOME_AUSENTE" };
+
   const { alunos } = getSheets();
-  garantirAluno(alunos, email, dados.nome);
+  const registro = garantirAluno(alunos, email, nome);
+  const codigo = gerarCodigo6Digitos();
+  setCampo(alunos, registro, "codigoAtual", codigo);
+  setCampo(alunos, registro, "codigoExpiraEm", addMinutosIso(MINUTOS_VALIDADE_CODIGO));
+
+  MailApp.sendEmail({
+    to: email,
+    subject: "Seu código de acesso — Gerenciamento Empresarial (DeCastro)",
+    body:
+      "Olá, " + nome + "!\n\n" +
+      "Seu código de acesso ao curso Gerenciamento Empresarial é: " + codigo + "\n\n" +
+      "Esse código é válido por " + MINUTOS_VALIDADE_CODIGO + " minutos. Se você não pediu este código, pode ignorar este e-mail.\n\n" +
+      "Um abraço,\nEquipe DeCastro | O Canal do Conhecimento",
+  });
+
   return { ok: true };
 }
 
+function acaoConfirmarCodigo(dados) {
+  const email = String(dados.email || "").trim().toLowerCase();
+  const codigo = String(dados.codigo || "").trim();
+  if (!email || !codigo) return { erro: "DADOS_AUSENTES" };
+
+  const { alunos } = getSheets();
+  const registro = encontrarLinhaAluno(alunos, email);
+  if (!registro) return { erro: "CODIGO_INVALIDO" };
+
+  const codigoAtual = getCampo(registro, "codigoAtual");
+  const codigoExpiraEm = getCampo(registro, "codigoExpiraEm");
+  if (!codigoAtual || codigoAtual !== codigo) return { erro: "CODIGO_INVALIDO" };
+  if (!codigoExpiraEm || new Date(codigoExpiraEm) < new Date()) return { erro: "CODIGO_EXPIRADO" };
+
+  const sessionToken = Utilities.getUuid() + Utilities.getUuid();
+  setCampo(alunos, registro, "sessionToken", sessionToken);
+  setCampo(alunos, registro, "sessionExpiraEm", addDiasIso(DIAS_VALIDADE_SESSAO));
+  setCampo(alunos, registro, "codigoAtual", ""); // código de uso único
+  setCampo(alunos, registro, "codigoExpiraEm", "");
+  if (dados.nome) setCampo(alunos, registro, "nome", dados.nome);
+
+  return { ok: true, sessionToken: sessionToken };
+}
+
+// =====================================================================
+// 7) AÇÕES — progresso, avaliação e certificado (exigem sessão válida)
+// =====================================================================
 function acaoMarcarAula(dados) {
-  const email = verificarToken(dados.idToken) || dados.email;
-  if (!email) return { erro: "SESSAO_EXPIRADA" };
+  const registroSessao = verificarSessao(dados);
+  if (!registroSessao) return { erro: "SESSAO_EXPIRADA" };
+
   const aulaNumero = Number(dados.aula);
   if (isNaN(aulaNumero) || aulaNumero < 0 || aulaNumero >= TOTAL_AULAS) {
     return { erro: "AULA_INVALIDA" };
   }
   const { alunos } = getSheets();
-  const registro = garantirAluno(alunos, email, dados.nome);
-  const aulas = new Set(lerAulasConcluidas(registro.valores[2]));
+  const aulas = new Set(lerAulasConcluidas(getCampo(registroSessao, "aulasConcluidas")));
   aulas.add(aulaNumero);
   const listaOrdenada = Array.from(aulas).sort(function (a, b) { return a - b; });
-  alunos.getRange(registro.linha, 3).setValue(listaOrdenada.join(","));
-  alunos.getRange(registro.linha, 10).setValue(nowIso());
+  setCampo(alunos, registroSessao, "aulasConcluidas", listaOrdenada.join(","));
+  setCampo(alunos, registroSessao, "atualizadoEm", nowIso());
   return { ok: true, aulasConcluidas: listaOrdenada };
 }
 
-function montarStatus(valoresAluno) {
-  const aulasConcluidas = lerAulasConcluidas(valoresAluno[2]);
-  const ultimaNota = valoresAluno[3] === "" ? null : Number(valoresAluno[3]);
-  const aprovado = valoresAluno[4] === true || valoresAluno[4] === "TRUE" || valoresAluno[4] === "true";
-  const tentativasTotais = Number(valoresAluno[5] || 0);
-  const podeTentarEm = valoresAluno[6] || null;
-  const certificadoUrl = valoresAluno[7] || null;
+function montarStatus(registro) {
+  const aulasConcluidas = lerAulasConcluidas(getCampo(registro, "aulasConcluidas"));
+  const ultimaNotaValor = getCampo(registro, "ultimaNota");
+  const ultimaNota = ultimaNotaValor === "" ? null : Number(ultimaNotaValor);
+  const aprovado = ehBooleano(getCampo(registro, "aprovado"));
+  const tentativasTotais = Number(getCampo(registro, "tentativasTotais") || 0);
+  const podeTentarEm = getCampo(registro, "podeTentarEm") || null;
+  const certificadoUrl = getCampo(registro, "certificadoUrl") || null;
   return {
-    nome: valoresAluno[1],
-    email: valoresAluno[0],
+    nome: getCampo(registro, "nome"),
+    email: getCampo(registro, "email"),
     aulasConcluidas: aulasConcluidas,
     avaliacao: tentativasTotais > 0 || aprovado
       ? {
@@ -466,29 +551,26 @@ function montarStatus(valoresAluno) {
 }
 
 function acaoStatus(dados) {
-  const email = verificarToken(dados.idToken) || dados.email;
-  if (!email) return { erro: "SESSAO_EXPIRADA" };
-  const { alunos } = getSheets();
-  const registro = garantirAluno(alunos, email, dados.nome);
-  return montarStatus(registro.valores.length ? registro.valores : [email, dados.nome || "", "", "", false, 0, "", "", "", ""]);
+  const registroSessao = verificarSessao(dados);
+  if (!registroSessao) return { erro: "SESSAO_EXPIRADA" };
+  return montarStatus(registroSessao);
 }
 
 function acaoRegistrarAvaliacao(dados) {
-  const email = verificarToken(dados.idToken);
-  if (!email) return { erro: "SESSAO_EXPIRADA" };
+  const registroSessao = verificarSessao(dados);
+  if (!registroSessao) return { erro: "SESSAO_EXPIRADA" };
 
   const { alunos, tentativas } = getSheets();
-  const registro = garantirAluno(alunos, email, dados.nome);
-  const aulasConcluidas = lerAulasConcluidas(registro.valores[2]);
+  const email = getCampo(registroSessao, "email");
+  const aulasConcluidas = lerAulasConcluidas(getCampo(registroSessao, "aulasConcluidas"));
 
   if (aulasConcluidas.length < TOTAL_AULAS) {
     return { erro: "CURSO_INCOMPLETO" };
   }
-  const jaAprovado = registro.valores[4] === true || registro.valores[4] === "TRUE";
-  if (jaAprovado) {
+  if (ehBooleano(getCampo(registroSessao, "aprovado"))) {
     return { erro: "JA_APROVADO" };
   }
-  const podeTentarEm = registro.valores[6];
+  const podeTentarEm = getCampo(registroSessao, "podeTentarEm");
   if (podeTentarEm && new Date(podeTentarEm) > new Date()) {
     return { erro: "BLOQUEADO", podeTentarEm: podeTentarEm };
   }
@@ -511,16 +593,17 @@ function acaoRegistrarAvaliacao(dados) {
   const total = GABARITO.length;
   const nota = Math.round((acertos / total) * 10 * 10) / 10; // 1 casa decimal
   const aprovado = nota >= NOTA_MINIMA_APROVACAO;
-  const tentativasTotais = Number(registro.valores[5] || 0) + 1;
+  const tentativasTotais = Number(getCampo(registroSessao, "tentativasTotais") || 0) + 1;
   const novoPodeTentarEm = aprovado ? "" : addDiasIso(DIAS_ESPERA_NOVA_TENTATIVA);
+  const nome = getCampo(registroSessao, "nome");
 
-  tentativas.appendRow([nowIso(), email, dados.nome || "", JSON.stringify(respostas), acertos, nota, aprovado]);
+  tentativas.appendRow([nowIso(), email, nome, JSON.stringify(respostas), acertos, nota, aprovado]);
 
-  alunos.getRange(registro.linha, 4).setValue(nota); // ultimaNota
-  alunos.getRange(registro.linha, 5).setValue(aprovado); // aprovado
-  alunos.getRange(registro.linha, 6).setValue(tentativasTotais); // tentativasTotais
-  alunos.getRange(registro.linha, 7).setValue(novoPodeTentarEm); // podeTentarEm
-  alunos.getRange(registro.linha, 10).setValue(nowIso()); // atualizadoEm
+  setCampo(alunos, registroSessao, "ultimaNota", nota);
+  setCampo(alunos, registroSessao, "aprovado", aprovado);
+  setCampo(alunos, registroSessao, "tentativasTotais", tentativasTotais);
+  setCampo(alunos, registroSessao, "podeTentarEm", novoPodeTentarEm);
+  setCampo(alunos, registroSessao, "atualizadoEm", nowIso());
 
   return {
     nota: nota,
@@ -535,31 +618,28 @@ function acaoRegistrarAvaliacao(dados) {
 }
 
 function acaoEmitirCertificado(dados) {
-  const email = verificarToken(dados.idToken);
-  if (!email) return { erro: "SESSAO_EXPIRADA" };
+  const registroSessao = verificarSessao(dados);
+  if (!registroSessao) return { erro: "SESSAO_EXPIRADA" };
   if (!dados.pdfBase64) return { erro: "PDF_AUSENTE" };
+  if (!ehBooleano(getCampo(registroSessao, "aprovado"))) return { erro: "NAO_APROVADO" };
 
   const { alunos } = getSheets();
-  const registro = encontrarLinhaAluno(alunos, email);
-  if (!registro) return { erro: "ALUNO_NAO_ENCONTRADO" };
-  const aprovado = registro.valores[4] === true || registro.valores[4] === "TRUE";
-  if (!aprovado) return { erro: "NAO_APROVADO" };
-
   const props = PropertiesService.getScriptProperties();
   const pastaId = props.getProperty("DRIVE_FOLDER_ID");
   if (!pastaId) return { erro: "SCRIPT_NAO_CONFIGURADO" };
   const pasta = DriveApp.getFolderById(pastaId);
 
-  const nome = dados.nome || registro.valores[1] || email;
+  const email = getCampo(registroSessao, "email");
+  const nome = dados.nome || getCampo(registroSessao, "nome") || email;
   const bytes = Utilities.base64Decode(dados.pdfBase64);
   const blob = Utilities.newBlob(bytes, "application/pdf", "Certificado - " + nome + ".pdf");
   const arquivo = pasta.createFile(blob);
   arquivo.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   const url = arquivo.getUrl();
 
-  alunos.getRange(registro.linha, 8).setValue(url); // certificadoUrl
-  alunos.getRange(registro.linha, 9).setValue(nowIso()); // certificadoData
-  alunos.getRange(registro.linha, 10).setValue(nowIso()); // atualizadoEm
+  setCampo(alunos, registroSessao, "certificadoUrl", url);
+  setCampo(alunos, registroSessao, "certificadoData", nowIso());
+  setCampo(alunos, registroSessao, "atualizadoEm", nowIso());
 
   // Envia uma cópia por e-mail ao aluno (opcional — não impede o retorno em caso de falha)
   try {
